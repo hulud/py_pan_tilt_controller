@@ -1,0 +1,1702 @@
+FILE TREE:
+pythonProject1/
+    pelco_D_api.py
+    API_guide.txt
+    ids_camera.py
+    persist.json
+    content_for_AI.py
+    output.txt
+    pan_tilt_calibration.py
+    run_calibration.py
+    tracking.py
+    config.yaml
+    desktop.ini
+    .idea/
+        workspace.xml
+        .gitignore
+        pythonProject1.iml
+        modules.xml
+        misc.xml
+        jupyter-settings.xml
+        desktop.ini
+        inspectionProfiles/
+            Project_Default.xml
+            profiles_settings.xml
+            desktop.ini
+    __pycache__/
+        pelco_D_api.cpython-313.pyc
+        tracking.cpython-313.pyc
+        desktop.ini
+    pan_calibration/
+        pan_enc_0.10_tilt_3.20_offset_0_0_cmd_0.10.jpg
+        pan_enc_0.30_tilt_3.20_offset_747_291_cmd_0.30.jpg
+        pan_enc_0.40_tilt_3.20_offset_744_291_cmd_0.40.jpg
+        pan_enc_0.60_tilt_3.20_offset_731_291_cmd_0.60.jpg
+        pan_enc_0.65_tilt_3.20_offset_726_291_cmd_0.65.jpg
+        pan_enc_0.70_tilt_3.20_offset_724_291_cmd_0.70.jpg
+        pan_enc_0.75_tilt_3.20_offset_723_291_cmd_0.75.jpg
+        pan_enc_0.00_tilt_3.20_offset_760_291_cmd_0.00.jpg
+        pan_enc_0.05_tilt_3.20_offset_760_291_cmd_0.05.jpg
+        pan_enc_0.15_tilt_3.20_offset_756_291_cmd_0.15.jpg
+        pan_enc_0.20_tilt_3.20_offset_754_291_cmd_0.20.jpg
+        pan_enc_0.25_tilt_3.20_offset_750_291_cmd_0.25.jpg
+        pan_enc_0.35_tilt_3.20_offset_745_291_cmd_0.35.jpg
+        pan_enc_0.45_tilt_3.20_offset_741_291_cmd_0.45.jpg
+        pan_enc_0.50_tilt_3.20_offset_738_291_cmd_0.50.jpg
+        pan_enc_0.55_tilt_3.20_offset_734_291_cmd_0.55.jpg
+        pan_enc_0.80_tilt_3.20_offset_720_291_cmd_0.80.jpg
+        pan_enc_0.85_tilt_3.20_offset_718_291_cmd_0.85.jpg
+        pan_enc_0.90_tilt_3.20_offset_715_291_cmd_0.90.jpg
+        pan_enc_0.95_tilt_3.20_offset_711_291_cmd_0.95.jpg
+        pan_enc_1.00_tilt_3.20_offset_0_0_cmd_1.00.jpg
+        pan_enc_1.05_tilt_3.20_offset_0_0_cmd_1.05.jpg
+        pan_enc_1.10_tilt_3.20_offset_0_0_cmd_1.10.jpg
+        pan_enc_1.15_tilt_3.20_offset_0_0_cmd_1.15.jpg
+        pan_enc_1.20_tilt_3.20_offset_0_0_cmd_1.20.jpg
+        pan_enc_1.25_tilt_3.20_offset_0_0_cmd_1.25.jpg
+        pan_enc_1.30_tilt_3.20_offset_0_0_cmd_1.30.jpg
+        pan_enc_1.35_tilt_3.20_offset_0_0_cmd_1.35.jpg
+        pan_enc_1.40_tilt_3.20_offset_0_0_cmd_1.40.jpg
+        pan_enc_1.45_tilt_3.20_offset_0_0_cmd_1.45.jpg
+        pan_enc_1.50_tilt_3.20_offset_0_0_cmd_1.50.jpg
+        pan_enc_1.55_tilt_3.20_offset_0_0_cmd_1.55.jpg
+        pan_enc_1.60_tilt_3.20_offset_0_0_cmd_1.60.jpg
+        pan_enc_1.65_tilt_3.20_offset_0_0_cmd_1.65.jpg
+        pan_enc_1.70_tilt_3.20_offset_0_0_cmd_1.70.jpg
+        pan_enc_1.75_tilt_3.20_offset_0_0_cmd_1.75.jpg
+        pan_enc_1.80_tilt_3.20_offset_0_0_cmd_1.80.jpg
+        pan_enc_1.85_tilt_3.20_offset_0_0_cmd_1.85.jpg
+        pan_enc_1.90_tilt_3.20_offset_0_0_cmd_1.90.jpg
+        pan_enc_1.95_tilt_3.20_offset_0_0_cmd_1.95.jpg
+        pan_enc_2.00_tilt_3.20_offset_0_0_cmd_2.00.jpg
+        pan_enc_2.05_tilt_3.20_offset_0_0_cmd_2.05.jpg
+        pan_enc_2.10_tilt_3.20_offset_0_0_cmd_2.10.jpg
+        pan_enc_2.15_tilt_3.20_offset_0_0_cmd_2.15.jpg
+        pan_enc_2.20_tilt_3.20_offset_0_0_cmd_2.20.jpg
+        pan_enc_2.25_tilt_3.20_offset_0_0_cmd_2.25.jpg
+        pan_enc_2.30_tilt_3.20_offset_0_0_cmd_2.30.jpg
+        pan_enc_2.35_tilt_3.20_offset_0_0_cmd_2.35.jpg
+        pan_enc_2.40_tilt_3.20_offset_0_0_cmd_2.40.jpg
+        pan_enc_2.45_tilt_3.20_offset_0_0_cmd_2.45.jpg
+        pan_enc_2.50_tilt_3.20_offset_0_0_cmd_2.50.jpg
+        pan_enc_2.55_tilt_3.20_offset_615_290_cmd_2.55.jpg
+        pan_enc_2.60_tilt_3.20_offset_0_0_cmd_2.60.jpg
+        pan_enc_2.65_tilt_3.20_offset_0_0_cmd_2.65.jpg
+        pan_enc_2.70_tilt_3.20_offset_0_0_cmd_2.70.jpg
+        pan_enc_2.75_tilt_3.20_offset_0_0_cmd_2.75.jpg
+        pan_enc_2.80_tilt_3.20_offset_0_0_cmd_2.80.jpg
+        pan_enc_2.85_tilt_3.20_offset_0_0_cmd_2.85.jpg
+        pan_enc_2.90_tilt_3.20_offset_0_0_cmd_2.90.jpg
+        pan_enc_2.95_tilt_3.20_offset_0_0_cmd_2.95.jpg
+        pan_enc_3.00_tilt_3.20_offset_0_0_cmd_3.00.jpg
+        pan_enc_3.05_tilt_3.20_offset_0_0_cmd_3.05.jpg
+        pan_enc_3.10_tilt_3.20_offset_0_0_cmd_3.10.jpg
+        pan_enc_3.15_tilt_3.20_offset_0_0_cmd_3.15.jpg
+        pan_enc_3.20_tilt_3.20_offset_0_0_cmd_3.20.jpg
+        pan_enc_3.25_tilt_3.20_offset_0_0_cmd_3.25.jpg
+        pan_enc_3.30_tilt_3.20_offset_0_0_cmd_3.30.jpg
+        pan_enc_3.35_tilt_3.20_offset_0_0_cmd_3.35.jpg
+        pan_enc_3.40_tilt_3.20_offset_0_0_cmd_3.40.jpg
+        pan_enc_3.45_tilt_3.20_offset_0_0_cmd_3.45.jpg
+        pan_enc_3.50_tilt_3.20_offset_0_0_cmd_3.50.jpg
+        pan_enc_3.55_tilt_3.20_offset_0_0_cmd_3.55.jpg
+        pan_enc_3.60_tilt_3.20_offset_0_0_cmd_3.60.jpg
+        pan_enc_3.65_tilt_3.20_offset_0_0_cmd_3.65.jpg
+        pan_enc_3.70_tilt_3.20_offset_0_0_cmd_3.70.jpg
+        pan_enc_3.75_tilt_3.20_offset_0_0_cmd_3.75.jpg
+        pan_enc_3.80_tilt_3.20_offset_0_0_cmd_3.80.jpg
+        pan_enc_3.85_tilt_3.20_offset_0_0_cmd_3.85.jpg
+        pan_enc_3.90_tilt_3.20_offset_0_0_cmd_3.90.jpg
+        pan_enc_3.95_tilt_3.20_offset_0_0_cmd_3.95.jpg
+        pan_enc_4.00_tilt_3.20_offset_0_0_cmd_4.00.jpg
+        pan_enc_4.05_tilt_3.20_offset_0_0_cmd_4.05.jpg
+        pan_enc_4.10_tilt_3.20_offset_0_0_cmd_4.10.jpg
+        pan_enc_4.15_tilt_3.20_offset_0_0_cmd_4.15.jpg
+        pan_enc_4.20_tilt_3.20_offset_0_0_cmd_4.20.jpg
+        pan_enc_4.25_tilt_3.20_offset_0_0_cmd_4.25.jpg
+        pan_enc_4.30_tilt_3.20_offset_0_0_cmd_4.30.jpg
+        pan_enc_4.35_tilt_3.20_offset_0_0_cmd_4.35.jpg
+        pan_enc_4.40_tilt_3.20_offset_0_0_cmd_4.40.jpg
+        pan_enc_4.45_tilt_3.20_offset_0_0_cmd_4.45.jpg
+        pan_enc_4.50_tilt_3.20_offset_0_0_cmd_4.50.jpg
+        pan_enc_4.55_tilt_3.20_offset_0_0_cmd_4.55.jpg
+        pan_enc_4.60_tilt_3.20_offset_0_0_cmd_4.60.jpg
+        pan_enc_4.65_tilt_3.20_offset_0_0_cmd_4.65.jpg
+        pan_enc_4.70_tilt_3.20_offset_0_0_cmd_4.70.jpg
+        pan_enc_4.75_tilt_3.20_offset_0_0_cmd_4.75.jpg
+        pan_enc_4.80_tilt_3.20_offset_0_0_cmd_4.80.jpg
+        pan_enc_4.85_tilt_3.20_offset_0_0_cmd_4.85.jpg
+        pan_enc_4.90_tilt_3.20_offset_0_0_cmd_4.90.jpg
+        pan_enc_4.95_tilt_3.20_offset_0_0_cmd_4.95.jpg
+        pan_enc_5.00_tilt_3.20_offset_0_0_cmd_5.00.jpg
+        pan_enc_2.55_tilt_3.20_offset_0_0_cmd_2.55.jpg
+        pan_enc_2.35_tilt_3.20_offset_617_290_cmd_2.35.jpg
+        pan_enc_0.95_tilt_3.20_offset_0_0_cmd_0.95.jpg
+        pan_enc_0.90_tilt_3.20_offset_0_0_cmd_0.90.jpg
+        pan_enc_0.85_tilt_3.20_offset_0_0_cmd_0.85.jpg
+        pan_enc_0.80_tilt_3.20_offset_0_0_cmd_0.80.jpg
+        pan_enc_0.75_tilt_3.20_offset_0_0_cmd_0.75.jpg
+        pan_enc_0.70_tilt_3.20_offset_0_0_cmd_0.70.jpg
+        pan_enc_0.65_tilt_3.20_offset_0_0_cmd_0.65.jpg
+        pan_enc_0.60_tilt_3.20_offset_0_0_cmd_0.60.jpg
+        pan_enc_0.55_tilt_3.20_offset_721_291_cmd_0.55.jpg
+        pan_enc_0.50_tilt_3.20_offset_725_291_cmd_0.50.jpg
+        pan_enc_0.45_tilt_3.20_offset_728_291_cmd_0.45.jpg
+        pan_enc_0.40_tilt_3.20_offset_731_291_cmd_0.40.jpg
+        pan_enc_0.35_tilt_3.20_offset_735_291_cmd_0.35.jpg
+        pan_enc_0.30_tilt_3.20_offset_739_291_cmd_0.30.jpg
+        pan_enc_0.25_tilt_3.20_offset_740_291_cmd_0.25.jpg
+        pan_enc_0.20_tilt_3.20_offset_742_291_cmd_0.20.jpg
+        pan_enc_0.15_tilt_3.20_offset_745_291_cmd_0.15.jpg
+        pan_enc_0.10_tilt_3.20_offset_749_291_cmd_0.10.jpg
+        pan_enc_0.05_tilt_3.20_offset_753_291_cmd_0.05.jpg
+        pan_enc_0.00_tilt_3.20_offset_756_291_cmd_0.00.jpg
+        pan_enc_-0.05_tilt_3.20_offset_759_291_cmd_-0.05.jpg
+        pan_enc_-0.10_tilt_3.20_offset_762_291_cmd_-0.10.jpg
+        pan_enc_-0.15_tilt_3.20_offset_763_291_cmd_-0.15.jpg
+        pan_enc_-0.20_tilt_3.20_offset_765_291_cmd_-0.20.jpg
+        pan_enc_-0.25_tilt_3.20_offset_768_291_cmd_-0.25.jpg
+        pan_enc_-0.30_tilt_3.20_offset_772_291_cmd_-0.30.jpg
+        pan_enc_-0.35_tilt_3.20_offset_775_291_cmd_-0.35.jpg
+        pan_enc_-0.40_tilt_3.20_offset_780_291_cmd_-0.40.jpg
+        pan_enc_-0.45_tilt_3.20_offset_783_291_cmd_-0.45.jpg
+        pan_enc_-0.50_tilt_3.20_offset_785_291_cmd_-0.50.jpg
+        pan_enc_-0.55_tilt_3.20_offset_787_291_cmd_-0.55.jpg
+        pan_enc_-0.60_tilt_3.20_offset_0_0_cmd_-0.60.jpg
+        pan_enc_-0.65_tilt_3.20_offset_793_291_cmd_-0.65.jpg
+        pan_enc_-0.70_tilt_3.20_offset_797_291_cmd_-0.70.jpg
+        pan_enc_-0.75_tilt_3.20_offset_801_291_cmd_-0.75.jpg
+        pan_enc_-0.80_tilt_3.20_offset_0_0_cmd_-0.80.jpg
+        pan_enc_-0.85_tilt_3.20_offset_0_0_cmd_-0.85.jpg
+        pan_enc_-0.90_tilt_3.20_offset_0_0_cmd_-0.90.jpg
+        pan_enc_-0.95_tilt_3.20_offset_0_0_cmd_-0.95.jpg
+        pan_enc_-1.00_tilt_3.20_offset_0_0_cmd_-1.00.jpg
+        pan_enc_-1.05_tilt_3.20_offset_0_0_cmd_-1.05.jpg
+        pan_enc_-1.10_tilt_3.20_offset_820_292_cmd_-1.10.jpg
+        pan_enc_-1.15_tilt_3.20_offset_0_0_cmd_-1.15.jpg
+        pan_enc_-1.20_tilt_3.20_offset_828_292_cmd_-1.20.jpg
+        pan_enc_-1.25_tilt_3.20_offset_830_292_cmd_-1.25.jpg
+        pan_enc_-1.30_tilt_3.20_offset_831_292_cmd_-1.30.jpg
+        pan_enc_-1.35_tilt_3.20_offset_835_292_cmd_-1.35.jpg
+        pan_enc_-1.40_tilt_3.20_offset_838_292_cmd_-1.40.jpg
+        pan_enc_-1.45_tilt_3.20_offset_841_292_cmd_-1.45.jpg
+        pan_enc_-1.50_tilt_3.20_offset_845_292_cmd_-1.50.jpg
+        pan_enc_-1.55_tilt_3.20_offset_849_292_cmd_-1.55.jpg
+        pan_enc_-1.60_tilt_3.20_offset_852_292_cmd_-1.60.jpg
+        pan_enc_-1.65_tilt_3.20_offset_853_292_cmd_-1.65.jpg
+        pan_enc_-1.70_tilt_3.20_offset_855_292_cmd_-1.70.jpg
+        pan_enc_-1.75_tilt_3.20_offset_858_292_cmd_-1.75.jpg
+        pan_enc_-1.80_tilt_3.20_offset_861_292_cmd_-1.80.jpg
+        pan_enc_-1.85_tilt_3.20_offset_865_292_cmd_-1.85.jpg
+        pan_enc_-1.90_tilt_3.20_offset_870_292_cmd_-1.90.jpg
+        pan_enc_-1.95_tilt_3.20_offset_873_292_cmd_-1.95.jpg
+        pan_enc_-2.00_tilt_3.20_offset_874_292_cmd_-2.00.jpg
+        pan_enc_-2.05_tilt_3.20_offset_876_292_cmd_-2.05.jpg
+        pan_enc_-2.10_tilt_3.20_offset_880_292_cmd_-2.10.jpg
+        pan_enc_-2.15_tilt_3.20_offset_882_292_cmd_-2.15.jpg
+        pan_enc_-2.20_tilt_3.20_offset_886_292_cmd_-2.20.jpg
+        pan_enc_-2.25_tilt_3.20_offset_890_292_cmd_-2.25.jpg
+        pan_enc_-2.30_tilt_3.20_offset_894_292_cmd_-2.30.jpg
+        pan_enc_-2.35_tilt_3.20_offset_896_292_cmd_-2.35.jpg
+        pan_enc_-2.40_tilt_3.20_offset_897_292_cmd_-2.40.jpg
+        pan_enc_-2.45_tilt_3.20_offset_899_292_cmd_-2.45.jpg
+        pan_enc_-2.50_tilt_3.20_offset_903_292_cmd_-2.50.jpg
+        pan_enc_-2.55_tilt_3.20_offset_906_292_cmd_-2.55.jpg
+        pan_enc_-2.60_tilt_3.20_offset_909_292_cmd_-2.60.jpg
+        pan_enc_-2.65_tilt_3.20_offset_914_292_cmd_-2.65.jpg
+        pan_enc_-2.70_tilt_3.20_offset_917_293_cmd_-2.70.jpg
+        pan_enc_-2.75_tilt_3.20_offset_919_292_cmd_-2.75.jpg
+        pan_enc_-2.80_tilt_3.20_offset_921_292_cmd_-2.80.jpg
+        pan_enc_-2.85_tilt_3.20_offset_924_292_cmd_-2.85.jpg
+        pan_enc_-2.90_tilt_3.20_offset_927_292_cmd_-2.90.jpg
+        pan_enc_-2.95_tilt_3.20_offset_931_293_cmd_-2.95.jpg
+        pan_enc_-3.00_tilt_3.20_offset_935_293_cmd_-3.00.jpg
+        pan_enc_-3.05_tilt_3.20_offset_939_293_cmd_-3.05.jpg
+        pan_enc_-3.10_tilt_3.20_offset_941_293_cmd_-3.10.jpg
+        pan_enc_-3.15_tilt_3.20_offset_942_293_cmd_-3.15.jpg
+        pan_enc_-3.20_tilt_3.20_offset_944_293_cmd_-3.20.jpg
+        pan_enc_-3.25_tilt_3.20_offset_947_293_cmd_-3.25.jpg
+        pan_enc_-3.30_tilt_3.20_offset_951_293_cmd_-3.30.jpg
+        pan_enc_-3.35_tilt_3.20_offset_954_293_cmd_-3.35.jpg
+        pan_enc_-3.40_tilt_3.20_offset_959_293_cmd_-3.40.jpg
+        pan_enc_-3.45_tilt_3.20_offset_962_293_cmd_-3.45.jpg
+        pan_enc_-3.50_tilt_3.20_offset_964_293_cmd_-3.50.jpg
+        pan_enc_-3.55_tilt_3.20_offset_965_293_cmd_-3.55.jpg
+        pan_enc_-3.60_tilt_3.20_offset_969_293_cmd_-3.60.jpg
+        pan_enc_-3.65_tilt_3.20_offset_972_293_cmd_-3.65.jpg
+        pan_enc_-3.70_tilt_3.20_offset_976_293_cmd_-3.70.jpg
+        pan_enc_-3.75_tilt_3.20_offset_980_293_cmd_-3.75.jpg
+        pan_enc_-3.80_tilt_3.20_offset_984_293_cmd_-3.80.jpg
+        pan_enc_-3.85_tilt_3.20_offset_986_293_cmd_-3.85.jpg
+        pan_enc_-3.90_tilt_3.20_offset_987_293_cmd_-3.90.jpg
+        pan_enc_-3.95_tilt_3.20_offset_989_293_cmd_-3.95.jpg
+        pan_enc_-4.00_tilt_3.20_offset_993_293_cmd_-4.00.jpg
+        pan_enc_-4.05_tilt_3.20_offset_996_293_cmd_-4.05.jpg
+        pan_enc_-4.10_tilt_3.20_offset_999_293_cmd_-4.10.jpg
+        pan_enc_-4.15_tilt_3.20_offset_1004_293_cmd_-4.15.jpg
+        pan_enc_-4.20_tilt_3.20_offset_1007_293_cmd_-4.20.jpg
+        pan_enc_-4.25_tilt_3.20_offset_1009_293_cmd_-4.25.jpg
+        pan_enc_-4.30_tilt_3.20_offset_1010_293_cmd_-4.30.jpg
+        pan_enc_-4.35_tilt_3.20_offset_1014_293_cmd_-4.35.jpg
+        pan_enc_-4.40_tilt_3.20_offset_1017_293_cmd_-4.40.jpg
+        pan_enc_-4.45_tilt_3.20_offset_1021_293_cmd_-4.45.jpg
+        pan_enc_-4.50_tilt_3.20_offset_1025_293_cmd_-4.50.jpg
+        pan_enc_-4.55_tilt_3.20_offset_1029_293_cmd_-4.55.jpg
+        pan_enc_-4.60_tilt_3.20_offset_1031_293_cmd_-4.60.jpg
+        pan_enc_-4.65_tilt_3.20_offset_1032_293_cmd_-4.65.jpg
+        pan_enc_-4.70_tilt_3.20_offset_1035_293_cmd_-4.70.jpg
+        pan_enc_-4.75_tilt_3.20_offset_1038_293_cmd_-4.75.jpg
+        pan_enc_-4.80_tilt_3.20_offset_1041_293_cmd_-4.80.jpg
+        pan_enc_-4.85_tilt_3.20_offset_1045_294_cmd_-4.85.jpg
+        pan_enc_-4.90_tilt_3.20_offset_1050_294_cmd_-4.90.jpg
+        pan_enc_-4.95_tilt_3.20_offset_1053_294_cmd_-4.95.jpg
+        pan_enc_-5.00_tilt_3.20_offset_1055_294_cmd_-5.00.jpg
+    tilt_calibration/
+        tilt_enc_3.20_pan_0.00_offset_1057_294_cmd_3.20.jpg
+        tilt_enc_3.25_pan_0.00_offset_765_291_cmd_3.25.jpg
+        tilt_enc_3.30_pan_0.00_offset_765_294_cmd_3.30.jpg
+        tilt_enc_3.35_pan_0.00_offset_0_0_cmd_3.35.jpg
+        tilt_enc_3.40_pan_0.00_offset_0_0_cmd_3.40.jpg
+        tilt_enc_3.45_pan_0.00_offset_0_0_cmd_3.45.jpg
+        tilt_enc_3.50_pan_0.00_offset_765_305_cmd_3.50.jpg
+        tilt_enc_3.55_pan_0.00_offset_765_308_cmd_3.55.jpg
+        tilt_enc_3.60_pan_0.00_offset_765_311_cmd_3.60.jpg
+        tilt_enc_3.65_pan_0.00_offset_765_314_cmd_3.65.jpg
+        tilt_enc_3.70_pan_0.00_offset_0_0_cmd_3.70.jpg
+        tilt_enc_3.75_pan_0.00_offset_0_0_cmd_3.75.jpg
+        tilt_enc_3.80_pan_0.00_offset_0_0_cmd_3.80.jpg
+        tilt_enc_3.85_pan_0.00_offset_0_0_cmd_3.85.jpg
+        tilt_enc_3.90_pan_0.00_offset_0_0_cmd_3.90.jpg
+        tilt_enc_3.95_pan_0.00_offset_766_330_cmd_3.95.jpg
+        tilt_enc_4.00_pan_0.00_offset_766_334_cmd_4.00.jpg
+        tilt_enc_4.05_pan_0.00_offset_766_336_cmd_4.05.jpg
+        tilt_enc_4.10_pan_0.00_offset_766_339_cmd_4.10.jpg
+        tilt_enc_4.15_pan_0.00_offset_766_340_cmd_4.15.jpg
+        tilt_enc_4.20_pan_0.00_offset_766_345_cmd_4.20.jpg
+        tilt_enc_4.25_pan_0.00_offset_0_0_cmd_4.25.jpg
+        tilt_enc_4.30_pan_0.00_offset_766_351_cmd_4.30.jpg
+        tilt_enc_4.35_pan_0.00_offset_766_353_cmd_4.35.jpg
+        tilt_enc_4.40_pan_0.00_offset_766_357_cmd_4.40.jpg
+        tilt_enc_4.45_pan_0.00_offset_766_360_cmd_4.45.jpg
+        tilt_enc_4.50_pan_0.00_offset_766_363_cmd_4.50.jpg
+        tilt_enc_4.55_pan_0.00_offset_766_366_cmd_4.55.jpg
+        tilt_enc_4.60_pan_0.00_offset_0_0_cmd_4.60.jpg
+        tilt_enc_4.65_pan_0.00_offset_766_370_cmd_4.65.jpg
+        tilt_enc_4.70_pan_0.00_offset_766_375_cmd_4.70.jpg
+        tilt_enc_4.75_pan_0.00_offset_0_0_cmd_4.75.jpg
+        tilt_enc_4.80_pan_0.00_offset_0_0_cmd_4.80.jpg
+        tilt_enc_4.85_pan_0.00_offset_0_0_cmd_4.85.jpg
+        tilt_enc_4.90_pan_0.00_offset_766_386_cmd_4.90.jpg
+        tilt_enc_4.95_pan_0.00_offset_766_389_cmd_4.95.jpg
+        tilt_enc_5.00_pan_0.00_offset_766_392_cmd_5.00.jpg
+        tilt_enc_5.05_pan_0.00_offset_766_395_cmd_5.05.jpg
+        tilt_enc_5.10_pan_0.00_offset_0_0_cmd_5.10.jpg
+        tilt_enc_5.15_pan_0.00_offset_767_401_cmd_5.15.jpg
+        tilt_enc_5.20_pan_0.00_offset_767_404_cmd_5.20.jpg
+        tilt_enc_5.25_pan_0.00_offset_767_407_cmd_5.25.jpg
+        tilt_enc_5.30_pan_0.00_offset_767_410_cmd_5.30.jpg
+        tilt_enc_5.35_pan_0.00_offset_767_412_cmd_5.35.jpg
+        tilt_enc_5.40_pan_0.00_offset_0_0_cmd_5.40.jpg
+        tilt_enc_5.45_pan_0.00_offset_767_418_cmd_5.45.jpg
+        tilt_enc_5.50_pan_0.00_offset_767_421_cmd_5.50.jpg
+        tilt_enc_5.55_pan_0.00_offset_767_424_cmd_5.55.jpg
+        tilt_enc_5.60_pan_0.00_offset_767_427_cmd_5.60.jpg
+        tilt_enc_5.65_pan_0.00_offset_767_430_cmd_5.65.jpg
+        tilt_enc_5.70_pan_0.00_offset_767_433_cmd_5.70.jpg
+        tilt_enc_5.75_pan_0.00_offset_0_0_cmd_5.75.jpg
+        tilt_enc_5.80_pan_0.00_offset_767_438_cmd_5.80.jpg
+        tilt_enc_5.85_pan_0.00_offset_0_0_cmd_5.85.jpg
+        tilt_enc_5.90_pan_0.00_offset_767_444_cmd_5.90.jpg
+        tilt_enc_5.95_pan_0.00_offset_767_447_cmd_5.95.jpg
+        tilt_enc_6.00_pan_0.00_offset_767_450_cmd_6.00.jpg
+        tilt_enc_6.05_pan_0.00_offset_767_453_cmd_6.05.jpg
+        tilt_enc_6.10_pan_0.00_offset_768_456_cmd_6.10.jpg
+        tilt_enc_6.15_pan_0.00_offset_768_459_cmd_6.15.jpg
+        tilt_enc_6.20_pan_0.00_offset_768_462_cmd_6.20.jpg
+        tilt_enc_6.25_pan_0.00_offset_768_464_cmd_6.25.jpg
+        tilt_enc_6.30_pan_0.00_offset_0_0_cmd_6.30.jpg
+        tilt_enc_6.35_pan_0.00_offset_768_470_cmd_6.35.jpg
+        tilt_enc_6.40_pan_0.00_offset_768_473_cmd_6.40.jpg
+        tilt_enc_6.45_pan_0.00_offset_768_476_cmd_6.45.jpg
+        tilt_enc_6.50_pan_0.00_offset_768_479_cmd_6.50.jpg
+        tilt_enc_6.55_pan_0.00_offset_768_482_cmd_6.55.jpg
+        tilt_enc_6.60_pan_0.00_offset_768_485_cmd_6.60.jpg
+        tilt_enc_6.65_pan_0.00_offset_768_487_cmd_6.65.jpg
+        tilt_enc_6.70_pan_0.00_offset_768_490_cmd_6.70.jpg
+        tilt_enc_6.75_pan_0.00_offset_0_0_cmd_6.75.jpg
+        tilt_enc_6.80_pan_0.00_offset_768_496_cmd_6.80.jpg
+        tilt_enc_6.85_pan_0.00_offset_768_499_cmd_6.85.jpg
+        tilt_enc_6.90_pan_0.00_offset_768_502_cmd_6.90.jpg
+        tilt_enc_6.95_pan_0.00_offset_769_505_cmd_6.95.jpg
+        tilt_enc_7.00_pan_0.00_offset_769_508_cmd_7.00.jpg
+        tilt_enc_7.05_pan_0.00_offset_769_511_cmd_7.05.jpg
+        tilt_enc_7.10_pan_0.00_offset_769_514_cmd_7.10.jpg
+        tilt_enc_7.15_pan_0.00_offset_769_517_cmd_7.15.jpg
+        tilt_enc_7.20_pan_0.00_offset_769_520_cmd_7.20.jpg
+        tilt_enc_7.25_pan_0.00_offset_769_522_cmd_7.25.jpg
+        tilt_enc_7.30_pan_0.00_offset_769_525_cmd_7.30.jpg
+        tilt_enc_7.35_pan_0.00_offset_769_528_cmd_7.35.jpg
+        tilt_enc_7.40_pan_0.00_offset_769_531_cmd_7.40.jpg
+        tilt_enc_7.45_pan_0.00_offset_769_534_cmd_7.45.jpg
+        tilt_enc_7.50_pan_0.00_offset_769_537_cmd_7.50.jpg
+        tilt_enc_7.55_pan_0.00_offset_769_537_cmd_7.55.jpg
+        tilt_enc_7.60_pan_0.00_offset_0_0_cmd_7.60.jpg
+        tilt_enc_7.65_pan_0.00_offset_770_546_cmd_7.65.jpg
+        tilt_enc_7.70_pan_0.00_offset_0_0_cmd_7.70.jpg
+        tilt_enc_7.75_pan_0.00_offset_769_551_cmd_7.75.jpg
+        tilt_enc_7.80_pan_0.00_offset_770_554_cmd_7.80.jpg
+        tilt_enc_7.85_pan_0.00_offset_770_557_cmd_7.85.jpg
+        tilt_enc_7.90_pan_0.00_offset_770_560_cmd_7.90.jpg
+        tilt_enc_7.95_pan_0.00_offset_770_563_cmd_7.95.jpg
+        tilt_enc_8.00_pan_0.00_offset_770_566_cmd_8.00.jpg
+        tilt_enc_8.05_pan_0.00_offset_770_569_cmd_8.05.jpg
+        tilt_enc_8.10_pan_0.00_offset_770_572_cmd_8.10.jpg
+        tilt_enc_8.15_pan_0.00_offset_770_575_cmd_8.15.jpg
+        tilt_enc_8.20_pan_0.00_offset_770_577_cmd_8.20.jpg
+        tilt_enc_8.20_pan_0.00_offset_770_580_cmd_8.20.jpg
+        tilt_enc_8.15_pan_0.00_offset_770_580_cmd_8.15.jpg
+        tilt_enc_8.10_pan_0.00_offset_770_578_cmd_8.10.jpg
+        tilt_enc_8.05_pan_0.00_offset_0_0_cmd_8.05.jpg
+        tilt_enc_8.00_pan_0.00_offset_770_573_cmd_8.00.jpg
+        tilt_enc_7.95_pan_0.00_offset_770_570_cmd_7.95.jpg
+        tilt_enc_7.90_pan_0.00_offset_770_567_cmd_7.90.jpg
+        tilt_enc_7.85_pan_0.00_offset_770_564_cmd_7.85.jpg
+        tilt_enc_7.80_pan_0.00_offset_770_561_cmd_7.80.jpg
+        tilt_enc_7.75_pan_0.00_offset_770_558_cmd_7.75.jpg
+        tilt_enc_7.65_pan_0.00_offset_0_0_cmd_7.65.jpg
+        tilt_enc_7.60_pan_0.00_offset_770_550_cmd_7.60.jpg
+        tilt_enc_7.55_pan_0.00_offset_769_547_cmd_7.55.jpg
+        tilt_enc_7.50_pan_0.00_offset_769_544_cmd_7.50.jpg
+        tilt_enc_7.45_pan_0.00_offset_769_541_cmd_7.45.jpg
+        tilt_enc_7.40_pan_0.00_offset_769_538_cmd_7.40.jpg
+        tilt_enc_7.35_pan_0.00_offset_769_535_cmd_7.35.jpg
+        tilt_enc_7.30_pan_0.00_offset_0_0_cmd_7.30.jpg
+        tilt_enc_7.25_pan_0.00_offset_769_529_cmd_7.25.jpg
+        tilt_enc_7.20_pan_0.00_offset_769_529_cmd_7.20.jpg
+        tilt_enc_7.15_pan_0.00_offset_769_524_cmd_7.15.jpg
+        tilt_enc_7.10_pan_0.00_offset_769_521_cmd_7.10.jpg
+        tilt_enc_7.05_pan_0.00_offset_769_518_cmd_7.05.jpg
+        tilt_enc_7.00_pan_0.00_offset_769_517_cmd_7.00.jpg
+        tilt_enc_6.95_pan_0.00_offset_768_512_cmd_6.95.jpg
+        tilt_enc_6.90_pan_0.00_offset_769_509_cmd_6.90.jpg
+        tilt_enc_6.85_pan_0.00_offset_0_0_cmd_6.85.jpg
+        tilt_enc_6.80_pan_0.00_offset_769_503_cmd_6.80.jpg
+        tilt_enc_6.75_pan_0.00_offset_769_500_cmd_6.75.jpg
+        tilt_enc_6.70_pan_0.00_offset_768_500_cmd_6.70.jpg
+        tilt_enc_6.65_pan_0.00_offset_0_0_cmd_6.65.jpg
+        tilt_enc_6.60_pan_0.00_offset_768_492_cmd_6.60.jpg
+        tilt_enc_6.55_pan_0.00_offset_768_489_cmd_6.55.jpg
+        tilt_enc_6.50_pan_0.00_offset_768_487_cmd_6.50.jpg
+        tilt_enc_6.45_pan_0.00_offset_768_483_cmd_6.45.jpg
+        tilt_enc_6.40_pan_0.00_offset_768_481_cmd_6.40.jpg
+        tilt_enc_6.35_pan_0.00_offset_768_477_cmd_6.35.jpg
+        tilt_enc_6.30_pan_0.00_offset_768_474_cmd_6.30.jpg
+        tilt_enc_6.25_pan_0.00_offset_0_0_cmd_6.25.jpg
+        tilt_enc_6.20_pan_0.00_offset_768_468_cmd_6.20.jpg
+        tilt_enc_6.15_pan_0.00_offset_768_465_cmd_6.15.jpg
+        tilt_enc_6.10_pan_0.00_offset_0_0_cmd_6.10.jpg
+        tilt_enc_6.05_pan_0.00_offset_768_460_cmd_6.05.jpg
+        tilt_enc_6.00_pan_0.00_offset_0_0_cmd_6.00.jpg
+        tilt_enc_5.95_pan_0.00_offset_767_454_cmd_5.95.jpg
+        tilt_enc_5.90_pan_0.00_offset_767_451_cmd_5.90.jpg
+        tilt_enc_5.85_pan_0.00_offset_767_448_cmd_5.85.jpg
+        tilt_enc_5.80_pan_0.00_offset_767_445_cmd_5.80.jpg
+        tilt_enc_5.75_pan_0.00_offset_767_442_cmd_5.75.jpg
+        tilt_enc_5.70_pan_0.00_offset_767_439_cmd_5.70.jpg
+        tilt_enc_5.65_pan_0.00_offset_0_0_cmd_5.65.jpg
+        tilt_enc_5.60_pan_0.00_offset_767_434_cmd_5.60.jpg
+        tilt_enc_5.55_pan_0.00_offset_767_431_cmd_5.55.jpg
+        tilt_enc_5.50_pan_0.00_offset_0_0_cmd_5.50.jpg
+        tilt_enc_5.45_pan_0.00_offset_767_425_cmd_5.45.jpg
+        tilt_enc_5.40_pan_0.00_offset_767_422_cmd_5.40.jpg
+        tilt_enc_5.35_pan_0.00_offset_0_0_cmd_5.35.jpg
+        tilt_enc_5.30_pan_0.00_offset_0_0_cmd_5.30.jpg
+        tilt_enc_5.25_pan_0.00_offset_767_413_cmd_5.25.jpg
+        tilt_enc_5.20_pan_0.00_offset_767_411_cmd_5.20.jpg
+        tilt_enc_5.15_pan_0.00_offset_767_408_cmd_5.15.jpg
+        tilt_enc_5.10_pan_0.00_offset_767_406_cmd_5.10.jpg
+        tilt_enc_5.05_pan_0.00_offset_766_402_cmd_5.05.jpg
+        tilt_enc_5.00_pan_0.00_offset_766_399_cmd_5.00.jpg
+        tilt_enc_4.95_pan_0.00_offset_766_396_cmd_4.95.jpg
+        tilt_enc_4.90_pan_0.00_offset_0_0_cmd_4.90.jpg
+        tilt_enc_4.80_pan_0.00_offset_766_390_cmd_4.80.jpg
+        tilt_enc_4.75_pan_0.00_offset_766_385_cmd_4.75.jpg
+        tilt_enc_4.70_pan_0.00_offset_766_382_cmd_4.70.jpg
+        tilt_enc_4.65_pan_0.00_offset_766_379_cmd_4.65.jpg
+        tilt_enc_4.60_pan_0.00_offset_766_376_cmd_4.60.jpg
+        tilt_enc_4.55_pan_0.00_offset_766_373_cmd_4.55.jpg
+        tilt_enc_4.50_pan_0.00_offset_766_370_cmd_4.50.jpg
+        tilt_enc_4.45_pan_0.00_offset_766_368_cmd_4.45.jpg
+        tilt_enc_4.40_pan_0.00_offset_766_364_cmd_4.40.jpg
+        tilt_enc_4.35_pan_0.00_offset_0_0_cmd_4.35.jpg
+        tilt_enc_4.30_pan_0.00_offset_0_0_cmd_4.30.jpg
+        tilt_enc_4.25_pan_0.00_offset_766_356_cmd_4.25.jpg
+        tilt_enc_4.20_pan_0.00_offset_766_353_cmd_4.20.jpg
+        tilt_enc_4.15_pan_0.00_offset_766_350_cmd_4.15.jpg
+        tilt_enc_4.10_pan_0.00_offset_766_347_cmd_4.10.jpg
+        tilt_enc_4.05_pan_0.00_offset_766_344_cmd_4.05.jpg
+        tilt_enc_4.00_pan_0.00_offset_766_342_cmd_4.00.jpg
+        tilt_enc_3.95_pan_0.00_offset_766_338_cmd_3.95.jpg
+        tilt_enc_3.90_pan_0.00_offset_766_335_cmd_3.90.jpg
+        tilt_enc_3.85_pan_0.00_offset_765_333_cmd_3.85.jpg
+        tilt_enc_3.80_pan_0.00_offset_765_330_cmd_3.80.jpg
+        tilt_enc_3.75_pan_0.00_offset_765_327_cmd_3.75.jpg
+        tilt_enc_3.70_pan_0.00_offset_765_324_cmd_3.70.jpg
+        tilt_enc_3.65_pan_0.00_offset_765_321_cmd_3.65.jpg
+        tilt_enc_3.60_pan_0.00_offset_765_318_cmd_3.60.jpg
+        tilt_enc_3.55_pan_0.00_offset_765_315_cmd_3.55.jpg
+        tilt_enc_3.50_pan_0.00_offset_765_312_cmd_3.50.jpg
+        tilt_enc_3.30_pan_0.00_offset_0_0_cmd_3.30.jpg
+        tilt_enc_3.25_pan_0.00_offset_765_298_cmd_3.25.jpg
+        tilt_enc_3.20_pan_0.00_offset_765_295_cmd_3.20.jpg
+        tilt_enc_3.15_pan_0.00_offset_765_292_cmd_3.15.jpg
+        tilt_enc_3.10_pan_0.00_offset_765_289_cmd_3.10.jpg
+        tilt_enc_3.05_pan_0.00_offset_765_286_cmd_3.05.jpg
+        tilt_enc_3.00_pan_0.00_offset_765_283_cmd_3.00.jpg
+        tilt_enc_2.95_pan_0.00_offset_0_0_cmd_2.95.jpg
+        tilt_enc_2.90_pan_0.00_offset_0_0_cmd_2.90.jpg
+        tilt_enc_2.85_pan_0.00_offset_0_0_cmd_2.85.jpg
+        tilt_enc_2.80_pan_0.00_offset_765_272_cmd_2.80.jpg
+        tilt_enc_2.75_pan_0.00_offset_765_269_cmd_2.75.jpg
+        tilt_enc_2.70_pan_0.00_offset_765_266_cmd_2.70.jpg
+        tilt_enc_2.65_pan_0.00_offset_0_0_cmd_2.65.jpg
+        tilt_enc_2.60_pan_0.00_offset_765_260_cmd_2.60.jpg
+        tilt_enc_2.55_pan_0.00_offset_765_257_cmd_2.55.jpg
+        tilt_enc_2.50_pan_0.00_offset_0_0_cmd_2.50.jpg
+        tilt_enc_2.45_pan_0.00_offset_0_0_cmd_2.45.jpg
+        tilt_enc_2.40_pan_0.00_offset_765_250_cmd_2.40.jpg
+        tilt_enc_2.35_pan_0.00_offset_765_246_cmd_2.35.jpg
+        tilt_enc_2.30_pan_0.00_offset_765_243_cmd_2.30.jpg
+        tilt_enc_2.25_pan_0.00_offset_765_240_cmd_2.25.jpg
+        tilt_enc_2.20_pan_0.00_offset_765_237_cmd_2.20.jpg
+        tilt_enc_2.15_pan_0.00_offset_765_234_cmd_2.15.jpg
+        tilt_enc_2.10_pan_0.00_offset_765_231_cmd_2.10.jpg
+        tilt_enc_2.05_pan_0.00_offset_765_229_cmd_2.05.jpg
+        tilt_enc_2.00_pan_0.00_offset_765_226_cmd_2.00.jpg
+        tilt_enc_1.95_pan_0.00_offset_764_223_cmd_1.95.jpg
+        tilt_enc_1.90_pan_0.00_offset_764_220_cmd_1.90.jpg
+        tilt_enc_1.85_pan_0.00_offset_764_217_cmd_1.85.jpg
+        tilt_enc_1.80_pan_0.00_offset_764_214_cmd_1.80.jpg
+        tilt_enc_1.75_pan_0.00_offset_0_0_cmd_1.75.jpg
+        tilt_enc_1.70_pan_0.00_offset_0_0_cmd_1.70.jpg
+        tilt_enc_1.65_pan_0.00_offset_0_0_cmd_1.65.jpg
+        tilt_enc_1.60_pan_0.00_offset_764_203_cmd_1.60.jpg
+        tilt_enc_1.55_pan_0.00_offset_764_200_cmd_1.55.jpg
+        tilt_enc_1.50_pan_0.00_offset_764_197_cmd_1.50.jpg
+        tilt_enc_1.45_pan_0.00_offset_0_0_cmd_1.45.jpg
+        tilt_enc_1.40_pan_0.00_offset_0_0_cmd_1.40.jpg
+        tilt_enc_1.35_pan_0.00_offset_0_0_cmd_1.35.jpg
+        tilt_enc_1.30_pan_0.00_offset_0_0_cmd_1.30.jpg
+        tilt_enc_1.25_pan_0.00_offset_764_183_cmd_1.25.jpg
+        tilt_enc_1.20_pan_0.00_offset_764_180_cmd_1.20.jpg
+        tilt_enc_1.15_pan_0.00_offset_764_177_cmd_1.15.jpg
+        tilt_enc_1.10_pan_0.00_offset_764_174_cmd_1.10.jpg
+        tilt_enc_1.05_pan_0.00_offset_764_171_cmd_1.05.jpg
+        tilt_enc_1.00_pan_0.00_offset_0_0_cmd_1.00.jpg
+        tilt_enc_0.95_pan_0.00_offset_0_0_cmd_0.95.jpg
+        tilt_enc_0.90_pan_0.00_offset_0_0_cmd_0.90.jpg
+        tilt_enc_0.85_pan_0.00_offset_764_160_cmd_0.85.jpg
+        tilt_enc_0.80_pan_0.00_offset_764_157_cmd_0.80.jpg
+        tilt_enc_0.75_pan_0.00_offset_764_154_cmd_0.75.jpg
+        tilt_enc_0.70_pan_0.00_offset_0_0_cmd_0.70.jpg
+        tilt_enc_0.65_pan_0.00_offset_0_0_cmd_0.65.jpg
+        tilt_enc_0.60_pan_0.00_offset_0_0_cmd_0.60.jpg
+        tilt_enc_0.55_pan_0.00_offset_0_0_cmd_0.55.jpg
+        tilt_enc_0.50_pan_0.00_offset_764_140_cmd_0.50.jpg
+        tilt_enc_0.45_pan_0.00_offset_764_137_cmd_0.45.jpg
+        tilt_enc_0.40_pan_0.00_offset_764_134_cmd_0.40.jpg
+        tilt_enc_0.35_pan_0.00_offset_0_0_cmd_0.35.jpg
+        tilt_enc_0.30_pan_0.00_offset_764_128_cmd_0.30.jpg
+        tilt_enc_0.25_pan_0.00_offset_0_0_cmd_0.25.jpg
+        tilt_enc_0.20_pan_0.00_offset_764_123_cmd_0.20.jpg
+        tilt_enc_0.15_pan_0.00_offset_764_120_cmd_0.15.jpg
+        tilt_enc_0.10_pan_0.00_offset_764_117_cmd_0.10.jpg
+        tilt_enc_0.05_pan_0.00_offset_764_114_cmd_0.05.jpg
+        tilt_enc_0.00_pan_0.00_offset_764_111_cmd_0.00.jpg
+        tilt_enc_-0.05_pan_0.00_offset_0_0_cmd_-0.05.jpg
+        tilt_enc_-0.10_pan_0.00_offset_764_106_cmd_-0.10.jpg
+        tilt_enc_-0.15_pan_0.00_offset_0_0_cmd_-0.15.jpg
+        tilt_enc_-0.20_pan_0.00_offset_0_0_cmd_-0.20.jpg
+        tilt_enc_-0.25_pan_0.00_offset_0_0_cmd_-0.25.jpg
+        tilt_enc_-0.30_pan_0.00_offset_764_95_cmd_-0.30.jpg
+        tilt_enc_-0.35_pan_0.00_offset_764_92_cmd_-0.35.jpg
+        tilt_enc_-0.40_pan_0.00_offset_764_89_cmd_-0.40.jpg
+        tilt_enc_-0.45_pan_0.00_offset_764_86_cmd_-0.45.jpg
+        tilt_enc_-0.50_pan_0.00_offset_764_83_cmd_-0.50.jpg
+        tilt_enc_-0.55_pan_0.00_offset_0_0_cmd_-0.55.jpg
+        tilt_enc_-0.60_pan_0.00_offset_764_78_cmd_-0.60.jpg
+        tilt_enc_-0.65_pan_0.00_offset_764_75_cmd_-0.65.jpg
+        tilt_enc_-0.70_pan_0.00_offset_764_72_cmd_-0.70.jpg
+        tilt_enc_-0.75_pan_0.00_offset_764_69_cmd_-0.75.jpg
+        tilt_enc_-0.80_pan_0.00_offset_764_66_cmd_-0.80.jpg
+        tilt_enc_-0.85_pan_0.00_offset_764_64_cmd_-0.85.jpg
+        tilt_enc_-0.90_pan_0.00_offset_0_0_cmd_-0.90.jpg
+        tilt_enc_-0.95_pan_0.00_offset_764_58_cmd_-0.95.jpg
+        tilt_enc_-1.00_pan_0.00_offset_764_55_cmd_-1.00.jpg
+        tilt_enc_-1.05_pan_0.00_offset_764_52_cmd_-1.05.jpg
+        tilt_enc_-1.10_pan_0.00_offset_764_49_cmd_-1.10.jpg
+        tilt_enc_-1.15_pan_0.00_offset_764_46_cmd_-1.15.jpg
+        tilt_enc_-1.20_pan_0.00_offset_764_45_cmd_-1.20.jpg
+        tilt_enc_-1.25_pan_0.00_offset_0_0_cmd_-1.25.jpg
+        tilt_enc_-1.30_pan_0.00_offset_0_0_cmd_-1.30.jpg
+        tilt_enc_-1.35_pan_0.00_offset_764_35_cmd_-1.35.jpg
+        tilt_enc_-1.40_pan_0.00_offset_764_32_cmd_-1.40.jpg
+        tilt_enc_-1.45_pan_0.00_offset_764_29_cmd_-1.45.jpg
+        tilt_enc_-1.50_pan_0.00_offset_764_27_cmd_-1.50.jpg
+        tilt_enc_-1.55_pan_0.00_offset_0_0_cmd_-1.55.jpg
+        tilt_enc_-1.60_pan_0.00_offset_0_0_cmd_-1.60.jpg
+        tilt_enc_-1.65_pan_0.00_offset_764_18_cmd_-1.65.jpg
+        tilt_enc_-1.70_pan_0.00_offset_0_0_cmd_-1.70.jpg
+        tilt_enc_-1.75_pan_0.00_offset_0_0_cmd_-1.75.jpg
+        tilt_enc_-1.80_pan_0.00_offset_764_9_cmd_-1.80.jpg
+
+FILE CONTENTS (only root-level files with extensions: .py, .csv, .yaml):
+
+================================================================================
+Filename: pelco_D_api.py
+================================================================================
+#!/usr/bin/env python3
+import serial
+import time
+import threading
+
+
+class PelcoDController:
+    def __init__(self, port='COM3', baudrate=9600, address=1, blocking=False, timeout=1.0):
+        """
+        Initialize the Pelco D controller.
+
+        - Opens the serial port.
+        - Immediately queries the device version for verification.
+
+        Parameters:
+          port      : Serial port to use.
+          baudrate  : Baud rate.
+          address   : Device address.
+          blocking  : If True, movement commands will block until the encoder reports
+                      that the target position is reached (default: False).
+          timeout   : Serial port timeout.
+        """
+        try:
+            self.ser = serial.Serial(
+                port=port,
+                baudrate=baudrate,
+                bytesize=serial.EIGHTBITS,
+                parity=serial.PARITY_NONE,
+                stopbits=serial.STOPBITS_ONE,
+                timeout=timeout
+            )
+            print(f"Connected to {port} at {baudrate} baud.")
+        except Exception as e:
+            print("Error opening serial port:", e)
+            self.ser = None
+            raise e
+
+        self.address = address
+        self.blocking = blocking
+        self.rt_feedback_active = False
+        self.feedback_thread = None
+        self.rt_callback = self._default_rt_callback
+
+        version = self.query_version()
+        if version is None:
+            print("Error: Failed to retrieve device version. Closing connection.")
+            self.close()
+            raise Exception("Failed to retrieve device version.")
+        else:
+            print("Device version:", version)
+
+    def _default_rt_callback(self, data):
+        print("Real-time feedback:", data)
+
+    def send_command(self, command):
+        self.ser.write(command)
+        print("Sent:", " ".join(f"{b:02X}" for b in command))
+
+    def create_command(self, cmd1, cmd2, data1, data2):
+        checksum = (self.address + cmd1 + cmd2 + data1 + data2) & 0xFF
+        return bytearray([0xFF, self.address, cmd1, cmd2, data1, data2, checksum])
+
+    def _read_response(self, expected_length, timeout=1.0):
+        start = time.time()
+        data = bytearray()
+        while time.time() - start < timeout:
+            if self.ser.in_waiting:
+                data.extend(self.ser.read(self.ser.in_waiting))
+            if len(data) >= expected_length:
+                break
+            time.sleep(0.05)
+        return data
+
+    # =============================
+    #      Version & Query
+    # =============================
+    def query_version(self):
+        cmd = self.create_command(0xD2, 0x01, 0x00, 0x00)
+        self.send_command(cmd)
+        time.sleep(0.2)
+        response = bytearray()
+        start = time.time()
+        while time.time() - start < 1.0:
+            if self.ser.in_waiting:
+                response.extend(self.ser.read(self.ser.in_waiting))
+                if response:
+                    break
+            time.sleep(0.1)
+        if response:
+            try:
+                return response.decode('ascii', errors='replace')
+            except Exception:
+                return response.hex()
+        else:
+            return None
+
+    def query_pan_position(self):
+        cmd = bytearray([0xFF, self.address, 0x00, 0x51, 0x00, 0x00])
+        checksum = (self.address + 0x00 + 0x51 + 0x00 + 0x00) & 0xFF
+        cmd.append(checksum)
+        self.send_command(cmd)
+        time.sleep(0.2)
+        response = self._read_response(expected_length=4, timeout=1.0)
+        if len(response) == 4:
+            if response[0] != 0x59:
+                print("Pan query: Unexpected command indicator:", hex(response[0]))
+                return None
+            p_data = (response[1] << 8) | response[2]
+            return p_data / 100.0
+        elif len(response) >= 5:
+            if response[1] != 0x59:
+                print("Pan query: Unexpected command indicator:", hex(response[1]))
+                return None
+            p_data = (response[2] << 8) | response[3]
+            return p_data / 100.0
+        else:
+            print("Pan query: Incomplete response:", response.hex())
+            return None
+
+    def query_tilt_position(self):
+        cmd = bytearray([0xFF, self.address, 0x00, 0x53, 0x00, 0x00])
+        checksum = (self.address + 0x00 + 0x53 + 0x00 + 0x00) & 0xFF
+        cmd.append(checksum)
+        self.send_command(cmd)
+        time.sleep(0.2)
+        response = self._read_response(expected_length=4, timeout=1.0)
+        if len(response) == 4:
+            if response[0] != 0x5B:
+                print("Tilt query: Unexpected command indicator:", hex(response[0]))
+                return None
+            t_data = (response[1] << 8) | response[2]
+        elif len(response) >= 5:
+            if response[1] != 0x5B:
+                print("Tilt query: Unexpected command indicator:", hex(response[1]))
+                return None
+            t_data = (response[2] << 8) | response[3]
+        else:
+            print("Tilt query: Incomplete response:", response.hex())
+            return None
+
+        if t_data > 18000:
+            return (36000 - t_data) / 100.0
+        else:
+            return -t_data / 100.0
+
+    def query_position(self):
+        pan = self.query_pan_position()
+        tilt = self.query_tilt_position()
+        return (pan, tilt)
+
+    def wait_for_position_settled(self, poll_interval=0.2, stable_time=1.0, tolerance=0.1):
+        print("Waiting for position to settle...")
+        last_pan, last_tilt = None, None
+        stable_start = time.time()
+        while True:
+            pos = self.query_position()
+            if pos[0] is None or pos[1] is None:
+                print("Error querying position, retrying...")
+                time.sleep(poll_interval)
+                continue
+            pan, tilt = pos
+            if last_pan is not None and last_tilt is not None:
+                if abs(pan - last_pan) < tolerance and abs(tilt - last_tilt) < tolerance:
+                    if time.time() - stable_start >= stable_time:
+                        print(f"Position settled: Pan = {pan}°, Tilt = {tilt}°")
+                        break
+                else:
+                    stable_start = time.time()
+            else:
+                stable_start = time.time()
+            last_pan, last_tilt = pan, tilt
+            time.sleep(poll_interval)
+
+    # =============================
+    #      Basic Movement
+    # =============================
+    def move_up(self, speed=0x20):
+        cmd = self.create_command(0x00, 0x08, 0x00, speed)
+        self.send_command(cmd)
+
+    def move_down(self, speed=0x20):
+        cmd = self.create_command(0x00, 0x10, 0x00, speed)
+        self.send_command(cmd)
+
+    def move_left(self, speed=0x20):
+        cmd = self.create_command(0x00, 0x04, speed, 0x00)
+        self.send_command(cmd)
+
+    def move_right(self, speed=0x20):
+        cmd = self.create_command(0x00, 0x02, speed, 0x00)
+        self.send_command(cmd)
+
+    def stop(self):
+        cmd = self.create_command(0x00, 0x00, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def move_left_up(self, pan_speed=0x20, tilt_speed=0x20):
+        cmd = self.create_command(0x00, 0x0C, pan_speed, tilt_speed)
+        self.send_command(cmd)
+
+    def move_left_down(self, pan_speed=0x20, tilt_speed=0x20):
+        cmd = self.create_command(0x00, 0x14, pan_speed, tilt_speed)
+        self.send_command(cmd)
+
+    def move_right_up(self, pan_speed=0x20, tilt_speed=0x20):
+        cmd = self.create_command(0x00, 0x0A, pan_speed, tilt_speed)
+        self.send_command(cmd)
+
+    def move_right_down(self, pan_speed=0x20, tilt_speed=0x20):
+        cmd = self.create_command(0x00, 0x12, pan_speed, tilt_speed)
+        self.send_command(cmd)
+
+    # =============================
+    #   Absolute Positioning with Blocking Option
+    # =============================
+    def absolute_pan(self, angle):
+        """
+        Move to an absolute pan position.
+        For angles < 0, converts to the equivalent positive value (e.g. -5° becomes 355°).
+        If blocking is enabled, this method waits until the encoder reports the target.
+        """
+        if angle < 0:
+            value = 36000 - int(abs(angle) * 100)
+        else:
+            value = int(angle * 100)
+        data1 = (value >> 8) & 0xFF
+        data2 = value & 0xFF
+        cmd = self.create_command(0x00, 0x4B, data1, data2)
+        self.send_command(cmd)
+        if self.blocking:
+            self._wait_for_pan(angle, tolerance=0.2, max_wait=5.0)
+
+    def absolute_tilt(self, angle):
+        """
+        Move to an absolute tilt position.
+        For negative angles: value = abs(angle) * 100.
+        For positive angles: value = 36000 - int(angle * 100).
+        If blocking is enabled, this method waits until the encoder reports the target.
+        """
+        if angle < 0:
+            value = int(abs(angle) * 100)
+        else:
+            value = 36000 - int(angle * 100)
+        data1 = (value >> 8) & 0xFF
+        data2 = value & 0xFF
+        cmd = self.create_command(0x00, 0x4D, data1, data2)
+        self.send_command(cmd)
+        if self.blocking:
+            self._wait_for_tilt(angle, tolerance=0.2, max_wait=5.0)
+
+    def _wait_for_pan(self, angle, tolerance=0.2, max_wait=5.0):
+        """
+        Block until the pan encoder reading is within tolerance of the target.
+        Converts a negative angle to its equivalent positive value.
+        """
+        target = angle if angle >= 0 else 360 + angle
+        start_time = time.time()
+        current_pan = None
+        while time.time() - start_time < max_wait:
+            current_pan = self.query_pan_position()
+            if current_pan is not None:
+                diff = abs(current_pan - target)
+                if diff > 180:
+                    diff = 360 - diff
+                if diff <= tolerance:
+                    print(f"Blocking: reached pan {current_pan:.2f}° (target {target}°)")
+                    return current_pan
+            time.sleep(0.05)
+        print(f"Blocking timeout: pan did not reach {target}° within {max_wait} seconds.")
+        return current_pan
+
+    def _wait_for_tilt(self, angle, tolerance=0.2, max_wait=5.0):
+        """
+        Block until the tilt encoder reading is within tolerance of the target.
+        """
+        start_time = time.time()
+        current_tilt = None
+        while time.time() - start_time < max_wait:
+            current_tilt = self.query_tilt_position()
+            if current_tilt is not None:
+                if abs(current_tilt - angle) <= tolerance:
+                    print(f"Blocking: reached tilt {current_tilt:.2f}° (target {angle}°)")
+                    return current_tilt
+            time.sleep(0.05)
+        print(f"Blocking timeout: tilt did not reach {angle}° within {max_wait} seconds.")
+        return current_tilt
+
+    # =============================
+    #      Preset Management
+    # =============================
+    def set_preset(self, preset):
+        cmd = self.create_command(0x00, 0x03, 0x00, preset)
+        self.send_command(cmd)
+
+    def call_preset(self, preset):
+        cmd = self.create_command(0x00, 0x07, 0x00, preset)
+        self.send_command(cmd)
+
+    def delete_preset(self, preset):
+        cmd = self.create_command(0x00, 0x05, 0x00, preset)
+        self.send_command(cmd)
+
+    # =============================
+    #     Auxiliary Controls
+    # =============================
+    def open_aux(self, aux_value=0x00):
+        cmd = self.create_command(0x00, 0x09, 0x00, aux_value)
+        self.send_command(cmd)
+
+    def shut_aux(self, aux_value=0x00):
+        cmd = self.create_command(0x00, 0x0B, 0x00, aux_value)
+        self.send_command(cmd)
+
+    # =============================
+    #      Optical Controls
+    # =============================
+    def zoom_in(self):
+        cmd = self.create_command(0x00, 0x20, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def zoom_out(self):
+        cmd = self.create_command(0x00, 0x40, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def focus_far(self):
+        cmd = self.create_command(0x00, 0x80, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def focus_near(self):
+        cmd = self.create_command(0x01, 0x00, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def iris_open(self):
+        cmd = self.create_command(0x02, 0x00, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def iris_shut(self):
+        cmd = self.create_command(0x04, 0x00, 0x00, 0x00)
+        self.send_command(cmd)
+
+    # =============================
+    #      Cruising Functions
+    # =============================
+    def start_cruise(self):
+        cmd = self.create_command(0x00, 0x07, 0x00, 0x62)
+        self.send_command(cmd)
+
+    def set_cruise_dwell_time(self, dwell_time):
+        cmd = self.create_command(0x00, 0x03, 0x00, dwell_time)
+        self.send_command(cmd)
+
+    def set_cruise_speed(self, speed):
+        cmd = self.create_command(0x00, 0x03, 0x00, speed)
+        self.send_command(cmd)
+
+    # =============================
+    #      Line Scan Functions
+    # =============================
+    def set_line_scan_start(self):
+        cmd = self.create_command(0x00, 0x03, 0x00, 0x5C)
+        self.send_command(cmd)
+
+    def set_line_scan_end(self):
+        cmd = self.create_command(0x00, 0x03, 0x00, 0x5D)
+        self.send_command(cmd)
+
+    def run_line_scan(self):
+        cmd = self.create_command(0x00, 0x07, 0x00, 0x63)
+        self.send_command(cmd)
+
+    def set_line_scan_speed(self, speed):
+        cmd = self.create_command(0x00, 0x03, 0x00, speed)
+        self.send_command(cmd)
+
+    # =============================
+    #      Guard Location
+    # =============================
+    def enable_guard(self):
+        cmd = self.create_command(0x00, 0x03, 0x00, 0x5E)
+        self.send_command(cmd)
+
+    def disable_guard(self):
+        cmd = self.create_command(0x00, 0x07, 0x00, 0x5E)
+        self.send_command(cmd)
+
+    def set_guard_location_time(self, time_val):
+        cmd = self.create_command(0x00, 0x03, 0x00, time_val)
+        self.send_command(cmd)
+
+    # =============================
+    #  Real-Time Angle Feedback (Internal Callback)
+    # =============================
+    def _feedback_listener(self):
+        while self.rt_feedback_active:
+            try:
+                if self.ser.in_waiting:
+                    data = self.ser.read(self.ser.in_waiting)
+                    try:
+                        decoded_data = data.decode('ascii', errors='replace')
+                    except Exception:
+                        decoded_data = data.hex()
+                    self.rt_callback(decoded_data)
+                time.sleep(0.1)
+            except Exception as e:
+                print("Error in feedback listener:", e)
+                break
+
+    def enable_rt_feedback(self):
+        self.rt_feedback_active = True
+        cmd = self.create_command(0x00, 0x03, 0x00, 0x69)
+        self.send_command(cmd)
+        self.feedback_thread = threading.Thread(target=self._feedback_listener, daemon=True)
+        self.feedback_thread.start()
+
+    def disable_rt_feedback(self):
+        self.rt_feedback_active = False
+        if self.feedback_thread is not None:
+            self.feedback_thread.join(timeout=1)
+        cmd = self.create_command(0x00, 0x07, 0x00, 0x69)
+        self.send_command(cmd)
+
+    # =============================
+    #  Remote Reset & Factory Default
+    # =============================
+    def remote_reset(self):
+        cmd = self.create_command(0x00, 0x0F, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def factory_default(self):
+        cmds = [
+            self.create_command(0x00, 0x03, 0x00, 0x5A),
+            self.create_command(0x00, 0x07, 0x00, 0x5A),
+            self.create_command(0x00, 0x03, 0x00, 0xFF),
+            self.create_command(0x00, 0x07, 0x00, 0xFF)
+        ]
+        for cmd in cmds:
+            self.send_command(cmd)
+            time.sleep(0.1)
+
+    def close(self):
+        if self.ser and self.ser.is_open:
+            self.ser.close()
+            print("Serial port closed.")
+
+
+# When run as a script, create an instance with blocking enabled.
+if __name__ == '__main__':
+    controller = PelcoDController(port='COM3', baudrate=9600, address=1, blocking=True)
+
+
+================================================================================
+Filename: ids_camera.py
+================================================================================
+import cv2
+
+cap = cv2.VideoCapture(0)  # Open the camera (make sure the index is correct)
+
+
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)   # set width to 1920 pixels
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # set height to 1080 pixels
+
+
+# Verify the settings (note: not all drivers honor these settings)
+width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+print(f"Camera resolution set to: {width} x {height}")
+
+
+================================================================================
+Filename: content_for_AI.py
+================================================================================
+import os
+
+
+def generate_file_tree(root_dir):
+    """
+    Generate a string representing the file tree of root_dir and its subfolders.
+    """
+    tree_lines = []
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        # Calculate the depth of the current directory relative to the root
+        depth = dirpath[len(root_dir):].count(os.sep)
+        indent = ' ' * 4 * depth
+        # Use the directory's basename unless we're at the root.
+        current_dir = os.path.basename(dirpath) if os.path.basename(dirpath) else root_dir
+        tree_lines.append(f"{indent}{current_dir}/")
+        for filename in filenames:
+            tree_lines.append(f"{indent}    {filename}")
+    return "\n".join(tree_lines)
+
+
+def read_root_files(root_dir, extensions, exclude_files=None):
+    """
+    Read the content of files in the root_dir that have an extension in `extensions`,
+    excluding any files specified in the exclude_files list.
+
+    Returns a string with file names and their contents.
+    """
+    if exclude_files is None:
+        exclude_files = []
+    file_contents = []
+    for filename in os.listdir(root_dir):
+        # Skip files in the exclusion list.
+        if filename in exclude_files:
+            continue
+        filepath = os.path.join(root_dir, filename)
+        # Only process files (not directories) with the specified extensions.
+        if os.path.isfile(filepath) and any(filename.lower().endswith(ext) for ext in extensions):
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    content = f.read()
+            except Exception as e:
+                content = f"ERROR reading file: {e}"
+            separator = "=" * 80
+            file_contents.append(f"{separator}\nFilename: {filename}\n{separator}\n{content}\n")
+    return "\n".join(file_contents)
+
+
+def main():
+    # Determine the root directory (folder where the script is run from)
+    root_dir = os.getcwd()
+
+    # Define the output file name.
+    output_filename = "output.txt"
+
+    # Generate the file tree for the entire directory structure.
+    file_tree = generate_file_tree(root_dir)
+
+    # Read the contents of .py, .csv, and .yaml files in the root folder only,
+    # but exclude the output file.
+    extensions = ['.py', '.csv', '.yaml']
+    file_text = read_root_files(root_dir, extensions, exclude_files=[output_filename])
+
+    # Combine both parts into one output.
+    output = (
+            "FILE TREE:\n"
+            + file_tree +
+            "\n\n" +
+            "FILE CONTENTS (only root-level files with extensions: " + ", ".join(extensions) + "):\n\n" +
+            file_text
+    )
+
+    # Write the combined output into 'output.txt'
+    output_filepath = os.path.join(root_dir, output_filename)
+    with open(output_filepath, "w", encoding="utf-8") as out_file:
+        out_file.write(output)
+
+    print(f"Report created: {output_filepath}")
+
+
+if __name__ == '__main__':
+    main()
+
+
+================================================================================
+Filename: pan_tilt_calibration.py
+================================================================================
+#!/usr/bin/env python3
+import os
+import cv2
+import time
+import numpy as np
+from pelco_D_api import PelcoDController
+
+
+def clear_directory(directory):
+    if os.path.exists(directory):
+        for filename in os.listdir(directory):
+            file_path = os.path.join(directory, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.remove(file_path)
+                elif os.path.isdir(file_path):
+                    os.rmdir(file_path)
+            except Exception as e:
+                print(f"Failed to delete {file_path}. Reason: {e}")
+    else:
+        os.makedirs(directory)
+
+
+def sharpen_image(gray):
+    """Apply a simple sharpening filter to the grayscale image."""
+    kernel = np.array([[0, -1, 0],
+                       [-1, 5, -1],
+                       [0, -1, 0]])
+    return cv2.filter2D(gray, -1, kernel)
+
+
+def select_edge_point(gray, center, search_radius=50):
+    """
+    Detect edges using Canny and select an edge point near the center.
+    If no edges are found within the search radius, fallback to the center.
+    """
+    edges = cv2.Canny(gray, 50, 150)
+    edge_points = cv2.findNonZero(edges)
+    if edge_points is None:
+        return np.array([[[center[0], center[1]]]], dtype=np.float32)
+    edge_points = edge_points.squeeze()  # shape: (N, 2)
+    distances = np.linalg.norm(edge_points - np.array(center), axis=1)
+    candidate_idx = np.where(distances < search_radius)[0]
+    if candidate_idx.size > 0:
+        best_idx = candidate_idx[np.argmin(distances[candidate_idx])]
+    else:
+        best_idx = np.argmin(distances)
+    best_point = edge_points[best_idx]
+    return np.array([[[float(best_point[0]), float(best_point[1])]]], dtype=np.float32)
+
+
+def main():
+    # Directories for saving images
+    pan_calib_dir = "pan_calibration"
+    tilt_calib_dir = "tilt_calibration"
+    clear_directory(pan_calib_dir)
+    clear_directory(tilt_calib_dir)
+    print(f"Cleared directories '{pan_calib_dir}' and '{tilt_calib_dir}'.")
+
+    # Open the camera (adjust the index if needed)
+    cap = cv2.VideoCapture(1)
+    # Request full resolution (2592 x 2048)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 2592)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2048)
+
+    # Verify camera resolution
+    width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    print(f"Camera resolution set to: {width} x {height}")
+    if not cap.isOpened():
+        print("Error: Could not open the camera.")
+        return
+
+    # Initialize the Pelco-D controller with blocking enabled.
+    try:
+        controller = PelcoDController(port='COM3', baudrate=9600, address=1, blocking=True)
+    except Exception as e:
+        print("Error initializing PelcoDController:", e)
+        cap.release()
+        return
+
+    # --- Set Zero Position ---
+    # New zero position: pan = 0°, tilt = 6.85°
+    print("Setting zero position: pan = 0°, tilt = 6.85°")
+    controller.absolute_pan(0)      # Blocks until reached.
+    controller.absolute_tilt(6.85)    # Blocks until reached.
+    print("Zero position reached.")
+    time.sleep(0.5)  # Short pause
+
+    # --- Capture Baseline Frame ---
+    # At zero position the tracking object is assumed to be at the center.
+    ret, baseline_frame = cap.read()
+    if not ret:
+        print("Error: Failed to capture baseline frame.")
+        cap.release()
+        controller.close()
+        return
+
+    # Convert to grayscale and enhance edges.
+    baseline_gray = cv2.cvtColor(baseline_frame, cv2.COLOR_BGR2GRAY)
+    baseline_gray = sharpen_image(baseline_gray)
+    h, w = baseline_gray.shape
+    center = (w / 2, h / 2)
+    # Choose a baseline point on a strong edge near the center.
+    baseline_point = select_edge_point(baseline_gray, center)
+    print(f"Baseline tracking point (from edge selection): {baseline_point[0, 0]}")
+
+    # --- Optical Flow Parameters for Tracking ---
+    # Use a smaller window and tighter criteria for better edge sensitivity.
+    lk_params = dict(winSize=(9, 9),
+                     maxLevel=3,
+                     criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 15, 0.01))
+
+    # -------- Pan Sweep --------
+    # Sweep from (0 - 5)° to (0 + 5)° in 0.3° increments.
+    pan_start = 0 - 5
+    pan_end = 0 + 5
+    print(f"\nStarting pan sweep from {pan_start:.2f}° to {pan_end:.2f}° in 0.3° increments")
+
+    # For pan sweep, assume tilt remains fixed at 6.85°
+    # Initialize optical flow reference with the baseline frame & chosen point.
+    prev_gray = baseline_gray.copy()
+    prev_point = baseline_point.copy()
+
+    for cmd_pan in np.arange(pan_start, pan_end + 0.001, 0.3):
+        print(f"\nCommanding pan to {cmd_pan:.2f}° ...")
+        controller.absolute_pan(cmd_pan)  # Blocks until reached.
+        measured_pan = cmd_pan
+        measured_tilt = 6.85  # Fixed for pan sweep
+
+        # Capture frame after the move.
+        ret, frame = cap.read()
+        if not ret:
+            print("Warning: Failed to capture an image for this pan value. Skipping.")
+            continue
+
+        current_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        current_gray = sharpen_image(current_gray)
+        # Compute optical flow from previous frame to current frame.
+        new_point, status, err = cv2.calcOpticalFlowPyrLK(prev_gray, current_gray, prev_point, None, **lk_params)
+        if new_point is not None and status is not None and status[0][0] == 1:
+            tracked_point = new_point
+        else:
+            print("Optical flow tracking failed; using previous point.")
+            tracked_point = prev_point
+
+        # Extract coordinates.
+        x, y = map(int, tracked_point[0, 0])
+        # Draw a circle around the tracked point.
+        cv2.circle(frame, (x, y), radius=10, color=(0, 255, 0), thickness=2)
+        # Compute offset relative to the baseline center.
+        dx = x - int(w / 2)
+        dy = y - int(h / 2)
+        print(f"Pan sweep: tracked point at pixel ({x}, {y}), offset from center: ({dx}, {dy})")
+
+        # Save the image with the commanded values and offset in the filename.
+        filename = f"pan_enc_{measured_pan:.2f}_tilt_{measured_tilt:.2f}_offset_{dx}_{dy}_cmd_{cmd_pan:.2f}.jpg"
+        filepath = os.path.join(pan_calib_dir, filename)
+        if cv2.imwrite(filepath, frame, [cv2.IMWRITE_JPEG_QUALITY, 95]):
+            print(f"Saved pan image: {filepath}")
+        else:
+            print(f"Error: Could not save pan image to {filepath}")
+
+        # Update optical flow references for the next iteration.
+        prev_gray = current_gray.copy()
+        prev_point = tracked_point
+
+    # -------- Tilt Sweep --------
+    # Sweep from (6.85 - 5)° to (6.85 + 5)° in 0.3° increments.
+    tilt_start = 6.85 - 5
+    tilt_end = 6.85 + 5
+    print(f"\nStarting tilt sweep from {tilt_start:.2f}° to {tilt_end:.2f}° in 0.3° increments")
+
+    # For tilt sweep, assume pan remains fixed at 0°.
+    # Reinitialize optical flow reference using the baseline frame.
+    prev_gray = baseline_gray.copy()
+    prev_point = baseline_point.copy()
+
+    for cmd_tilt in np.arange(tilt_start, tilt_end + 0.001, 0.3):
+        print(f"\nCommanding tilt to {cmd_tilt:.2f}° ...")
+        controller.absolute_tilt(cmd_tilt)  # Blocks until reached.
+        measured_tilt = cmd_tilt
+        measured_pan = 0.0  # Fixed for tilt sweep
+
+        # Capture frame after the move.
+        ret, frame = cap.read()
+        if not ret:
+            print("Warning: Failed to capture an image for this tilt value. Skipping.")
+            continue
+
+        current_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        current_gray = sharpen_image(current_gray)
+        # Compute optical flow from previous frame to current frame.
+        new_point, status, err = cv2.calcOpticalFlowPyrLK(prev_gray, current_gray, prev_point, None, **lk_params)
+        if new_point is not None and status is not None and status[0][0] == 1:
+            tracked_point = new_point
+        else:
+            print("Optical flow tracking failed; using previous point.")
+            tracked_point = prev_point
+
+        # Extract coordinates.
+        x, y = map(int, tracked_point[0, 0])
+        # Draw a circle around the tracked point.
+        cv2.circle(frame, (x, y), radius=10, color=(0, 255, 0), thickness=2)
+        # Compute offset relative to the baseline center.
+        dx = x - int(w / 2)
+        dy = y - int(h / 2)
+        print(f"Tilt sweep: tracked point at pixel ({x}, {y}), offset from center: ({dx}, {dy})")
+
+        # Save the image with the commanded values and offset in the filename.
+        filename = f"tilt_enc_{measured_tilt:.2f}_pan_{measured_pan:.2f}_offset_{dx}_{dy}_cmd_{cmd_tilt:.2f}.jpg"
+        filepath = os.path.join(tilt_calib_dir, filename)
+        if cv2.imwrite(filepath, frame, [cv2.IMWRITE_JPEG_QUALITY, 95]):
+            print(f"Saved tilt image: {filepath}")
+        else:
+            print(f"Error: Could not save tilt image to {filepath}")
+
+        # Update optical flow references.
+        prev_gray = current_gray.copy()
+        prev_point = tracked_point
+
+    # --- Return to Zero Position ---
+    print("\nReturning to zero position...")
+    controller.absolute_pan(0)      # Blocks until reached.
+    controller.absolute_tilt(6.85)    # Blocks until reached.
+    print("Returned to zero position.")
+
+    # Cleanup
+    cap.release()
+    controller.close()
+    print("\nCalibration complete.")
+
+
+if __name__ == '__main__':
+    main()
+
+
+================================================================================
+Filename: run_calibration.py
+================================================================================
+#!/usr/bin/env python3
+import os
+import cv2
+import time
+import numpy as np
+import yaml
+from pelco_D_api import PelcoDController
+from tracking import (sharpen_image, select_edge_point, select_bright_dot,
+                      track_point, draw_tracked_point)
+
+
+def clear_directory(directory):
+    if os.path.exists(directory):
+        for filename in os.listdir(directory):
+            file_path = os.path.join(directory, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.remove(file_path)
+                elif os.path.isdir(file_path):
+                    os.rmdir(file_path)
+            except Exception as e:
+                print(f"Failed to delete {file_path}. Reason: {e}")
+    else:
+        os.makedirs(directory)
+
+
+def get_filtered_frame(cap):
+    """
+    Reads a frame from the camera, flips it vertically,
+    converts it to grayscale, applies a Gaussian filter for noise reduction,
+    and then applies a sharpening filter.
+    Returns a tuple (original_frame, filtered_gray).
+    """
+    ret, frame = cap.read()
+    if not ret:
+        return None, None
+    # Flip vertically to correct vertical mirror image
+    frame = cv2.flip(frame, 0)
+    # Convert to grayscale
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Apply Gaussian blur (kernel size 5x5, sigma 0)
+    gaussian = cv2.GaussianBlur(gray, (15, 15), 0)
+    # Apply sharpening filter on the blurred image
+    # filtered = sharpen_image(gaussian)
+    return frame, gaussian
+
+
+def main():
+    # --- Load configuration from YAML ---
+    with open("config.yaml", "r") as f:
+        config = yaml.safe_load(f)
+
+    # Communication parameters
+    comm = config["communication"]
+    port = comm["port"]
+    baudrate = comm["baudrate"]
+    address = comm["address"]
+    blocking = comm["blocking"]
+
+    # Camera parameters
+    cam_index = config["camera"]["index"]
+    cam_width = config["camera"]["width"]
+    cam_height = config["camera"]["height"]
+
+    # Zero positions
+    zero_pan = config["zero"]["pan"]
+    zero_tilt = config["zero"]["tilt"]
+
+    # Sweep parameters (the sweep range is relative to the zero position)
+    pan_range = config["sweep"]["pan_range"]
+    tilt_range = config["sweep"]["tilt_range"]
+    sweep_step = config["sweep"]["step"]
+
+    # Compute continuous sweep positions.
+    # For each axis, we create positions relative to zero:
+    # First, ascending from 0 to +range; then descending from +range to -range.
+    pan_vals = np.concatenate([
+        np.arange(0, pan_range + sweep_step, sweep_step),
+        np.arange(pan_range, -pan_range - sweep_step, -sweep_step)
+    ])
+    pan_positions = zero_pan + pan_vals
+
+    tilt_vals = np.concatenate([
+        np.arange(0, tilt_range + sweep_step, sweep_step),
+        np.arange(tilt_range, -tilt_range - sweep_step, -sweep_step)
+    ])
+    tilt_positions = zero_tilt + tilt_vals
+
+    # Tracking options
+    tracking_mode = config["tracking"]["mode"]  # "bright" or "edge"
+    edge_search_radius = config["tracking"]["edge_search_radius"]
+    bright_threshold = config["tracking"]["bright_threshold"]
+    bright_search_radius = config["tracking"]["bright_search_radius"]
+
+    # Optical flow (LK) parameters
+    lk_params = dict(
+        winSize=tuple(config["lk_params"]["win_size"]),
+        maxLevel=config["lk_params"]["max_level"],
+        criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT,
+                  config["lk_params"]["term_crit_count"],
+                  config["lk_params"]["term_crit_eps"])
+    )
+
+    # Directories for saving images
+    pan_calib_dir = "pan_calibration"
+    tilt_calib_dir = "tilt_calibration"
+    clear_directory(pan_calib_dir)
+    clear_directory(tilt_calib_dir)
+    print(f"Cleared directories '{pan_calib_dir}' and '{tilt_calib_dir}'.")
+
+    # Open the camera
+    cap = cv2.VideoCapture(cam_index)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, cam_width)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_height)
+    width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    print(f"Camera resolution set to: {width} x {height}")
+    if not cap.isOpened():
+        print("Error: Could not open the camera.")
+        return
+
+    # Initialize the Pelco-D controller
+    try:
+        controller = PelcoDController(port=port, baudrate=baudrate, address=address, blocking=blocking)
+    except Exception as e:
+        print("Error initializing PelcoDController:", e)
+        cap.release()
+        return
+
+    # --- Set Zero Position ---
+    print(f"Setting zero position: pan = {zero_pan}°, tilt = {zero_tilt}°")
+    controller.absolute_pan(zero_pan)
+    controller.absolute_tilt(zero_tilt)
+    print("Zero position reached.")
+    time.sleep(0.5)
+
+    # --- Capture Baseline Frame ---
+    frame, baseline_gray = get_filtered_frame(cap)
+    if frame is None or baseline_gray is None:
+        print("Error: Failed to capture baseline frame.")
+        cap.release()
+        controller.close()
+        return
+    h_img, w_img = baseline_gray.shape
+    center = (w_img / 2, h_img / 2)
+
+    # Select baseline tracking point according to the mode.
+    if tracking_mode == 'bright':
+        baseline_point = select_bright_dot(baseline_gray, center, bright_threshold, bright_search_radius)
+        print(f"Using bright dot tracking mode. Baseline tracking point: {baseline_point[0, 0]}")
+    else:
+        baseline_point = select_edge_point(baseline_gray, center, edge_search_radius)
+        print(f"Using edge tracking mode. Baseline tracking point: {baseline_point[0, 0]}")
+
+    # ------------- PAN SWEEP -------------
+    print(f"\nStarting continuous pan sweep from {pan_positions[0]:.2f}° to {pan_positions[-1]:.2f}°")
+    prev_gray = baseline_gray.copy()
+    prev_point = baseline_point.copy()
+
+    for cmd_pan in pan_positions:
+        print(f"\nCommanding pan to {cmd_pan:.2f}° ...")
+        controller.absolute_pan(cmd_pan)
+        measured_pan = cmd_pan
+        measured_tilt = zero_tilt  # pan sweep holds tilt constant
+
+        frame, current_gray = get_filtered_frame(cap)
+        if frame is None or current_gray is None:
+            print("Warning: Failed to capture frame for pan sweep. Skipping.")
+            continue
+
+        if tracking_mode == 'bright':
+            tracked_point = select_bright_dot(current_gray, center, bright_threshold, bright_search_radius)
+        else:
+            tracked_point = track_point(prev_gray, current_gray, prev_point, lk_params)
+
+        frame = draw_tracked_point(frame, tracked_point, radius=10, color=(0, 255, 0), thickness=2)
+        x, y = map(int, tracked_point[0, 0])
+        dx = x - int(w_img / 2)
+        dy = y - int(h_img / 2)
+        print(f"Pan sweep: tracked point at ({x}, {y}), offset: ({dx}, {dy})")
+
+        filename = f"pan_enc_{measured_pan:.2f}_tilt_{measured_tilt:.2f}_offset_{dx}_{dy}_cmd_{cmd_pan:.2f}.jpg"
+        filepath = os.path.join(pan_calib_dir, filename)
+        if cv2.imwrite(filepath, frame, [cv2.IMWRITE_JPEG_QUALITY, 95]):
+            print(f"Saved pan image: {filepath}")
+        else:
+            print(f"Error: Could not save pan image to {filepath}")
+
+        prev_gray = current_gray.copy()
+        prev_point = tracked_point
+
+    # --- Go back to zero before starting tilt scan ---
+    print("\nReturning to zero position between pan and tilt scans...")
+    controller.absolute_pan(zero_pan)
+    controller.absolute_tilt(zero_tilt)
+    time.sleep(0.5)
+
+    # ------------- TILT SWEEP -------------
+    print(f"\nStarting continuous tilt sweep from {tilt_positions[0]:.2f}° to {tilt_positions[-1]:.2f}°")
+    prev_gray = baseline_gray.copy()
+    prev_point = baseline_point.copy()
+
+    for cmd_tilt in tilt_positions:
+        print(f"\nCommanding tilt to {cmd_tilt:.2f}° ...")
+        controller.absolute_tilt(cmd_tilt)
+        measured_tilt = cmd_tilt
+        measured_pan = 0.0  # tilt sweep holds pan constant
+
+        frame, current_gray = get_filtered_frame(cap)
+        if frame is None or current_gray is None:
+            print("Warning: Failed to capture frame for tilt sweep. Skipping.")
+            continue
+
+        if tracking_mode == 'bright':
+            tracked_point = select_bright_dot(current_gray, center, bright_threshold, bright_search_radius)
+        else:
+            tracked_point = track_point(prev_gray, current_gray, prev_point, lk_params)
+
+        frame = draw_tracked_point(frame, tracked_point, radius=10, color=(0, 255, 0), thickness=2)
+        x, y = map(int, tracked_point[0, 0])
+        dx = x - int(w_img / 2)
+        dy = y - int(h_img / 2)
+        print(f"Tilt sweep: tracked point at ({x}, {y}), offset: ({dx}, {dy})")
+
+        filename = f"tilt_enc_{measured_tilt:.2f}_pan_{measured_pan:.2f}_offset_{dx}_{dy}_cmd_{cmd_tilt:.2f}.jpg"
+        filepath = os.path.join(tilt_calib_dir, filename)
+        if cv2.imwrite(filepath, frame, [cv2.IMWRITE_JPEG_QUALITY, 95]):
+            print(f"Saved tilt image: {filepath}")
+        else:
+            print(f"Error: Could not save tilt image to {filepath}")
+
+        prev_gray = current_gray.copy()
+        prev_point = tracked_point
+
+    # --- Return to Zero Position at the End ---
+    print("\nReturning to zero position at the end of scans...")
+    controller.absolute_pan(zero_pan)
+    controller.absolute_tilt(zero_tilt)
+    print("Returned to zero position.")
+
+    cap.release()
+    controller.close()
+    print("\nCalibration complete.")
+
+
+if __name__ == '__main__':
+    main()
+
+
+================================================================================
+Filename: tracking.py
+================================================================================
+#!/usr/bin/env python3
+import cv2
+import numpy as np
+
+def sharpen_image(gray):
+    kernel = np.array([[0, -1, 0],
+                       [-1, 5, -1],
+                       [0, -1, 0]])
+    return cv2.filter2D(gray, -1, kernel)
+
+def select_edge_point(gray, center, search_radius=50):
+    edges = cv2.Canny(gray, 100, 200)
+    edge_points = cv2.findNonZero(edges)
+    if edge_points is None:
+        return np.array([[[center[0], center[1]]]], dtype=np.float32)
+    edge_points = edge_points.squeeze()
+    distances = np.linalg.norm(edge_points - np.array(center), axis=1)
+    candidate_idx = np.where(distances < search_radius)[0]
+    if candidate_idx.size > 0:
+        best_idx = candidate_idx[np.argmin(distances[candidate_idx])]
+    else:
+        best_idx = np.argmin(distances)
+    best_point = edge_points[best_idx]
+    return np.array([[[float(best_point[0]), float(best_point[1])]]], dtype=np.float32)
+
+def select_bright_dot(gray, center, threshold_value=200, search_radius=100):
+    ret, thresh = cv2.threshold(gray, threshold_value, 255, cv2.THRESH_BINARY)
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if len(contours) == 0:
+        return np.array([[[center[0], center[1]]]], dtype=np.float32)
+    best_center = None
+    best_distance = float('inf')
+    for cnt in contours:
+        M = cv2.moments(cnt)
+        if M["m00"] != 0:
+            cX = M["m10"] / M["m00"]
+            cY = M["m01"] / M["m00"]
+            d = ((cX - center[0])**2 + (cY - center[1])**2) ** 0.5
+            if d < best_distance:
+                best_distance = d
+                best_center = (cX, cY)
+    if best_center is None:
+        return np.array([[[center[0], center[1]]]], dtype=np.float32)
+    return np.array([[[float(best_center[0]), float(best_center[1])]]], dtype=np.float32)
+
+def track_point(prev_gray, current_gray, prev_point, lk_params):
+    new_point, status, err = cv2.calcOpticalFlowPyrLK(prev_gray, current_gray, prev_point, None, **lk_params)
+    if new_point is not None and status is not None and status[0][0] == 1:
+        return new_point
+    else:
+        return prev_point
+
+def draw_tracked_point(frame, point, radius=10, color=(0, 255, 0), thickness=2):
+    x, y = map(int, point[0, 0])
+    # cv2.circle(frame, (x, y), radius=radius, color=color, thickness=thickness)
+    return frame
+
+
+================================================================================
+Filename: config.yaml
+================================================================================
+# config.yaml
+
+camera:
+  index: 1
+  width: 2592
+  height: 2048
+
+communication:
+  port: "COM3"
+  baudrate: 9600
+  address: 1
+  blocking: true
+
+zero:
+  pan: 0.0
+  tilt: 3.2
+
+sweep:
+  # The sweep range is defined relative to the zero position.
+  pan_range: 5       # will sweep from zero to +5 and then from +5 to -5 (relative)
+  tilt_range: 5.0      # will sweep from zero to +5 and then from +5 to -5 (relative)
+  step: 0.05
+
+tracking:
+  mode: bright             # Options: "bright" or "edge"
+  edge_search_radius: 50
+  bright_threshold: 200
+  bright_search_radius: 100
+
+lk_params:
+  win_size: [9, 9]
+  max_level: 3
+  term_crit_count: 15
+  term_crit_eps: 0.01
+

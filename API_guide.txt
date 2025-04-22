@@ -1,0 +1,593 @@
+#!/usr/bin/env python3
+import serial
+import time
+import threading
+
+class PelcoDController:
+    def __init__(self, port='COM3', baudrate=9600, address=1, timeout=1.0):
+        """
+        Initialize the Pelco D controller.
+        
+        - Opens the serial port with the specified settings.
+        - Immediately queries the device version for verification.
+        - If version retrieval fails, prints an error and closes the connection.
+        """
+        try:
+            self.ser = serial.Serial(
+                port=port,
+                baudrate=baudrate,
+                bytesize=serial.EIGHTBITS,
+                parity=serial.PARITY_NONE,
+                stopbits=serial.STOPBITS_ONE,
+                timeout=timeout
+            )
+            print(f"Connected to {port} at {baudrate} baud.")
+        except Exception as e:
+            print("Error opening serial port:", e)
+            self.ser = None
+            raise e
+
+        self.address = address
+        self.rt_feedback_active = False
+        self.feedback_thread = None
+        # Set the default real-time feedback callback (prints the feedback).
+        self.rt_callback = self._default_rt_callback
+
+        version = self.query_version()
+        if version is None:
+            print("Error: Failed to retrieve device version. Closing connection.")
+            self.close()
+            raise Exception("Failed to retrieve device version.")
+        else:
+            print("Device version:", version)
+
+    def _default_rt_callback(self, data):
+        """Default internal callback for real-time feedback."""
+        print("Real-time feedback:", data)
+
+    def send_command(self, command):
+        """Send a command (bytearray) to the device and print it in hexadecimal."""
+        self.ser.write(command)
+        print("Sent:", " ".join(f"{b:02X}" for b in command))
+
+    def create_command(self, cmd1, cmd2, data1, data2):
+        """
+        Construct a Pelco D command with the format:
+          [0xFF, address, cmd1, cmd2, data1, data2, checksum]
+        where checksum = (address + cmd1 + cmd2 + data1 + data2) & 0xFF.
+        """
+        checksum = (self.address + cmd1 + cmd2 + data1 + data2) & 0xFF
+        return bytearray([0xFF, self.address, cmd1, cmd2, data1, data2, checksum])
+
+    def _read_response(self, expected_length, timeout=1.0):
+        """
+        Helper method to read bytes from the serial port until we have at least
+        `expected_length` bytes or until the timeout expires.
+        """
+        start = time.time()
+        data = bytearray()
+        while time.time() - start < timeout:
+            if self.ser.in_waiting:
+                data.extend(self.ser.read(self.ser.in_waiting))
+            if len(data) >= expected_length:
+                break
+            time.sleep(0.05)
+        return data
+
+    # =============================
+    #      Version & Query
+    # =============================
+    def query_version(self):
+        """
+        Query the device version.
+        
+        Sends: FF [address] D2 01 00 00 [checksum]
+        Expected response: An ASCII version string.
+        
+        Returns:
+          The version string (decoded as ASCII) or None on failure.
+        """
+        cmd = self.create_command(0xD2, 0x01, 0x00, 0x00)
+        self.send_command(cmd)
+        time.sleep(0.2)
+        response = bytearray()
+        start = time.time()
+        while time.time() - start < 1.0:
+            if self.ser.in_waiting:
+                response.extend(self.ser.read(self.ser.in_waiting))
+                if response:
+                    break
+            time.sleep(0.1)
+        if response:
+            try:
+                return response.decode('ascii', errors='replace')
+            except Exception:
+                return response.hex()
+        else:
+            return None
+
+    def query_pan_position(self):
+        """
+        Query the current pan position.
+        
+        Sends: FF [address] 00 51 00 00 [checksum]
+        Expected response (per your log): 5 bytes: [status, 0x59, PMSB, PLSB, checksum]
+        
+        Returns:
+          Pan angle (in degrees) or None if the response is incomplete.
+        """
+        cmd = bytearray([0xFF, self.address, 0x00, 0x51, 0x00, 0x00])
+        checksum = (self.address + 0x00 + 0x51 + 0x00 + 0x00) & 0xFF
+        cmd.append(checksum)
+        self.send_command(cmd)
+        time.sleep(0.2)  # Allow device time to respond
+        response = self._read_response(expected_length=5, timeout=1.0)
+        if len(response) < 5:
+            print("Pan query: Incomplete response:", response.hex())
+            return None
+        # According to your log, byte 1 is the command indicator (0x59)
+        if response[1] != 0x59:
+            print("Pan query: Unexpected command indicator:", hex(response[1]))
+            return None
+        # Combine bytes 2 and 3 to get the pan data.
+        p_data = (response[2] << 8) | response[3]
+        return p_data / 100.0
+
+    def query_tilt_position(self):
+        """
+        Query the current tilt position.
+        
+        Sends: FF [address] 00 53 00 00 [checksum]
+        Expected response (per your log): 4 bytes: [0x5B, TMSB, TLSB, checksum]
+        
+        Returns:
+          Tilt angle (in degrees) or None if the response is incomplete.
+        """
+        cmd = bytearray([0xFF, self.address, 0x00, 0x53, 0x00, 0x00])
+        checksum = (self.address + 0x00 + 0x53 + 0x00 + 0x00) & 0xFF
+        cmd.append(checksum)
+        self.send_command(cmd)
+        time.sleep(0.2)
+        response = self._read_response(expected_length=4, timeout=1.0)
+        if len(response) < 4:
+            print("Tilt query: Incomplete response:", response.hex())
+            return None
+        # Expect the first byte to be 0x5B (the tilt command indicator)
+        if response[0] != 0x5B:
+            print("Tilt query: Unexpected command indicator:", hex(response[0]))
+            return None
+        t_data = (response[1] << 8) | response[2]
+        if t_data > 18000:
+            return (36000 - t_data) / 100.0
+        else:
+            return -t_data / 100.0
+
+    def query_position(self):
+        """
+        Query both pan and tilt positions.
+        
+        Returns:
+          Tuple (pan, tilt) in degrees, or (None, None) if an error occurs.
+        """
+        pan = self.query_pan_position()
+        tilt = self.query_tilt_position()
+        return (pan, tilt)
+
+    def wait_for_position_settled(self, poll_interval=0.2, stable_time=1.0, tolerance=0.1):
+        """
+        Block until the device's pan and tilt positions remain unchanged (within a tolerance)
+        for at least 'stable_time' seconds. Then prints the settled position.
+        
+        - poll_interval: seconds between successive queries.
+        - stable_time: required stable duration (in seconds).
+        - tolerance: allowed difference (in degrees) between successive readings.
+        """
+        print("Waiting for position to settle...")
+        last_pan, last_tilt = None, None
+        stable_start = time.time()
+        while True:
+            pos = self.query_position()
+            if pos[0] is None or pos[1] is None:
+                print("Error querying position, retrying...")
+                time.sleep(poll_interval)
+                continue
+            pan, tilt = pos
+            if last_pan is not None and last_tilt is not None:
+                if abs(pan - last_pan) < tolerance and abs(tilt - last_tilt) < tolerance:
+                    if time.time() - stable_start >= stable_time:
+                        print(f"Position settled: Pan = {pan}°, Tilt = {tilt}°")
+                        break
+                else:
+                    stable_start = time.time()
+            else:
+                stable_start = time.time()
+            last_pan, last_tilt = pan, tilt
+            time.sleep(poll_interval)
+
+    # =============================
+    #      Basic Movement
+    # =============================
+    def move_up(self, speed=0x20):
+        """Tilt upward. Command: FF [address] 00 08 00 speed [checksum]."""
+        cmd = self.create_command(0x00, 0x08, 0x00, speed)
+        self.send_command(cmd)
+
+    def move_down(self, speed=0x20):
+        """Tilt downward. Command: FF [address] 00 10 00 speed [checksum]."""
+        cmd = self.create_command(0x00, 0x10, 0x00, speed)
+        self.send_command(cmd)
+
+    def move_left(self, speed=0x20):
+        """Pan left. Command: FF [address] 00 04 speed 00 [checksum]."""
+        cmd = self.create_command(0x00, 0x04, speed, 0x00)
+        self.send_command(cmd)
+
+    def move_right(self, speed=0x20):
+        """Pan right. Command: FF [address] 00 02 speed 00 [checksum]."""
+        cmd = self.create_command(0x00, 0x02, speed, 0x00)
+        self.send_command(cmd)
+
+    def stop(self):
+        """Stop any pan/tilt movement. Command: FF [address] 00 00 00 00 [checksum]."""
+        cmd = self.create_command(0x00, 0x00, 0x00, 0x00)
+        self.send_command(cmd)
+
+    # =============================
+    #   Diagonal/Combined Movement
+    # =============================
+    def move_left_up(self, pan_speed=0x20, tilt_speed=0x20):
+        """Move diagonally left/up. Command: FF [address] 00 0C pan_speed tilt_speed [checksum]."""
+        cmd = self.create_command(0x00, 0x0C, pan_speed, tilt_speed)
+        self.send_command(cmd)
+
+    def move_left_down(self, pan_speed=0x20, tilt_speed=0x20):
+        """Move diagonally left/down. Command: FF [address] 00 14 pan_speed tilt_speed [checksum]."""
+        cmd = self.create_command(0x00, 0x14, pan_speed, tilt_speed)
+        self.send_command(cmd)
+
+    def move_right_up(self, pan_speed=0x20, tilt_speed=0x20):
+        """Move diagonally right/up. Command: FF [address] 00 0A pan_speed tilt_speed [checksum]."""
+        cmd = self.create_command(0x00, 0x0A, pan_speed, tilt_speed)
+        self.send_command(cmd)
+
+    def move_right_down(self, pan_speed=0x20, tilt_speed=0x20):
+        """Move diagonally right/down. Command: FF [address] 00 12 pan_speed tilt_speed [checksum]."""
+        cmd = self.create_command(0x00, 0x12, pan_speed, tilt_speed)
+        self.send_command(cmd)
+
+    # =============================
+    #    Absolute Positioning
+    # =============================
+    def absolute_pan(self, angle):
+        """
+        Move to an absolute pan position.
+        
+        Command: FF [address] 00 4B DATA1 DATA2 [checksum], where
+        (DATA1 << 8 | DATA2) = angle * 100.
+        """
+        value = int(angle * 100)
+        data1 = (value >> 8) & 0xFF
+        data2 = value & 0xFF
+        cmd = self.create_command(0x00, 0x4B, data1, data2)
+        self.send_command(cmd)
+
+    def absolute_tilt(self, angle):
+        """
+        Move to an absolute tilt position.
+        
+        Command: FF [address] 00 4D DATA1 DATA2 [checksum].
+        For negative angles: (DATA1 << 8 | DATA2) = abs(angle) * 100.
+        For positive angles: (DATA1 << 8 | DATA2) = 36000 - (angle * 100).
+        """
+        if angle < 0:
+            value = int(abs(angle) * 100)
+        else:
+            value = 36000 - int(angle * 100)
+        data1 = (value >> 8) & 0xFF
+        data2 = value & 0xFF
+        cmd = self.create_command(0x00, 0x4D, data1, data2)
+        self.send_command(cmd)
+
+    # =============================
+    #      Preset Management
+    # =============================
+    def set_preset(self, preset):
+        """
+        Set a preset position.
+        
+        Command: FF [address] 00 03 00 preset [checksum].
+        """
+        cmd = self.create_command(0x00, 0x03, 0x00, preset)
+        self.send_command(cmd)
+
+    def call_preset(self, preset):
+        """
+        Recall a preset position.
+        
+        Command: FF [address] 00 07 00 preset [checksum].
+        """
+        cmd = self.create_command(0x00, 0x07, 0x00, preset)
+        self.send_command(cmd)
+
+    def delete_preset(self, preset):
+        """
+        Delete a preset position.
+        
+        Command: FF [address] 00 05 00 preset [checksum].
+        """
+        cmd = self.create_command(0x00, 0x05, 0x00, preset)
+        self.send_command(cmd)
+
+    # =============================
+    #     Auxiliary Controls
+    # =============================
+    def open_aux(self, aux_value=0x00):
+        """
+        Open the auxiliary switch.
+        
+        Command: FF [address] 00 09 00 aux_value [checksum].
+        """
+        cmd = self.create_command(0x00, 0x09, 0x00, aux_value)
+        self.send_command(cmd)
+
+    def shut_aux(self, aux_value=0x00):
+        """
+        Shut the auxiliary switch.
+        
+        Command: FF [address] 00 0B 00 aux_value [checksum].
+        """
+        cmd = self.create_command(0x00, 0x0B, 0x00, aux_value)
+        self.send_command(cmd)
+
+    # =============================
+    #       Optical Controls
+    # =============================
+    def zoom_in(self):
+        """
+        Zoom in.
+        
+        Command: FF [address] 00 20 00 00 [checksum].
+        """
+        cmd = self.create_command(0x00, 0x20, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def zoom_out(self):
+        """
+        Zoom out.
+        
+        Command: FF [address] 00 40 00 00 [checksum].
+        """
+        cmd = self.create_command(0x00, 0x40, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def focus_far(self):
+        """
+        Focus far.
+        
+        Command: FF [address] 00 80 00 00 [checksum].
+        """
+        cmd = self.create_command(0x00, 0x80, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def focus_near(self):
+        """
+        Focus near.
+        
+        Command: FF [address] 01 00 00 00 [checksum].
+        (Note: This command uses cmd1=0x01 rather than 0x00.)
+        """
+        cmd = self.create_command(0x01, 0x00, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def iris_open(self):
+        """
+        Open the iris.
+        
+        Command: FF [address] 01 02 00 00 00 [checksum].
+        """
+        cmd = self.create_command(0x02, 0x00, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def iris_shut(self):
+        """
+        Close the iris.
+        
+        Command: FF [address] 01 04 00 00 00 [checksum].
+        """
+        cmd = self.create_command(0x04, 0x00, 0x00, 0x00)
+        self.send_command(cmd)
+
+    # =============================
+    #      Cruising Functions
+    # =============================
+    def start_cruise(self):
+        """
+        Start cruising (preset tour).
+        
+        Command: FF [address] 00 07 00 62 [checksum].
+        """
+        cmd = self.create_command(0x00, 0x07, 0x00, 0x62)
+        self.send_command(cmd)
+
+    def set_cruise_dwell_time(self, dwell_time):
+        """
+        Set cruising dwell time.
+        
+        Command: FF [address] 00 03 00 dwell_time [checksum].
+        'dwell_time' should be specified as a byte value.
+        """
+        cmd = self.create_command(0x00, 0x03, 0x00, dwell_time)
+        self.send_command(cmd)
+
+    def set_cruise_speed(self, speed):
+        """
+        Set cruising speed.
+        
+        Command: FF [address] 00 03 00 speed [checksum].
+        'speed' is typically in the range 1-63.
+        """
+        cmd = self.create_command(0x00, 0x03, 0x00, speed)
+        self.send_command(cmd)
+
+    # =============================
+    #      Line Scan Functions
+    # =============================
+    def set_line_scan_start(self):
+        """
+        Set the start position for a line scan.
+        
+        Command: FF [address] 00 03 00 5C [checksum].
+        """
+        cmd = self.create_command(0x00, 0x03, 0x00, 0x5C)
+        self.send_command(cmd)
+
+    def set_line_scan_end(self):
+        """
+        Set the end position for a line scan.
+        
+        Command: FF [address] 00 03 00 5D [checksum].
+        """
+        cmd = self.create_command(0x00, 0x03, 0x00, 0x5D)
+        self.send_command(cmd)
+
+    def run_line_scan(self):
+        """
+        Execute a line scan.
+        
+        Command: FF [address] 00 07 00 63 [checksum].
+        """
+        cmd = self.create_command(0x00, 0x07, 0x00, 0x63)
+        self.send_command(cmd)
+
+    def set_line_scan_speed(self, speed):
+        """
+        Set the speed for line scanning.
+        
+        Command: FF [address] 00 03 00 speed [checksum].
+        'speed' is typically between 1 and 63.
+        """
+        cmd = self.create_command(0x00, 0x03, 0x00, speed)
+        self.send_command(cmd)
+
+    # =============================
+    #      Guard Location
+    # =============================
+    def enable_guard(self):
+        """
+        Enable guard (home) location.
+        
+        Command: FF [address] 00 03 00 5E [checksum].
+        """
+        cmd = self.create_command(0x00, 0x03, 0x00, 0x5E)
+        self.send_command(cmd)
+
+    def disable_guard(self):
+        """
+        Disable guard location.
+        
+        Command: FF [address] 00 07 00 5E [checksum].
+        """
+        cmd = self.create_command(0x00, 0x07, 0x00, 0x5E)
+        self.send_command(cmd)
+
+    def set_guard_location_time(self, time_val):
+        """
+        Set the guard location return time.
+        
+        Command: FF [address] 00 03 00 time_val [checksum].
+        """
+        cmd = self.create_command(0x00, 0x03, 0x00, time_val)
+        self.send_command(cmd)
+
+    # =============================
+    #  Real-Time Angle Feedback (Internal Callback)
+    # =============================
+    def _feedback_listener(self):
+        """
+        Internal method that runs in a separate thread to listen for incoming real-time feedback data.
+        When data is received, the default callback is invoked.
+        """
+        while self.rt_feedback_active:
+            try:
+                if self.ser.in_waiting:
+                    data = self.ser.read(self.ser.in_waiting)
+                    try:
+                        decoded_data = data.decode('ascii', errors='replace')
+                    except Exception:
+                        decoded_data = data.hex()
+                    self.rt_callback(decoded_data)
+                time.sleep(0.1)
+            except Exception as e:
+                print("Error in feedback listener:", e)
+                break
+
+    def enable_rt_feedback(self):
+        """
+        Enable real-time angle feedback.
+        
+        This sends the command to open real-time feedback:
+          FF [address] 00 03 00 69 [checksum]
+        and starts a background thread that listens for incoming feedback data.
+        """
+        self.rt_feedback_active = True
+        cmd = self.create_command(0x00, 0x03, 0x00, 0x69)
+        self.send_command(cmd)
+        self.feedback_thread = threading.Thread(target=self._feedback_listener, daemon=True)
+        self.feedback_thread.start()
+
+    def disable_rt_feedback(self):
+        """
+        Disable real-time angle feedback.
+        
+        This stops the feedback listener thread and sends the command to disable feedback:
+          FF [address] 00 07 00 69 [checksum]
+        """
+        self.rt_feedback_active = False
+        if self.feedback_thread is not None:
+            self.feedback_thread.join(timeout=1)
+        cmd = self.create_command(0x00, 0x07, 0x00, 0x69)
+        self.send_command(cmd)
+
+    # =============================
+    #   Remote Reset & Factory Default
+    # =============================
+    def remote_reset(self):
+        """
+        Perform a remote reset of the pan-tilt system.
+        
+        Command: FF [address] 00 0F 00 00 [checksum].
+        """
+        cmd = self.create_command(0x00, 0x0F, 0x00, 0x00)
+        self.send_command(cmd)
+
+    def factory_default(self):
+        """
+        Restore factory default settings.
+        
+        Sequence of commands:
+          1. FF [address] 00 03 00 5A [checksum]
+          2. FF [address] 00 07 00 5A [checksum]
+          3. FF [address] 00 03 00 FF [checksum]
+          4. FF [address] 00 07 00 FF [checksum]
+        """
+        cmds = [
+            self.create_command(0x00, 0x03, 0x00, 0x5A),
+            self.create_command(0x00, 0x07, 0x00, 0x5A),
+            self.create_command(0x00, 0x03, 0x00, 0xFF),
+            self.create_command(0x00, 0x07, 0x00, 0xFF)
+        ]
+        for cmd in cmds:
+            self.send_command(cmd)
+            time.sleep(0.1)
+
+    # =============================
+    #            Close
+    # =============================
+    def close(self):
+        """Close the serial port connection."""
+        if self.ser and self.ser.is_open:
+            self.ser.close()
+            print("Serial port closed.")
+
+# Create a controller instance with the desired connection parameters.
+controller = PelcoDController(port='COM3', baudrate=9600, address=1)

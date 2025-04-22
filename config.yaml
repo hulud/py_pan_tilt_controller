@@ -1,0 +1,36 @@
+# config.yaml
+
+camera:
+  index: 1
+  width: 2592
+  height: 2048
+
+communication:
+  port: "COM3"
+  baudrate: 9600
+  address: 1
+  blocking: true
+
+zero:
+  pan: 0.0
+  tilt: 3.2
+
+sweep:
+  # The sweep range is defined relative to the zero position.
+  pan_range: 5       # will sweep from zero to +5 and then from +5 to -5 (relative)
+  tilt_range: 5.0      # will sweep from zero to +5 and then from +5 to -5 (relative)
+  step: 0.05
+
+tracking:
+  mode: bright
+  edge_search_radius: 50
+
+  bright_threshold: 200
+  bright_min_area: 5
+  bright_max_area: 10000
+
+lk_params:
+  win_size: [9, 9]
+  max_level: 3
+  term_crit_count: 15
+  term_crit_eps: 0.01
