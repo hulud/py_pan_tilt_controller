@@ -1,36 +1,26 @@
-# config.yaml
+# Pan-Tilt Control System Configuration
 
-camera:
-  index: 1
-  width: 2592
-  height: 2048
+# Server settings (for the API server to listen on)
+server:
+  host: 127.0.0.1   # Listen on loopback interface only (local connections only)
+  port: 5000        # Default API server port
 
-communication:
-  port: "COM3"
-  baudrate: 9600
-  address: 1
-  blocking: true
+# Client settings (for the GUI to connect to)
+client:
+  host: localhost   # Local connection address (127.0.0.1 would also work)
+  port: 5000        # Should match server port
 
-zero:
-  pan: 0.0
-  tilt: 3.2
+# Device configuration
+device:
+  type: simulator   # 'real' for hardware, 'simulator' for virtual device
+  port: COM3        # Serial port for real device (ignored by simulator)
+  baudrate: 9600    # Serial baudrate (ignored by simulator)
+  address: 1        # Device address (1-255)
+  blocking: false   # Whether to wait for movements to complete
+  timeout: 1.0      # Serial timeout in seconds (ignored by simulator)
 
-sweep:
-  # The sweep range is defined relative to the zero position.
-  pan_range: 5       # will sweep from zero to +5 and then from +5 to -5 (relative)
-  tilt_range: 5.0      # will sweep from zero to +5 and then from +5 to -5 (relative)
-  step: 0.05
-
-tracking:
-  mode: bright
-  edge_search_radius: 50
-
-  bright_threshold: 200
-  bright_min_area: 5
-  bright_max_area: 10000
-
-lk_params:
-  win_size: [9, 9]
-  max_level: 3
-  term_crit_count: 15
-  term_crit_eps: 0.01
+# Safety settings
+safety:
+  limit_degrees: 45.0      # Maximum movement from home position
+  warning_threshold: 0.85  # Threshold for warning indicator (0.0-1.0)
+  timeout_seconds: 5.0     # Automatic stop after continuous movement
