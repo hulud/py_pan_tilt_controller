@@ -3,7 +3,7 @@ import time
 
 class AbsolutePositionMixin:
     """
-    Mixin for absolute positioning functionality
+    Mixin for absolute positioning functionality - NO SAFETY LIMITS
     """
     
     def absolute_pan(self, angle):
@@ -12,10 +12,6 @@ class AbsolutePositionMixin:
         For angles < 0, converts to the equivalent positive value (e.g. -5° becomes 355°).
         If blocking is enabled, this method waits until the encoder reports the target.
         """
-        if not self.abs_positioning_override:
-            print("Absolute positioning is disabled for safety. Use set_abs_positioning_override(True) to enable.")
-            return
-            
         if angle < 0:
             value = 36000 - int(abs(angle) * 100)
         else:
@@ -34,10 +30,6 @@ class AbsolutePositionMixin:
         For positive angles: value = 36000 - int(angle * 100).
         If blocking is enabled, this method waits until the encoder reports the target.
         """
-        if not self.abs_positioning_override:
-            print("Absolute positioning is disabled for safety. Use set_abs_positioning_override(True) to enable.")
-            return
-            
         if angle < 0:
             value = int(abs(angle) * 100)
         else:
@@ -49,11 +41,7 @@ class AbsolutePositionMixin:
         if self.blocking:
             self._wait_for_tilt(angle, tolerance=0.2, max_wait=5.0)
             
-    def set_abs_positioning_override(self, override):
-        """Enable or disable absolute positioning override"""
-        self.abs_positioning_override = override
-        if override:
-            print("WARNING: Absolute positioning override enabled. Use caution with tilt values!")
+
 
     def _wait_for_pan(self, angle, tolerance=0.2, max_wait=5.0):
         """

@@ -2,8 +2,7 @@
 """
 Pan-Tilt API Server
 
-This server provides a REST API for controlling pan-tilt devices,
-supporting both real hardware and device simulators.
+This server provides a REST API for controlling pan-tilt devices.
 """
 
 import os
@@ -17,9 +16,8 @@ import threading
 import logging
 from werkzeug.serving import run_simple
 
-# Import the Pelco controller and simulator
+# Import the Pelco controller
 from pelco_D import PelcoDController
-from device_simulator import PelcoDSimulator
 
 # Set up logging
 logging.basicConfig(
@@ -44,7 +42,6 @@ def load_config():
         logger.error(f"Error loading config: {e}")
         return {
             'device': {
-                'type': 'simulator',
                 'port': None,
                 'baudrate': 9600,
                 'address': 1
@@ -57,29 +54,24 @@ def load_config():
 
 config = load_config()
 
-# Initialize device controller (real or simulator)
+# Initialize device controller
 def create_device():
     device_config = config.get('device', {})
-    device_type = device_config.get('type', 'simulator')
     
-    if device_type == 'real':
-        try:
-            return PelcoDController(
-                port=device_config.get('port', 'COM3'),
-                baudrate=device_config.get('baudrate', 9600),
-                address=device_config.get('address', 1),
-                blocking=device_config.get('blocking', False),
-                timeout=device_config.get('timeout', 1.0)
-            )
-        except Exception as e:
-            logger.error(f"Error creating real device: {e}")
-            logger.info("Falling back to simulator")
-            return PelcoDSimulator(address=device_config.get('address', 1))
-    else:
-        return PelcoDSimulator(address=device_config.get('address', 1))
+    try:
+        return PelcoDController(
+            port=device_config.get('port', 'COM3'),
+            baudrate=device_config.get('baudrate', 9600),
+            address=device_config.get('address', 1),
+            blocking=device_config.get('blocking', False),
+            timeout=device_config.get('timeout', 1.0)
+        )
+    except Exception as e:
+        logger.error(f"Error creating device: {e}")
+        raise
 
 device = create_device()
-logger.info(f"Device initialized: {'real' if isinstance(device, PelcoDController) else 'simulator'}")
+logger.info(f"Device initialized on port {config.get('device', {}).get('port')}")
 
 # Command queue for processing commands in order
 command_queue = []
@@ -123,25 +115,15 @@ def position_update_thread():
         try:
             rel_pan, rel_tilt, raw_pan, raw_tilt = device.get_relative_position()
             
-            # Safety check: stop movement if position is beyond limits
+            # No safety check needed
             if rel_pan is not None and rel_tilt is not None:
-                # Check if we're at a safety limit
-                safety_limit = device.safety_limit_degrees
-                
-                safety_issue = False
-                if abs(rel_pan) > safety_limit or abs(rel_tilt) > safety_limit:
-                    logger.warning(f"Position beyond safety limits: pan={rel_pan}, tilt={rel_tilt}")
-                    # Emergency stop
-                    device.stop()
-                    safety_issue = True
-                
                 socketio.emit('position_update', {
                     'rel_pan': rel_pan,
                     'rel_tilt': rel_tilt,
                     'raw_pan': raw_pan,
                     'raw_tilt': raw_tilt,
                     'timestamp': time.time(),
-                    'safety_issue': safety_issue
+                    'safety_issue': False
                 })
             else:
                 socketio.emit('position_update', {
@@ -164,10 +146,10 @@ position_thread.start()
 @app.route('/api/device/info', methods=['GET'])
 def get_device_info():
     """Get information about the current device"""
-    device_type = "real" if isinstance(device, PelcoDController) else "simulator"
     return jsonify({
-        'type': device_type,
-        'address': device.address
+        'type': 'real',
+        'address': device.address,
+        'port': config.get('device', {}).get('port')
     })
 
 @app.route('/api/device/movement/<direction>', methods=['POST'])
@@ -181,20 +163,7 @@ def movement(direction):
             device.stop()
             return jsonify({'status': 'success', 'direction': direction})
         
-        # Check if movement would exceed safety limits
-        rel_pan, rel_tilt, _, _ = device.get_relative_position()
-        
-        if rel_pan is not None and rel_tilt is not None:
-            safety_limit = device.safety_limit_degrees
-            
-            if direction == 'up' and rel_tilt >= safety_limit:
-                return jsonify({'status': 'error', 'message': 'Cannot move up: safety limit reached'}), 400
-            elif direction == 'down' and rel_tilt <= -safety_limit:
-                return jsonify({'status': 'error', 'message': 'Cannot move down: safety limit reached'}), 400
-            elif direction == 'left' and rel_pan <= -safety_limit:
-                return jsonify({'status': 'error', 'message': 'Cannot move left: safety limit reached'}), 400
-            elif direction == 'right' and rel_pan >= safety_limit:
-                return jsonify({'status': 'error', 'message': 'Cannot move right: safety limit reached'}), 400
+        # No safety limits check needed
         
         # Other movement commands go through the queue        
         if direction == 'up':
@@ -242,6 +211,12 @@ def absolute_position():
         tilt = data.get('tilt')
         step_size = data.get('step_size')
         
+        # Limit step size to 10 degrees
+        if step_size is not None:
+            if abs(step_size) > 10.0:
+                logger.warning(f"Step size {step_size} exceeds limit of 10 degrees, limiting to 10.0")
+                step_size = 10.0 if step_size > 0 else -10.0
+        
         # Calculate target position based on current position and step size if provided
         if step_size is not None:
             current_position = device.query_position()
@@ -250,18 +225,11 @@ def absolute_position():
             if current_position[1] is not None and tilt is None:
                 tilt = current_position[1] + step_size
         
-        # Enable absolute positioning
-        device.set_abs_positioning_override(True)
-        
         def perform_abs_movement():
-            try:
-                if pan is not None:
-                    device.absolute_pan(pan)
-                if tilt is not None:
-                    device.absolute_tilt(tilt)
-            finally:
-                # Disable absolute positioning when done
-                device.set_abs_positioning_override(False)
+            if pan is not None:
+                device.absolute_pan(pan)
+            if tilt is not None:
+                device.absolute_tilt(tilt)
         
         # Queue the absolute movement
         queue_command(perform_abs_movement)
@@ -269,8 +237,7 @@ def absolute_position():
         return jsonify({'status': 'success', 'pan': pan, 'tilt': tilt})
     except Exception as e:
         logger.error(f"Absolute position error: {e}")
-        # Make sure to disable override even on error
-        device.set_abs_positioning_override(False)
+
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/api/device/home', methods=['POST'])
@@ -282,9 +249,6 @@ def set_home():
     except Exception as e:
         logger.error(f"Set home error: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
-# Other API routes remain largely the same but with queue_command
-# for operations that modify device state
 
 # WebSocket events
 @socketio.on('connect')
@@ -326,7 +290,9 @@ if __name__ == '__main__':
     port = config['server'].get('port', 5000)
     
     logger.info(f"Starting Pan-Tilt API Server on {host}:{port}")
-    logger.info(f"Device type: {'real' if isinstance(device, PelcoDController) else 'simulator'}")
+    logger.info(f"Device on port: {config.get('device', {}).get('port')}")
     
     # Use werkzeug's run_simple with threaded=True for better performance
-    socketio.run(app, host=host, port=port, debug=False)
+    socketio.run(app, host=host, port=port, debug=False, allow_unsafe_werkzeug=True)
+
+

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JupyterPersistentConnectionParameters">
+    <option name="moduleParameters">
+      <map>
+        <entry key="$PROJECT_DIR$/../My Drive/python_tools/notebooks/.idea/notebooks.iml">
+          <value>
+            <JupyterConnectionParameters>
+              <option name="managed" value="true" />
+              <option name="sdkHomePath" value="C:\Users\Tuval\AppData\Local\Programs\Python\Python310\python.exe" />
+            </JupyterConnectionParameters>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/My Drive/python_tools/notebooks/.idea/notebooks.iml">
+          <value>
+            <JupyterConnectionParameters>
+              <option name="managed" value="true" />
+              <option name="sdkHomePath" value="C:\Users\Tuval\AppData\Local\Programs\Python\Python310\python.exe" />
+            </JupyterConnectionParameters>
+          </value>
+        </entry>
+        <entry key="G:/My Drive/R&amp;D/Experiments/System V2.0/.idea/System V2.0.iml">
+          <value>
+            <JupyterConnectionParameters>
+              <option name="managed" value="true" />
+              <option name="sdkHomePath" value="C:\Users\Tuval\AppData\Local\Programs\Python\Python39\python.exe" />
+            </JupyterConnectionParameters>
+          </value>
+        </entry>
+        <entry key="G:/My Drive/python_tools/notebooks/.idea/notebooks.iml">
+          <value>
+            <JupyterConnectionParameters>
+              <option name="managed" value="true" />
+              <option name="sdkHomePath" value="C:\Users\Tuval\AppData\Local\Programs\Python\Python310\python.exe" />
+            </JupyterConnectionParameters>
+          </value>
+        </entry>
+        <entry key="G:/My Drive/python_tools/wireshark_interpreter/.idea/Wireshark_to_pointcloud.iml">
+          <value>
+            <JupyterConnectionParameters>
+              <option name="managed" value="true" />
+              <option name="sdkHomePath" value="C:\Users\Tuval\AppData\Local\Programs\Python\Python39\python.exe" />
+            </JupyterConnectionParameters>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

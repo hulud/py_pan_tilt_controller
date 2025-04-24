@@ -3,7 +3,7 @@ import time
 
 class PositionMixin:
     """
-    Mixin for position query related functionality
+    Mixin for position query related functionality - NO SAFETY LIMITS
     """
     
     def query_pan_position(self):
@@ -86,37 +86,6 @@ class PositionMixin:
             self.home_tilt = tilt
             return True
         return False
-
-    def check_safety_limits(self, direction):
-        """
-        Check if movement in the given direction would exceed safety limits
-        Returns True if movement is safe, False otherwise
-        """
-        if self.home_pan is None or self.home_tilt is None:
-            # No home position set, allow movement
-            return True
-        
-        # Get current position
-        pan, tilt = self.query_position()
-        if pan is None or tilt is None:
-            # Can't determine position, don't allow movement for safety
-            return False
-        
-        # Calculate relative position from home
-        rel_pan = pan - self.home_pan
-        rel_tilt = tilt - self.home_tilt
-        
-        # Check limits based on direction
-        if direction == 'up' and rel_tilt >= self.safety_limit_degrees:
-            return False
-        elif direction == 'down' and rel_tilt <= -self.safety_limit_degrees:
-            return False
-        elif direction == 'left' and rel_pan <= -self.safety_limit_degrees:
-            return False
-        elif direction == 'right' and rel_pan >= self.safety_limit_degrees:
-            return False
-        
-        return True
 
     def wait_for_position_settled(self, poll_interval=0.2, stable_time=1.0, tolerance=0.1):
         print("Waiting for position to settle...")

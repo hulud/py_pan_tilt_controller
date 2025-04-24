@@ -13,7 +13,7 @@ from .advanced import AdvancedMixin
 class PelcoDController(PositionMixin, MovementMixin, AbsolutePositionMixin, 
                        PresetsMixin, AuxiliaryMixin, OpticalMixin, AdvancedMixin):
     """
-    Pelco D Protocol Camera Controller with full API support.
+    Pelco D Protocol Camera Controller - NO SAFETY FEATURES
     Class uses multiple inheritance with mixins to organize functionality.
     """
     
@@ -23,6 +23,7 @@ class PelcoDController(PositionMixin, MovementMixin, AbsolutePositionMixin,
 
         - Opens the serial port.
         - Immediately queries the device version for verification.
+        - Sets the pan and tilt zero points for calibration.
 
         Parameters:
           port      : Serial port to use.
@@ -53,11 +54,10 @@ class PelcoDController(PositionMixin, MovementMixin, AbsolutePositionMixin,
         self.feedback_thread = None
         self.rt_callback = self._default_rt_callback
 
-        # Home position and safety features
+        # Home position tracking
         self.home_pan = None
         self.home_tilt = None
-        self.safety_limit_degrees = 45.0
-        self.abs_positioning_override = False
+        self.abs_positioning_override = True  # Always enabled
 
         version = self.query_version()
         if version is None:
@@ -66,6 +66,24 @@ class PelcoDController(PositionMixin, MovementMixin, AbsolutePositionMixin,
             raise Exception("Failed to retrieve device version.")
         else:
             print("Device version:", version)
+        
+        # Initialize zero points for pan and tilt axes
+        print("Setting zero points for pan and tilt axes...")
+        self.set_pan_zero_point()
+        time.sleep(0.5)  # Give the device time to process
+        self.set_tilt_zero_point()
+        time.sleep(0.5)  # Give the device time to process
+        print("Zero points initialized")
+
+    def set_pan_zero_point(self):
+        """Set the pan zero point"""
+        cmd = self.create_command(0x00, 0x03, 0x00, 0x67)
+        self.send_command(cmd)
+
+    def set_tilt_zero_point(self):
+        """Set the tilt zero point"""
+        cmd = self.create_command(0x00, 0x03, 0x00, 0x68)
+        self.send_command(cmd)
 
     def _default_rt_callback(self, data):
         print("Real-time feedback:", data)

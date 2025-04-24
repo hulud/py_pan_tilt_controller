@@ -177,6 +177,10 @@ class MainWindowAPI(QMainWindow):
     
     def start_movement(self, direction, movement_time, step_size):
         """Start movement in the specified direction with defined time and step size"""
+        # Limit step size to 10 degrees
+        if abs(step_size) > 10.0:
+            step_size = 10.0 if step_size > 0 else -10.0
+            self.statusBar.showMessage(f"Step size limited to 10.0 degrees", 2000)
         # Get current position
         position = self.api_client.get_position()
         if not position:

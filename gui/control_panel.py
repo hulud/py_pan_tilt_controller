@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QHBoxLayout, 
-                             QPushButton, QLabel, QCheckBox, QDoubleSpinBox)
-from PyQt5.QtCore import Qt, pyqtSignal
-from gui.safety_indicator import SafetyLimitIndicator
+                             QPushButton, QLabel, QDoubleSpinBox)
+from PyQt5.QtCore import pyqtSignal
 
 class ControlPanel(QGroupBox):
-    """Widget containing camera movement controls and safety features"""
+    """Widget containing camera movement controls with step-based movement"""
     
     # Signals
-    movement_started = pyqtSignal(str, float, float)  # Direction, time, step size
-    movement_stopped = pyqtSignal()
+    step_movement_requested = pyqtSignal(str, float)  # Direction, step size
     home_set_requested = pyqtSignal()
-    abs_override_changed = pyqtSignal(bool)
     
     def __init__(self, parent=None):
         super().__init__("Controls", parent)
@@ -20,32 +17,17 @@ class ControlPanel(QGroupBox):
     def init_ui(self):
         layout = QVBoxLayout()
         
-        # Movement parameters layout
-        movement_params_layout = QHBoxLayout()
-        
-        # Movement time parameter
-        movement_time_layout = QVBoxLayout()
-        movement_time_layout.addWidget(QLabel("Movement Time (sec):"))
-        self.movement_time_spinbox = QDoubleSpinBox()
-        self.movement_time_spinbox.setRange(0.1, 10.0)
-        self.movement_time_spinbox.setSingleStep(0.1)
-        self.movement_time_spinbox.setValue(1.0)
-        self.movement_time_spinbox.setDecimals(1)
-        movement_time_layout.addWidget(self.movement_time_spinbox)
-        movement_params_layout.addLayout(movement_time_layout)
-        
         # Step size parameter
-        step_size_layout = QVBoxLayout()
+        step_size_layout = QHBoxLayout()
         step_size_layout.addWidget(QLabel("Step Size (degrees):"))
         self.step_size_spinbox = QDoubleSpinBox()
-        self.step_size_spinbox.setRange(0.1, 45.0)
-        self.step_size_spinbox.setSingleStep(0.5)
-        self.step_size_spinbox.setValue(5.0)
-        self.step_size_spinbox.setDecimals(1)
+        self.step_size_spinbox.setRange(0.01, 10.0)  # Limit to max 10 degrees, min 0.01
+        self.step_size_spinbox.setSingleStep(0.1)
+        self.step_size_spinbox.setValue(1.0)
+        self.step_size_spinbox.setDecimals(2)  # Allow 0.01 resolution
         step_size_layout.addWidget(self.step_size_spinbox)
-        movement_params_layout.addLayout(step_size_layout)
         
-        layout.addLayout(movement_params_layout)
+        layout.addLayout(step_size_layout)
         
         # Direction controls layout
         direction_layout = QVBoxLayout()
@@ -89,39 +71,64 @@ class ControlPanel(QGroupBox):
         home_layout.addWidget(self.btn_set_home)
         layout.addLayout(home_layout)
         
-        # Safety limit indicator
-        limit_layout = QHBoxLayout()
-        self.limit_indicator = SafetyLimitIndicator()
-        limit_layout.addWidget(QLabel("Safety Limit:"))
-        limit_layout.addWidget(self.limit_indicator)
-        limit_layout.addStretch()
-        layout.addLayout(limit_layout)
+        # Absolute position movement
+        abs_pos_layout = QHBoxLayout()
         
-        # Absolute positioning override
-        self.abs_override_check = QCheckBox("Enable Absolute Positioning (Override Safety)")
-        layout.addWidget(self.abs_override_check)
+        # Pan position input
+        pan_layout = QVBoxLayout()
+        pan_layout.addWidget(QLabel("Pan Angle:"))
+        self.pan_spinbox = QDoubleSpinBox()
+        self.pan_spinbox.setRange(0, 360.0)
+        self.pan_spinbox.setSingleStep(1.0)
+        self.pan_spinbox.setValue(180.0)
+        self.pan_spinbox.setDecimals(2)  # Allow 0.01 resolution
+        pan_layout.addWidget(self.pan_spinbox)
+        
+        # Tilt position input
+        tilt_layout = QVBoxLayout()
+        tilt_layout.addWidget(QLabel("Tilt Angle:"))
+        self.tilt_spinbox = QDoubleSpinBox()
+        self.tilt_spinbox.setRange(-90.0, 90.0)
+        self.tilt_spinbox.setSingleStep(1.0)
+        self.tilt_spinbox.setValue(0.0)
+        self.tilt_spinbox.setDecimals(2)  # Allow 0.01 resolution
+        tilt_layout.addWidget(self.tilt_spinbox)
+        
+        abs_pos_layout.addLayout(pan_layout)
+        abs_pos_layout.addLayout(tilt_layout)
+        
+        layout.addLayout(abs_pos_layout)
+        
+        # Go to absolute position button
+        go_abs_layout = QHBoxLayout()
+        self.btn_go_abs = QPushButton("Go to Absolute Position")
+        go_abs_layout.addWidget(self.btn_go_abs)
+        layout.addLayout(go_abs_layout)
         
         self.setLayout(layout)
         
         # Connect signals
         self.btn_up.clicked.connect(
-            lambda: self.movement_started.emit('up', self.movement_time_spinbox.value(), self.step_size_spinbox.value()))
+            lambda: self.step_movement_requested.emit('up', self.step_size_spinbox.value()))
         
         self.btn_down.clicked.connect(
-            lambda: self.movement_started.emit('down', self.movement_time_spinbox.value(), self.step_size_spinbox.value()))
+            lambda: self.step_movement_requested.emit('down', self.step_size_spinbox.value()))
         
         self.btn_left.clicked.connect(
-            lambda: self.movement_started.emit('left', self.movement_time_spinbox.value(), self.step_size_spinbox.value()))
+            lambda: self.step_movement_requested.emit('left', self.step_size_spinbox.value()))
         
         self.btn_right.clicked.connect(
-            lambda: self.movement_started.emit('right', self.movement_time_spinbox.value(), self.step_size_spinbox.value()))
+            lambda: self.step_movement_requested.emit('right', self.step_size_spinbox.value()))
         
-        self.btn_stop.clicked.connect(self.movement_stopped.emit)
+        self.btn_stop.clicked.connect(
+            lambda: self.step_movement_requested.emit('stop', 0))
+        
         self.btn_set_home.clicked.connect(self.home_set_requested.emit)
         
-        self.abs_override_check.stateChanged.connect(
-            lambda state: self.abs_override_changed.emit(state == Qt.Checked))
+        self.btn_go_abs.clicked.connect(self.go_to_absolute_position)
     
-    def set_limit_indicator(self, is_near_limit):
-        """Update the safety limit indicator"""
-        self.limit_indicator.set_near_limit(is_near_limit)
+    def go_to_absolute_position(self):
+        """Command the controller to go to the specified absolute position"""
+        pan = self.pan_spinbox.value()
+        tilt = self.tilt_spinbox.value()
+        self.parent().go_to_absolute_position(pan, tilt)

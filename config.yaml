@@ -12,12 +12,11 @@ client:
 
 # Device configuration
 device:
-  type: simulator   # 'real' for hardware, 'simulator' for virtual device
-  port: COM3        # Serial port for real device (ignored by simulator)
-  baudrate: 9600    # Serial baudrate (ignored by simulator)
+  port: COM3        # Serial port for real device
+  baudrate: 9600    # Serial baudrate
   address: 1        # Device address (1-255)
   blocking: false   # Whether to wait for movements to complete
-  timeout: 1.0      # Serial timeout in seconds (ignored by simulator)
+  timeout: 1.0      # Serial timeout in seconds
 
 # Safety settings
 safety:

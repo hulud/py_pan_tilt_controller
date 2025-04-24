@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sys
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
 from gui.main_window import MainWindow
 from pelco_D import PelcoDController
 
@@ -27,11 +27,15 @@ def main():
     # Create Qt application
     app = QApplication(sys.argv)
     
+    # No warning message needed
+    
     # Create controller
     try:
         controller = PelcoDController(port=port, baudrate=baudrate, address=address)
     except Exception as e:
         print(f"Error initializing controller: {e}")
+        QMessageBox.critical(None, "Controller Error", 
+                           f"Error initializing controller: {e}")
         return 1
     
     # Create and show main window

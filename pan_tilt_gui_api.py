@@ -47,7 +47,7 @@ def main():
         host = args.host or config.get('client', {}).get('host', 'localhost')
         # If host is 0.0.0.0, replace with localhost for client connection
         if host == "0.0.0.0":
-            host = "localhost"
+            host = "localhost"  
             
         port = args.port or config.get('server', {}).get('port', 5000)
         api_url = f"http://{host}:{port}"
