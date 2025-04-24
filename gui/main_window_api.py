@@ -66,10 +66,8 @@ class MainWindowAPI(QMainWindow):
         self.statusBar.addPermanentWidget(self.connection_indicator)
         
         # Connect control panel signals
-        self.control_panel.movement_started.connect(self.start_movement)
-        self.control_panel.movement_stopped.connect(self.stop_movement)
+        self.control_panel.step_movement_requested.connect(self.handle_step_movement)
         self.control_panel.home_set_requested.connect(self.set_home_position)
-        self.control_panel.abs_override_changed.connect(self.toggle_abs_positioning)
     
     def toggle_abs_positioning(self, enable):
         """Enable or disable absolute positioning override"""
@@ -89,6 +87,26 @@ class MainWindowAPI(QMainWindow):
                 "Home position set successfully. Safety limits reset.")
         else:
             QMessageBox.warning(self, "Error", f"Failed to set home position: {self.api_client.last_error}")
+    
+    def go_to_absolute_position(self, pan, tilt):
+        """Go to an absolute position"""
+        # Validate inputs
+        if not (0 <= pan <= 360):
+            QMessageBox.warning(self, "Invalid Input", "Pan angle must be between 0 and 360 degrees")
+            return
+            
+        if not (-90 <= tilt <= 90):
+            QMessageBox.warning(self, "Invalid Input", "Tilt angle must be between -90 and 90 degrees")
+            return
+            
+        # Stop any current movement
+        self.stop_movement()
+        
+        # Send absolute position command
+        if not self.api_client.set_absolute_position(pan=pan, tilt=tilt):
+            QMessageBox.warning(self, "Error", f"Failed to set absolute position: {self.api_client.last_error}")
+        else:
+            self.statusBar.showMessage(f"Moving to absolute position: Pan {pan}°, Tilt {tilt}°", 3000)
     
     def apply_button_style(self, direction):
         """Apply a consistent style to the active button"""
@@ -126,7 +144,9 @@ class MainWindowAPI(QMainWindow):
                 abs(rel_tilt) > (self.safety_limit_degrees * self.warning_threshold)):
                 near_limit = True
         
-        self.control_panel.set_limit_indicator(near_limit)
+        # Check if position_display has set_limit_indicator method
+        if hasattr(self.position_display, 'set_limit_indicator'):
+            self.position_display.set_limit_indicator(near_limit)
         
         # Check if position is beyond limits and stop movement
         self.check_position_limits(rel_pan, rel_tilt)
@@ -175,12 +195,20 @@ class MainWindowAPI(QMainWindow):
         
         return True
     
-    def start_movement(self, direction, movement_time, step_size):
-        """Start movement in the specified direction with defined time and step size"""
+    def handle_step_movement(self, direction, step_size):
+        """Handle step movement requests from the control panel"""
+        # Default movement time (seconds)
+        movement_time = 1.0
+        
+        if direction == 'stop':
+            self.stop_movement()
+            return
+            
         # Limit step size to 10 degrees
         if abs(step_size) > 10.0:
             step_size = 10.0 if step_size > 0 else -10.0
             self.statusBar.showMessage(f"Step size limited to 10.0 degrees", 2000)
+            
         # Get current position
         position = self.api_client.get_position()
         if not position:
