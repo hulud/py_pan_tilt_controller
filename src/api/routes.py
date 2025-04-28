@@ -4,14 +4,12 @@ API routes for PTZ camera control.
 This module defines the REST API endpoints for controlling PTZ cameras.
 """
 import time
-import json
 import threading
 import logging
-from typing import Dict, Any, Optional, Callable
 from flask import Flask, request, jsonify, Blueprint
 from flask_socketio import SocketIO, emit
 
-from ..controller import PTZController
+from src.controller import PTZController
 from .models import MovementRequest, AbsolutePositionRequest, PositionResponse, ErrorResponse, SuccessResponse
 
 logger = logging.getLogger(__name__)
@@ -71,18 +69,51 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
         """Thread that periodically emits position updates via WebSocket"""
         while True:
             try:
-                rel_pan, rel_tilt, raw_pan, raw_tilt = controller.get_relative_position()
-                
-                socketio.emit('position_update', {
-                    'rel_pan': rel_pan,
-                    'rel_tilt': rel_tilt,
-                    'raw_pan': raw_pan,
-                    'raw_tilt': raw_tilt,
-                    'timestamp': time.time(),
-                })
+                # Use a try-except block to catch any errors in the position update
+                try:
+                    # Get position with status information
+                    rel_pan, rel_tilt, raw_pan, raw_tilt, status = controller.get_relative_position()
+                    
+                    # Create response payload
+                    position_data = {
+                        'rel_pan': rel_pan,
+                        'rel_tilt': rel_tilt,
+                        'raw_pan': raw_pan,
+                        'raw_tilt': raw_tilt,
+                        'timestamp': time.time(),
+                        'status': {
+                            'pan_valid': status.get('pan_valid', False),
+                            'tilt_valid': status.get('tilt_valid', False),
+                            'position_type': 'measured' if (status.get('pan_valid', False) or status.get('tilt_valid', False)) else 'estimated'
+                        }
+                    }
+                    
+                    # Emit position update
+                    socketio.emit('position_update', position_data)
+                    
+                except Exception as e:
+                    # Log the error but don't let it crash the thread
+                    logger.error(f"Error getting position data: {e}")
+                    
+                    # Emit default position values when position query fails
+                    socketio.emit('position_update', {
+                        'rel_pan': 0.0,
+                        'rel_tilt': 0.0,
+                        'raw_pan': 0.0,
+                        'raw_tilt': 0.0,
+                        'timestamp': time.time(),
+                        'status': {
+                            'pan_valid': False,
+                            'tilt_valid': False,
+                            'position_type': 'estimated',
+                            'error': str(e)
+                        }
+                    })
             except Exception as e:
-                logger.error(f"Error in position update: {e}")
-            time.sleep(0.1)  # Update every 100ms
+                logger.error(f"Error in position update thread: {e}")
+            
+            # Use a longer update interval to reduce pressure on the device
+            time.sleep(0.25)  # Update every 250ms
     
     # Start the position update thread
     position_thread = threading.Thread(target=position_update_thread, daemon=True)
@@ -146,12 +177,17 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
     def get_position():
         """Get current position"""
         try:
-            rel_pan, rel_tilt, raw_pan, raw_tilt = controller.get_relative_position()
+            rel_pan, rel_tilt, raw_pan, raw_tilt, status = controller.get_relative_position()
             position = PositionResponse(
                 rel_pan=rel_pan,
                 rel_tilt=rel_tilt,
                 raw_pan=raw_pan,
-                raw_tilt=raw_tilt
+                raw_tilt=raw_tilt,
+                status={
+                    'pan_valid': status.get('pan_valid', False),
+                    'tilt_valid': status.get('tilt_valid', False),
+                    'position_type': 'measured' if (status.get('pan_valid', False) or status.get('tilt_valid', False)) else 'estimated'
+                }
             )
             return jsonify(position.to_dict())
         except Exception as e:
@@ -356,16 +392,22 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
         logger.info(f'Client connected: {request.sid}')
         # Send immediate position update to new client
         try:
-            rel_pan, rel_tilt, raw_pan, raw_tilt = controller.get_relative_position()
+            rel_pan, rel_tilt, raw_pan, raw_tilt, status = controller.get_relative_position()
             emit('position_update', {
                 'rel_pan': rel_pan,
                 'rel_tilt': rel_tilt,
                 'raw_pan': raw_pan,
                 'raw_tilt': raw_tilt,
-                'timestamp': time.time()
+                'timestamp': time.time(),
+                'status': {
+                    'pan_valid': status.get('pan_valid', False),
+                    'tilt_valid': status.get('tilt_valid', False),
+                    'position_type': 'measured' if (status.get('pan_valid', False) or status.get('tilt_valid', False)) else 'estimated'
+                }
             })
         except Exception as e:
             logger.error(f"Error sending initial position: {e}")
+            emit('error', {'message': str(e), 'source': 'connect'})
 
     @socketio.on('disconnect')
     def handle_disconnect():
@@ -374,16 +416,26 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
     @socketio.on('request_position')
     def handle_request_position():
         try:
-            rel_pan, rel_tilt, raw_pan, raw_tilt = controller.get_relative_position()
+            rel_pan, rel_tilt, raw_pan, raw_tilt, status = controller.get_relative_position()
             emit('position_update', {
                 'rel_pan': rel_pan,
                 'rel_tilt': rel_tilt,
                 'raw_pan': raw_pan,
                 'raw_tilt': raw_tilt,
-                'timestamp': time.time()
+                'timestamp': time.time(),
+                'status': {
+                    'pan_valid': status.get('pan_valid', False),
+                    'tilt_valid': status.get('tilt_valid', False),
+                    'position_type': 'measured' if (status.get('pan_valid', False) or status.get('tilt_valid', False)) else 'estimated'
+                }
             })
         except Exception as e:
-            emit('error', {'message': str(e)})
+            logger.error(f"Error in request_position handler: {e}")
+            emit('error', {
+                'message': str(e),
+                'source': 'request_position',
+                'timestamp': time.time()
+            })
     
     # Register the blueprint
     app.register_blueprint(api_bp)

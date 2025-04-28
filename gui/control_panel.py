@@ -131,4 +131,10 @@ class ControlPanel(QGroupBox):
         """Command the controller to go to the specified absolute position"""
         pan = self.pan_spinbox.value()
         tilt = self.tilt_spinbox.value()
-        self.parent().go_to_absolute_position(pan, tilt)
+        
+        # Get the main window which should be MainWindowAPI
+        main_window = self.window()
+        if hasattr(main_window, 'go_to_absolute_position'):
+            main_window.go_to_absolute_position(pan, tilt)
+        else:
+            print("Error: Main window doesn't have go_to_absolute_position method")

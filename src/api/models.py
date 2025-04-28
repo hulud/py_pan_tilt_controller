@@ -58,10 +58,11 @@ class AbsolutePositionRequest:
 class PositionResponse:
     """Response model for position queries"""
     
-    rel_pan: Optional[float]
-    rel_tilt: Optional[float]
-    raw_pan: Optional[float]
-    raw_tilt: Optional[float]
+    rel_pan: float
+    rel_tilt: float
+    raw_pan: float
+    raw_tilt: float
+    status: Optional[Dict[str, Any]] = None
     
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -70,13 +71,28 @@ class PositionResponse:
         Returns:
             Dictionary representation suitable for JSON serialization
         """
-        return {
-            'status': 'success' if self.raw_pan is not None and self.raw_tilt is not None else 'error',
+        result = {
+            'status': 'success',
             'rel_pan': self.rel_pan,
             'rel_tilt': self.rel_tilt,
             'raw_pan': self.raw_pan,
-            'raw_tilt': self.raw_tilt
+            'raw_tilt': self.raw_tilt,
+            'timestamp': None  # Will be filled in by client
         }
+        
+        # Add position status information if available
+        if self.status:
+            result['position_status'] = self.status
+        else:
+            # Legacy fallback status determination
+            is_valid = self.raw_pan is not None and self.raw_tilt is not None
+            result['position_status'] = {
+                'pan_valid': is_valid,
+                'tilt_valid': is_valid,
+                'position_type': 'measured' if is_valid else 'estimated'
+            }
+            
+        return result
 
 
 @dataclass

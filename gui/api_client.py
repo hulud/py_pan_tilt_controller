@@ -15,8 +15,8 @@ from PyQt5.QtCore import QObject, pyqtSignal, QThread
 
 logger = logging.getLogger(__name__)
 
-# Set shorter default timeouts
-DEFAULT_REQUEST_TIMEOUT = 0.5  # 500ms timeout for HTTP requests
+# Set longer default timeouts
+DEFAULT_REQUEST_TIMEOUT = 2.0  # 2 second timeout for HTTP requests
 
 class APIClient(QObject):
     """

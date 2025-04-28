@@ -1,27 +1,22 @@
+
 connection:
-  type: serial  # Options: serial, network
-  serial:
-    port: COM3  # or /dev/ttyUSB0 for Linux
-    baudrate: 9600
-    data_bits: 8
-    stop_bits: 1
-    parity: N
-  network:
-    ip: 192.168.1.60
-    port: 80
+  port: SIMULATOR            # Use simulator instead of COM port
+  baudrate: 9600
+  timeout: 1.0
+  retries: 3                 
+  retry_delay: 0.5
 
 controller:
-  address: 1  # Camera address
-  protocol: pelco_d  # Protocol selection if multiple supported
-  default_speed: 25  # Default movement speed (0-63)
-  timeout: 1.0  # Response timeout in seconds
+  address: 1
+  protocol: pelco_d
+  default_speed: 25
+  timeout: 1.0
 
 api:
   host: 127.0.0.1
   port: 8080
-  debug: false
+  debug: true               # Enable debug mode
 
-# Client settings
 client:
   host: 127.0.0.1
   port: 8080

@@ -1,7 +1,9 @@
+# ─── src/controller/__init__.py ────────────────────────────
 """
-Main controller module for PTZ control system.
+Controller package root.
 """
 
-from .ptz import PTZController
+from .ptz import PTZController  # re-export
+__all__ = ["PTZController"]
 
-__all__ = ['PTZController']
+# -----------------------------------------------------------

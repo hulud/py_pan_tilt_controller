@@ -2,15 +2,15 @@
 Connection module for PTZ camera control systems.
 
 This module provides abstract and concrete connection implementations
-for different types of physical connections to PTZ cameras.
+for serial connections to PTZ cameras.
 """
 
 from .base import ConnectionBase
 from .serial_conn import SerialConnection
-from .network_conn import NetworkConnection
+from .simulator_conn import SimulatorConnection
 
 __all__ = [
     'ConnectionBase',
     'SerialConnection',
-    'NetworkConnection',
+    'SimulatorConnection',
 ]

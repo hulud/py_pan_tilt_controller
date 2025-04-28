@@ -152,7 +152,151 @@ class SerialConnection(ConnectionBase):
         if not self.is_open():
             raise ConnectionError("Serial connection is not open")
         
+        # Enhanced debug print for sent data
+        print(f"[SERIAL TX] >>> {' '.join(f'{b:02X}' for b in data)} | ASCII: {self._format_as_ascii(data)} | Length: {len(data)} bytes")
+        print(f"[SERIAL TX] Command breakdown: {self._parse_pelco_command(data)}")
+        
         return self._serial.write(data)
+    
+    def _format_as_ascii(self, data: bytes) -> str:
+        """Format bytes as ASCII, showing printable characters and hex for others"""
+        result = []
+        for byte in data:
+            if 32 <= byte <= 126:  # Printable ASCII
+                result.append(chr(byte))
+            else:
+                result.append(f'\\x{byte:02X}')
+        return ''.join(result)
+    
+    def _parse_pelco_command(self, data: bytes) -> str:
+        """
+        Parse Pelco D command structure for debugging
+        
+        Format: 0xFF add cmd1 cmd2 data1 data2 sum
+        """
+        if len(data) < 7 or data[0] != 0xFF:
+            return "Not a valid Pelco D command"
+            
+        try:
+            address = data[1]
+            cmd1 = data[2]
+            cmd2 = data[3]
+            data1 = data[4]
+            data2 = data[5]
+            checksum = data[6]
+            
+            # Command analysis
+            cmd_type = "Unknown"
+            cmd_details = ""
+            
+            # Movement commands
+            if cmd1 == 0x00:
+                if cmd2 == 0x00 and data1 == 0x00 and data2 == 0x00:
+                    cmd_type = "MOVEMENT"
+                    cmd_details = "Stop"
+                elif cmd2 == 0x02:
+                    cmd_type = "MOVEMENT"
+                    cmd_details = f"Pan Right (Speed: {data1}/63)"
+                elif cmd2 == 0x04:
+                    cmd_type = "MOVEMENT"
+                    cmd_details = f"Pan Left (Speed: {data1}/63)"
+                elif cmd2 == 0x08:
+                    cmd_type = "MOVEMENT"
+                    cmd_details = f"Tilt Up (Speed: {data2}/63)"
+                elif cmd2 == 0x10:
+                    cmd_type = "MOVEMENT"
+                    cmd_details = f"Tilt Down (Speed: {data2}/63)"
+                elif cmd2 == 0x0C:
+                    cmd_type = "MOVEMENT"
+                    cmd_details = f"Pan Left + Tilt Up (Pan speed: {data1}/63, Tilt speed: {data2}/63)"
+                elif cmd2 == 0x14:
+                    cmd_type = "MOVEMENT"
+                    cmd_details = f"Pan Left + Tilt Down (Pan speed: {data1}/63, Tilt speed: {data2}/63)"
+                elif cmd2 == 0x0A:
+                    cmd_type = "MOVEMENT"
+                    cmd_details = f"Pan Right + Tilt Up (Pan speed: {data1}/63, Tilt speed: {data2}/63)"
+                elif cmd2 == 0x12:
+                    cmd_type = "MOVEMENT"
+                    cmd_details = f"Pan Right + Tilt Down (Pan speed: {data1}/63, Tilt speed: {data2}/63)"
+                # Preset commands
+                elif cmd2 == 0x03 and data1 == 0x00:
+                    if data2 == 0x67:
+                        cmd_type = "ZERO POINT"
+                        cmd_details = "Set Pan Zero Point"
+                    elif data2 == 0x68:
+                        cmd_type = "ZERO POINT"
+                        cmd_details = "Set Tilt Zero Point"
+                    else:
+                        cmd_type = "PRESET"
+                        cmd_details = f"Set Preset {data2}"
+                elif cmd2 == 0x07 and data1 == 0x00:
+                    cmd_type = "PRESET"
+                    cmd_details = f"Call Preset {data2}"
+                elif cmd2 == 0x05 and data1 == 0x00:
+                    cmd_type = "PRESET"
+                    cmd_details = f"Clear Preset {data2}"
+                # Position query commands
+                elif cmd2 == 0x51 and data1 == 0x00 and data2 == 0x00:
+                    cmd_type = "QUERY"
+                    cmd_details = "Pan Position Query"
+                elif cmd2 == 0x53 and data1 == 0x00 and data2 == 0x00:
+                    cmd_type = "QUERY"
+                    cmd_details = "Tilt Position Query"
+                # Absolute position commands
+                elif cmd2 == 0x4B:
+                    value = (data1 << 8) | data2
+                    angle = value / 100.0
+                    cmd_type = "ABSOLUTE"
+                    cmd_details = f"Pan to {angle:.2f}° (Raw: 0x{data1:02X}{data2:02X}={value})"
+                elif cmd2 == 0x4D:
+                    value = (data1 << 8) | data2
+                    if value <= 18000:
+                        angle = -value / 100.0
+                    else:
+                        angle = (36000 - value) / 100.0
+                    cmd_type = "ABSOLUTE"
+                    cmd_details = f"Tilt to {angle:.2f}° (Raw: 0x{data1:02X}{data2:02X}={value})"
+                # Auxiliary commands
+                elif cmd2 == 0x09 and data1 == 0x00:
+                    cmd_type = "AUXILIARY"
+                    cmd_details = f"AUX ON: {data2}"
+                elif cmd2 == 0x0B and data1 == 0x00:
+                    cmd_type = "AUXILIARY"
+                    cmd_details = f"AUX OFF: {data2}"
+                # Reset command
+                elif cmd2 == 0x0F and data1 == 0x00 and data2 == 0x00:
+                    cmd_type = "SYSTEM"
+                    cmd_details = "Remote Reset"
+            # Zoom commands
+            elif cmd1 == 0x00 and cmd2 == 0x20:
+                cmd_type = "OPTICAL"
+                cmd_details = "Zoom In"
+            elif cmd1 == 0x00 and cmd2 == 0x40:
+                cmd_type = "OPTICAL"
+                cmd_details = "Zoom Out"
+            # Focus commands
+            elif cmd1 == 0x00 and cmd2 == 0x80:
+                cmd_type = "OPTICAL"
+                cmd_details = "Focus Far"
+            elif cmd1 == 0x01 and cmd2 == 0x00:
+                cmd_type = "OPTICAL"
+                cmd_details = "Focus Near"
+            # Iris commands
+            elif cmd1 == 0x02 and cmd2 == 0x00:
+                cmd_type = "OPTICAL"
+                cmd_details = "Iris Open"
+            elif cmd1 == 0x04 and cmd2 == 0x00:
+                cmd_type = "OPTICAL"
+                cmd_details = "Iris Close"
+            
+            # Calculate expected checksum to verify
+            expected_sum = sum([address, cmd1, cmd2, data1, data2]) % 256
+            checksum_status = "✓" if expected_sum == checksum else f"✗ (expected: {expected_sum:02X})"
+            
+            return (f"Address: {address}, Command: {cmd1:02X} {cmd2:02X}, Data: {data1:02X} {data2:02X}, " +
+                    f"Checksum: {checksum:02X} {checksum_status} | Type: {cmd_type} | {cmd_details}")
+        except Exception as e:
+            return f"Error parsing command: {e}"
     
     def receive(self, size: int = 1024, timeout: float = None) -> bytes:
         """
@@ -180,17 +324,118 @@ class SerialConnection(ConnectionBase):
         
         try:
             # Read available data or wait for data
-            data = self._serial.read(size)
-            
-            # Check for timeout (no data received)
-            if not data and timeout is not None:
+            try:
+                data = self._serial.read(size)
+            except Exception as e:
+                print(f"[SERIAL RX] Error reading from serial port: {e}")
+                return bytes()
+                
+            # Debug prints for received data
+            if data:
+                try:
+                    print(f"[SERIAL RX] <<< {' '.join(f'{b:02X}' for b in data)} | ASCII: {self._format_as_ascii(data)} | Length: {len(data)} bytes")
+                    
+                    # Try to parse the response
+                    if len(data) >= 7 and (0x59 in data or 0x5B in data):  # Check if it might be a position response
+                        print(f"[SERIAL RX] Response analysis: {self._parse_pelco_response(data)}")
+                except Exception as e:
+                    print(f"[SERIAL RX] Error in debug printing: {e}")
+            elif timeout is not None:
+                print(f"[SERIAL RX] No data received within timeout period ({timeout}s)")
                 raise TimeoutError("No data received within timeout period")
                 
             return data
+        except TimeoutError:
+            # Re-raise timeout error
+            raise
+        except Exception as e:
+            print(f"[SERIAL RX] Unexpected error in receive: {e}")
+            return bytes()
         finally:
             # Restore original timeout if changed
-            if original_timeout is not None:
-                self._serial.timeout = original_timeout
+            try:
+                if original_timeout is not None and self._serial and self._serial.is_open:
+                    self._serial.timeout = original_timeout
+            except Exception as e:
+                print(f"[SERIAL RX] Error restoring timeout: {e}")
+                
+    def _parse_pelco_response(self, data: bytes) -> str:
+        """
+        Parse Pelco D response structure for debugging
+        """
+        try:
+            # Handle empty data
+            if not data:
+                return "Empty response"
+                
+            # Check for pan position response (0x59)
+            if 0x59 in data:
+                idx = data.index(0x59)
+                if len(data) >= idx + 3:
+                    try:
+                        # Extract MSB and LSB bytes
+                        msb = data[idx + 1]
+                        lsb = data[idx + 2]
+                        
+                        # Calculate raw data value (PMSB*256 + PLSB)
+                        raw_value = (msb << 8) | lsb
+                        
+                        # Calculate angle according to the protocol spec: Pan angle = raw_value / 100.0
+                        pan_angle = (raw_value / 100.0) % 360.0
+                        
+                        return f"Pan Position Response: Raw=0x{msb:02X}{lsb:02X}={raw_value}, Angle={pan_angle:.2f}°"
+                    except Exception as e:
+                        return f"Error parsing pan position response at index {idx}: {e}"
+                else:
+                    return f"Incomplete pan position response: found 0x59 at position {idx} but not enough data follows"
+            
+            # Check for tilt position response (0x5B)
+            elif 0x5B in data:
+                idx = data.index(0x5B)
+                if len(data) >= idx + 3:
+                    try:
+                        # Extract MSB and LSB bytes
+                        msb = data[idx + 1]
+                        lsb = data[idx + 2]
+                        
+                        # Calculate raw data value (TMSB*256 + TLSB)
+                        raw_value = (msb << 8) | lsb
+                        
+                        # Calculate angle according to protocol spec
+                        if raw_value > 18000:
+                            tilt_data = 36000 - raw_value
+                            tilt_angle = tilt_data / 100.0
+                        else:
+                            tilt_data = -raw_value
+                            tilt_angle = tilt_data / 100.0
+                        
+                        return f"Tilt Position Response: Raw=0x{msb:02X}{lsb:02X}={raw_value}, Calculated={tilt_data}, Angle={tilt_angle:.2f}°"
+                    except Exception as e:
+                        return f"Error parsing tilt position response at index {idx}: {e}"
+                else:
+                    return f"Incomplete tilt position response: found 0x5B at position {idx} but not enough data follows"
+            
+            # Check if it might be a complete response with checksum
+            if len(data) >= 7 and data[0] == 0xFF:
+                try:
+                    address = data[1]
+                    cmd1 = data[2]
+                    cmd2 = data[3]
+                    data1 = data[4]
+                    data2 = data[5]
+                    checksum = data[6]
+                    
+                    # Calculate expected checksum
+                    expected_sum = sum([address, cmd1, cmd2, data1, data2]) % 256
+                    checksum_status = "✓" if expected_sum == checksum else f"✗ (expected: {expected_sum:02X})"
+                    
+                    return f"Complete Response: Addr={address}, Cmd={cmd1:02X}{cmd2:02X}, Data={data1:02X}{data2:02X}, Checksum={checksum:02X} {checksum_status}"
+                except Exception as e:
+                    return f"Error parsing complete response: {e}"
+            
+            return f"Unknown response format: {' '.join(f'{b:02X}' for b in data)}"
+        except Exception as e:
+            return f"Error parsing response: {e}, data: {data.hex() if data else 'None'}"
     
     def receive_until(self, 
                      terminator: bytes, 

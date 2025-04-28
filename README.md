@@ -1,104 +1,56 @@
 # Pan-Tilt Camera Control System
 
-A comprehensive control system for Pelco-D compatible pan-tilt camera platforms with step-based motion control and direct positioning capabilities.
-
-## Table of Contents
-
-- [Overview](#overview)
-- [System Architecture](#system-architecture)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Running the System](#running-the-system)
-- [API Reference](#api-reference)
-- [GUI Application](#gui-application)
-- [Configuration](#configuration)
-- [Step-Based Movement](#step-based-movement)
-- [Troubleshooting](#troubleshooting)
-- [Development](#development)
+A comprehensive control system for Pelco-D compatible pan-tilt camera platforms using USB serial connections. The system provides step-based motion control and direct positioning capabilities with a client-server architecture.
 
 ## Overview
 
-This system provides a comprehensive interface for controlling pan-tilt camera platforms that use the Pelco-D protocol. Key features include:
+This system provides a complete interface for controlling pan-tilt camera platforms that use the Pelco-D protocol over serial connections. Key features include:
 
-- Modular architecture with clear separation of concerns
-- Real-time position feedback via WebSockets
-- Full implementation of the Pelco-D protocol
-- Support for both serial (RS485/RS422) and network connections
+- USB/Serial connection (RS485/RS422) to camera hardware
+- Full implementation of the Pelco-D protocol with enhanced reliability
+- Client-server architecture with WebSocket position feedback
 - User-friendly GUI with immediate visual feedback
 - Step-based motion control for precise positioning
-- Direct absolute position control
+- Direct absolute position control with 0.01° precision
+- Enhanced debugging for serial communications
 
 ## System Architecture
 
-The system follows a modular client-server architecture with clearly separated components:
+The system follows a modular client-server architecture:
 
-1. **Protocol Layer**: Pure implementation of the Pelco-D protocol
+1. **Protocol Layer**: Implementation of the Pelco-D protocol
    - Command generation and response parsing
-   - Independent of connection methods
-   - Comprehensive protocol coverage (movement, presets, positioning)
+   - Robust position feedback interpretation
+   - Complete protocol coverage (movement, presets, positioning)
+   - Detailed command and response debugging
 
-2. **Connection Layer**: Hardware abstraction layer
-   - Supports both serial (RS485/RS422) and network connections
-   - Common interface for all connection methods
-   - Thread-safe implementation with callback support
+2. **Serial Connection Layer**: 
+   - USB-to-Serial communication (RS485/RS422)
+   - Thread-safe implementation with retry mechanisms
+   - Error resilient communication
+   - Comprehensive debugging of sent and received data
 
-3. **Controller Layer**: Business logic
+3. **Controller Layer**: 
    - Combines protocol and connection layers
    - High-level camera control API
-   - Position tracking and home position management
+   - Position tracking and feedback handling
+   - Detailed operation logging and status reporting
 
-4. **API Layer**: Server middleware
-   - REST API endpoints for device control
+4. **API Server Layer**: 
+   - REST API endpoints for device control (localhost only)
    - WebSocket for real-time position updates
    - Command queueing to prevent conflicting operations
 
-5. **GUI Layer**: User interface
-   - API client with automatic reconnection
+5. **GUI Layer**: 
+   - Connection to local API server
    - Real-time position display
-   - Safety limits and precise step control
+   - Intuitive camera controls with step precision
 
-## Project Structure
+## Hardware Requirements
 
-```
-├── config/                      # Configuration files
-│   └── settings.yaml            # System configuration
-│
-├── src/                         # Source code
-│   ├── protocol/                # Protocol implementation
-│   │   ├── pelco_d.py           # Pelco-D protocol implementation
-│   │   ├── commands.py          # Command builders
-│   │   └── checksum.py          # Checksum utilities
-│   │
-│   ├── connection/              # Connection handling
-│   │   ├── base.py              # Abstract connection interface
-│   │   ├── serial_conn.py       # Serial connection implementation
-│   │   └── network_conn.py      # Network connection implementation
-│   │
-│   ├── controller/              # Controller logic
-│   │   └── ptz.py               # Main controller class
-│   │
-│   ├── api/                     # API implementation
-│   │   ├── server.py            # API server implementation
-│   │   ├── routes.py            # API route definitions
-│   │   └── models.py            # Data models
-│   │
-│   └── utils/                   # Utility functions
-│       └── config.py            # Configuration utilities
-│
-├── gui/                         # GUI package
-│   ├── api_client.py            # Client for API server
-│   ├── main_window_api.py       # Main window using API client
-│   ├── control_panel.py         # Movement control
-│   └── position_display.py      # Position display
-│
-├── docs/                        # Documentation
-│   └── protocol/                # Protocol documentation
-│
-├── ptz_server.py                # Server startup script
-├── gui_client.py                # GUI client script
-├── run_all.py                   # Combined script
-└── README.md                    # Documentation
-```
+- Pan-tilt camera platform with Pelco-D protocol support
+- USB-to-RS485/RS422 serial adapter
+- Compatible camera (optional: with zoom/focus/iris control)
 
 ## Installation
 
@@ -108,7 +60,6 @@ The system follows a modular client-server architecture with clearly separated c
 - PySerial for hardware communication
 - Flask and Flask-SocketIO for the API server
 - PyQt5 for the GUI components
-- PyYAML for configuration handling
 
 ### Setup
 
@@ -121,187 +72,156 @@ cd pan-tilt-controller
 pip install pyserial flask flask-socketio flask-cors python-socketio pyyaml pyqt5
 ```
 
-### Hardware Requirements
+## Configuration
 
-- Pan-tilt camera platform with Pelco-D protocol support
-- Serial connection (USB-to-RS485/RS232 adapter) or network connection
-- Camera with zoom/focus/iris control (optional)
+The system configuration is stored in `config/settings.yaml`:
+
+```yaml
+connection:
+  serial:
+    port: COM3  # or /dev/ttyUSB0 for Linux
+    baudrate: 9600
+    data_bits: 8
+    stop_bits: 1
+    parity: N
+
+controller:
+  address: 1  # Camera address
+  protocol: pelco_d
+  default_speed: 25  # Default movement speed (0-63)
+  timeout: 1.0  # Response timeout in seconds
+
+api:
+  host: 127.0.0.1  # Local API server address
+  port: 8080
+  debug: false
+
+client:
+  host: 127.0.0.1  # API server address for client
+  port: 8080
+```
 
 ## Running the System
 
-### Starting the Server
+### Start the API Server
+
+The server handles communication between the GUI and the camera hardware:
 
 ```bash
-# Start the API server
 python ptz_server.py
 ```
 
-### Starting the Client
+### Start the GUI Client
+
+The client provides a user interface to control the camera:
 
 ```bash
-# Start the GUI client
 python gui_client.py
 ```
 
-### Running Both Components
+### Run Both Components
+
+To start both server and client at once:
 
 ```bash
-# Run both server and client
 python run_all.py
 ```
 
-### Command Line Options
+## Command Line Options
 
 ```bash
 # Custom configuration file
-python ptz_server.py --config my_config.yaml
+python ptz_server.py --config custom_config.yaml
 
-# Specify host and port
-python ptz_server.py --host 192.168.1.100 --port 8080
+# Specify different host and port
+python ptz_server.py --host 127.0.0.1 --port 9000
 
 # Enable debug mode
 python ptz_server.py --debug
 
 # Connect client to specific server
-python gui_client.py --server http://192.168.1.100:8080
+python gui_client.py --server http://127.0.0.1:9000
 ```
 
-## API Reference
+## Features
 
-### REST API Endpoints
+### Precise Movement Control
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/device/info` | GET | Device information |
-| `/api/device/movement/<direction>` | POST | Control movement |
-| `/api/device/position` | GET | Current position |
-| `/api/device/position/absolute` | POST | Move to absolute position |
-| `/api/device/home` | POST | Set home position |
-| `/api/device/presets/<id>` | POST | Set preset |
-| `/api/device/presets/<id>/call` | POST | Call preset |
-| `/api/device/presets/<id>` | DELETE | Delete preset |
-| `/api/device/optical/<action>` | POST | Control optical features |
-| `/api/device/aux/<id>` | POST | Control auxiliary devices |
-| `/api/device/reset` | POST | Reset device |
+- Step-based movement with configurable precision (0.01° to 10°)
+- Absolute positioning with direct angle control
+- Real-time position feedback (when supported by hardware)
+- Home position setting and tracking
 
-### WebSocket Events
+### Advanced Capabilities
 
-| Event | Direction | Description |
-|-------|-----------|-------------|
-| `connect` | Client → Server | Connect to server |
-| `disconnect` | Client → Server | Disconnect from server |
-| `request_position` | Client → Server | Request position update |
-| `position_update` | Server → Client | Position updated |
-| `error` | Server → Client | Error notification |
+- Preset position management (save/call/delete)
+- Optical controls (zoom/focus/iris) when available
+- Auxiliary device control
+- Robust error handling and retry mechanisms
 
-## GUI Application
+### Improved Protocol Implementation
 
-The GUI provides an intuitive interface with:
+The Pelco D protocol implementation has been enhanced for reliability:
+- Robust position feedback parsing with error handling
+- Multiple retry mechanisms for position queries
+- Enhanced timing for more reliable communication
+- Zero-point calibration for accurate positioning
 
-- Real-time position display with relative and absolute coordinates
-- Step-size control (0.01° to 10° precision)
-- Directional control buttons
-- Home position setting
-- Connection status indicator
-- Immediate movement feedback
+### Enhanced Pelco-D Response Handling
 
-## Configuration
+The system now implements strict response parsing based on serial_commands_and_responses.csv:
+- Strictly enforces 5-byte message format for position responses (`00 59 HH LL CS` for pan)
+- Detailed error reporting for invalid message formats
+- Consistent checksum validation for all responses
+- Improved error handling with buffer diagnostics
 
-Configuration is stored in `config/settings.yaml`:
+### Comprehensive Debugging
 
-```yaml
-# Connection settings
-connection:
-  type: serial          # Options: serial, network
-  serial:
-    port: COM3          # Serial port name (Windows)
-    baudrate: 9600      # Communication speed
-    data_bits: 8        # Data bits
-    stop_bits: 1        # Stop bits
-    parity: N           # Parity (N=None, E=Even, O=Odd)
-  network:
-    ip: 192.168.1.60    # Camera IP address
-    port: 80            # Camera port
+The system includes extensive debugging capabilities for serial communications:
+- Detailed hex and ASCII dumps of all sent and received data
+- Command structure parsing and validation
+- Protocol message decoding with field identification
+- Transaction timing and status reporting
+- See `docs/DEBUG_IMPROVEMENTS.md` for details
 
-# Controller settings
-controller:
-  address: 1            # Camera address (1-255)
-  protocol: pelco_d     # Protocol selection
-  default_speed: 25     # Default speed (0-63)
-  timeout: 1.0          # Response timeout
+## Recent Changes
 
-# API server settings
-api:
-  host: 127.0.0.1       # Host to bind server
-  port: 8080            # Port to listen on
-  debug: false          # Debug mode
-
-# Client settings
-client:
-  host: 127.0.0.1       # Server address 
-  port: 8080            # Server port
-```
-
-## Step-Based Movement
-
-The system uses step-based movement instead of continuous movement:
-
-1. **Step Size Control**: Specify movement precision (0.01° to 10°)
-2. **Directional Control**: Each button press moves by exactly one step
-3. **Absolute Positioning**: Direct positioning with 0.01° resolution
+### Parser Improvements (2025-04-28)
+- Fixed redundant code in position reply parser
+- Implemented strict 5-byte message format validation
+- Added detailed error logging for malformed responses
+- Updated message handling to match serial_commands_and_responses.csv specification
+- Improved buffer diagnostics for troubleshooting communication issues
 
 ## Troubleshooting
 
-### Port Access Issues
-- **Problem**: "Socket access forbidden" or "Port already in use" errors
-- **Solution**: Use a different port (edit settings.yaml or use --port option)
-- **Solution**: Close other applications that might be using the port
-- **Solution**: Run with admin/sudo privileges if necessary
+### Serial Port Issues
 
-### Serial Connection Issues
 - **Problem**: "Failed to open serial port" error
 - **Solution**: Verify correct COM port in settings.yaml
 - **Solution**: Check physical connections and power
 - **Solution**: Install proper USB-to-serial drivers
 - **Solution**: Verify baudrate matches device (typically 2400/4800/9600)
 
-### API Server Connection Issues
-- **Problem**: "Server not found" or connection errors
-- **Solution**: Verify server is running (check console output)
-- **Solution**: Check port and host match in client and server configurations
-- **Solution**: Disable firewall or add exception
+### Permission Issues
 
-### GUI Import Errors
-- **Problem**: Import errors when running client script
-- **Solution**: Ensure you're running from the project root directory
-- **Solution**: Verify all dependencies are installed
+- **Problem**: Permission denied accessing USB port
+- **Solution**: On Linux, add user to the dialout group: `sudo usermod -a -G dialout $USER`
+- **Solution**: On Windows, run with administrator privileges if necessary
 
-### Device Communication Issues
-- **Problem**: No response from device
-- **Solution**: Check cable connections (RS485 polarity matters)
-- **Solution**: Verify device address (default is 1)
-- **Solution**: Test with lower baudrate (some devices require 2400 or 4800)
+### Position Feedback Issues
+
+- **Problem**: Inconsistent or missing position feedback
+- **Solution**: The system will gracefully handle missing feedback with estimated positions
+- **Solution**: Check that your PTZ device supports position feedback (some don't)
+- **Solution**: Try different baudrates if communication is unstable
+- **Solution**: Enable debug mode to verify correct 5-byte response format
 
 ## Development
 
-### Extending the System
-
 The modular architecture makes it easy to extend:
 
-1. **Adding New Protocols**: Create new modules in src/protocol/
-2. **Adding New Connection Types**: Implement ConnectionBase interface
-3. **Adding New API Endpoints**: Add routes to src/api/routes.py
-4. **Adding New GUI Components**: Add widgets to gui/ package
-
-### Custom Configurations
-
-For different environments, create custom config files:
-
-```bash
-# Create a custom config
-cp config/settings.yaml config/production.yaml
-
-# Edit as needed
-# Then run with:
-python ptz_server.py --config config/production.yaml
-```
+1. **Adding New Protocol Commands**: Extend the commands.py module
+2. **Supporting New Cameras**: Update the protocol parameters
+3. **Adding New API Endpoints**: Add routes to src/api/routes.py 
+4. **Customizing the GUI**: Modify components in the gui/ package
