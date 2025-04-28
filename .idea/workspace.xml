@@ -4,37 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1e6f5c46-66d5-4357-b962-4b4dd0710e79" name="Changes" comment="unstable">
-      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="1e6f5c46-66d5-4357-b962-4b4dd0710e79" name="Changes" comment="changed line feed to \n">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/settings.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/settings.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/main_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/main_window.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/main_window_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/main_window_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/position_display.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/position_display.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ptz_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/ptz_server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_all.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serial_sniff.log" beforeDir="false" afterPath="$PROJECT_DIR$/serial_sniff.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serial_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/serial_tester.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/base.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/network_conn.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/network_conn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/serial_conn.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/serial_conn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/controller/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/controller/ptz/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/ptz/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/controller/ptz/zero_point.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/ptz/zero_point.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/protocol/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/protocol/checksum.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/checksum.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/protocol/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/commands.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/protocol/pelco_d.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/pelco_d.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/controller/ptz/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/ptz/core.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,6 +61,7 @@
     "Python.app.executor": "Run",
     "Python.content_for_AI.executor": "Run",
     "Python.controller.executor": "Run",
+    "Python.core.executor": "Run",
     "Python.gui_client.executor": "Run",
     "Python.ids_camera.executor": "Run",
     "Python.pan_tilt_calibration.executor": "Run",
@@ -136,7 +109,27 @@
       <recent name="C:\Users\Tuval\Documents\py_pan_tilt_controller\src\controller\ptz" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.run_all">
+  <component name="RunManager" selected="Python.core">
+    <configuration name="core" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="py_pan_tilt_controller" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/controller/ptz" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/controller/ptz/core.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="gui_client" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py_pan_tilt_controller" />
       <option name="ENV_FILES" value="" />
@@ -200,29 +193,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="server (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="py_pan_tilt_controller" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/server.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="virtual_device" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py_pan_tilt_controller" />
       <option name="ENV_FILES" value="" />
@@ -248,11 +218,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.core" />
         <item itemvalue="Python.run_all" />
         <item itemvalue="Python.serial_tester" />
         <item itemvalue="Python.gui_client" />
         <item itemvalue="Python.virtual_device" />
-        <item itemvalue="Python.server (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -286,7 +256,7 @@
       <workItem from="1745784875881" duration="655000" />
       <workItem from="1745824458021" duration="9024000" />
       <workItem from="1745833578424" duration="4871000" />
-      <workItem from="1745839037693" duration="11973000" />
+      <workItem from="1745839037693" duration="12599000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -352,7 +322,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745850854446</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="changed line feed to \n">
+      <option name="closed" value="true" />
+      <created>1745851148279</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1745851148279</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -386,7 +364,8 @@
     <MESSAGE value="added gui, safety features, api interface, simulator" />
     <MESSAGE value="now using steps instead of move with speed, saftey features removed. appears stable after very short verification." />
     <MESSAGE value="unstable" />
-    <option name="LAST_COMMIT_MESSAGE" value="unstable" />
+    <MESSAGE value="changed line feed to \n" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed line feed to \n" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">

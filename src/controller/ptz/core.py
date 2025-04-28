@@ -230,6 +230,7 @@ class PTZController:
         Returns:
             Tuple of (rel_pan, rel_tilt, raw_pan, raw_tilt, status)
         """
+        # Query absolute positions
         raw_pan_value, pan_angle = self.query_pan_position()
         raw_tilt_value, tilt_angle = self.query_tilt_position()
 
@@ -238,10 +239,38 @@ class PTZController:
             'tilt_valid': raw_tilt_value != 0 or tilt_angle != 0.0,
         }
 
-        return pan_angle, tilt_angle, raw_pan_value, raw_tilt_value, status
+        # Compute relative values against saved zero-points
+        zero_raw_pan   = getattr(self, '_zero_raw_pan', 0)
+        zero_raw_tilt  = getattr(self, '_zero_raw_tilt', 0)
+        zero_pan_ang   = getattr(self, '_zero_pan_angle', 0.0)
+        zero_tilt_ang  = getattr(self, '_zero_tilt_angle', 0.0)
+
+        rel_raw_pan    = raw_pan_value  - zero_raw_pan
+        rel_raw_tilt   = raw_tilt_value - zero_raw_tilt
+        rel_pan_ang    = pan_angle      - zero_pan_ang
+        rel_tilt_ang   = tilt_angle     - zero_tilt_ang
+
+        return rel_pan_ang, rel_tilt_ang, rel_raw_pan, rel_raw_tilt, status
 
     def init_zero_points(self):
         """Initialize zero points by running the zero-point routine"""
+        zero_point.run(self)
+
+    def init_zero_points(self):
+        """
+        Initialize zero points:
+        1) Save current absolute pan/tilt as software zero references
+        2) Delegate to hardware zero-point routine
+        """
+        # 1) Store absolute position in software before hardware zero
+        raw_pan, pan_ang   = self.query_pan_position()
+        raw_tilt, tilt_ang = self.query_tilt_position()
+        self._zero_raw_pan   = raw_pan
+        self._zero_raw_tilt  = raw_tilt
+        self._zero_pan_angle = pan_ang
+        self._zero_tilt_angle= tilt_ang
+
+        # 2) Now run the existing hardware zero routine
         zero_point.run(self)
 
     def stop(self):
