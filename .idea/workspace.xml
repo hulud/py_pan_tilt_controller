@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="1e6f5c46-66d5-4357-b962-4b4dd0710e79" name="Changes" comment="changed line feed to \n">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/controller/ptz/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/ptz/core.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/settings.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/settings.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/ptz_communication.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/simulator_conn.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,6 +72,7 @@
     "Python.pan_tilt_step_control.executor": "Run",
     "Python.pelco_D_api.executor": "Run",
     "Python.plot.executor": "Run",
+    "Python.ptz_communication.executor": "Run",
     "Python.ptz_server.executor": "Run",
     "Python.run_all.executor": "Run",
     "Python.run_calibration.executor": "Run",
@@ -109,7 +113,7 @@
       <recent name="C:\Users\Tuval\Documents\py_pan_tilt_controller\src\controller\ptz" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.core">
+  <component name="RunManager" selected="Python.ptz_communication">
     <configuration name="core" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py_pan_tilt_controller" />
       <option name="ENV_FILES" value="" />
@@ -145,6 +149,29 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/gui_client.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ptz_communication" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="py_pan_tilt_controller" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/examples" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/examples/ptz_communication.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -193,36 +220,13 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="virtual_device" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="py_pan_tilt_controller" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/virtual_device.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.core" />
-        <item itemvalue="Python.run_all" />
+        <item itemvalue="Python.ptz_communication" />
         <item itemvalue="Python.serial_tester" />
+        <item itemvalue="Python.run_all" />
+        <item itemvalue="Python.core" />
         <item itemvalue="Python.gui_client" />
-        <item itemvalue="Python.virtual_device" />
       </list>
     </recent_temporary>
   </component>
@@ -256,7 +260,7 @@
       <workItem from="1745784875881" duration="655000" />
       <workItem from="1745824458021" duration="9024000" />
       <workItem from="1745833578424" duration="4871000" />
-      <workItem from="1745839037693" duration="12599000" />
+      <workItem from="1745839037693" duration="15975000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -330,7 +334,23 @@
       <option name="project" value="LOCAL" />
       <updated>1745851148279</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="changed line feed to \n">
+      <option name="closed" value="true" />
+      <created>1745851762742</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1745851762742</updated>
+    </task>
+    <task id="LOCAL-00011" summary="changed line feed to \n">
+      <option name="closed" value="true" />
+      <created>1745852563947</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1745852563947</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -386,7 +406,7 @@
     <SUITE FILE_PATH="coverage/pythonProject1$plot.coverage" NAME="plot Coverage Results" MODIFIED="1739226055644" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/pythonProject1$pelco_D_api.coverage" NAME="pelco_D_api Coverage Results" MODIFIED="1739204988671" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/py_pan_tilt_controller$pan_tilt_gui_api.coverage" NAME="pan_tilt_gui_api Coverage Results" MODIFIED="1745483733265" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/py_pan_tilt_controller$run_all.coverage" NAME="run_all Coverage Results" MODIFIED="1745845708382" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/py_pan_tilt_controller$run_all.coverage" NAME="run_all Coverage Results" MODIFIED="1745853185993" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/py_pan_tilt_controller$ptz_server.coverage" NAME="ptz_server Coverage Results" MODIFIED="1745484261034" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/pythonProject1$content_for_AI.coverage" NAME="content_for_AI Coverage Results" MODIFIED="1739198134481" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/pythonProject1$ids_camera.coverage" NAME="ids_camera Coverage Results" MODIFIED="1739189911255" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -395,6 +415,7 @@
     <SUITE FILE_PATH="coverage/py_pan_tilt_controller$serial_bridge.coverage" NAME="serial_bridge Coverage Results" MODIFIED="1745753662449" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/pythonProject1$pan_tilt_calibration.coverage" NAME="pan_tilt_calibration Coverage Results" MODIFIED="1739199564544" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/py_pan_tilt_controller$app.coverage" NAME="app Coverage Results" MODIFIED="1745480088459" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/gui" />
+    <SUITE FILE_PATH="coverage/py_pan_tilt_controller$ptz_communication.coverage" NAME="ptz_communication Coverage Results" MODIFIED="1745853901734" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
     <SUITE FILE_PATH="coverage/py_pan_tilt_controller$test.coverage" NAME="test Coverage Results" MODIFIED="1745500078645" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/py_pan_tilt_controller$gui_client.coverage" NAME="gui_client Coverage Results" MODIFIED="1745845470908" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/py_pan_tilt_controller$virtual_device.coverage" NAME="virtual_device Coverage Results" MODIFIED="1745785314697" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
