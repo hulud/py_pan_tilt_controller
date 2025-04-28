@@ -1,55 +1,72 @@
 #!/usr/bin/env python3
 """
-GUI client entry point: launches the Qt MainWindow-based PTZ controller.
-This version uses MainWindow only, dropping any WebView/HTML UI.
+GUI Client Startup Script
+
+This script starts the PTZ control GUI client that connects to the API server.
 """
+import os
 import sys
 import argparse
+import logging
+from PyQt5.QtWidgets import QApplication
+from src.utils import load_config
 
-from PyQt5.QtWidgets import QApplication, QMessageBox
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Import your MainWindow class from the Qt GUI module
+# Add parent directory to path to import gui package
+# This is necessary because the GUI package hasn't been refactored yet
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gui.main_window import MainWindow
-# Import your REST API client
-from src.api.client import APIClient
-
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="PTZ Controller GUI Client (Qt MainWindow only)"
-    )
-    parser.add_argument(
-        "--server", "-s",
-        default="http://127.0.0.1:8080",
-        help="Base URL of the PTZ API server (e.g. http://127.0.0.1:8080)"
-    )
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(description='PTZ Control GUI Client')
+    parser.add_argument('--config', help='Path to configuration file')
+    parser.add_argument('--server', help='API server URL (e.g., http://localhost:5000)')
+    parser.add_argument('--host', help='API server host')
+    parser.add_argument('--port', type=int, help='API server port')
     return parser.parse_args()
 
-
 def main():
+    """Main entry point"""
+    # Parse command line arguments
     args = parse_args()
 
-    # Initialize Qt application
-    app = QApplication(sys.argv)
-
-    # Initialize API client
+    # Load configuration
     try:
-        api_client = APIClient(base_url=args.server)
-    except Exception as err:
-        QMessageBox.critical(
-            None,
-            "Initialization Error",
-            f"Could not create API client: {err}"
-        )
-        sys.exit(1)
+        config = load_config(args.config)
+        client_config = config.get('client', {})
+    except Exception as e:
+        logger.error(f"Error loading configuration: {e}")
+        client_config = {}
 
-    # Create and show the main window
-    window = MainWindow(api_client)
-    window.show()
+    # Determine server URL
+    server_url = args.server
+    if not server_url:
+        host = args.host or client_config.get('host', 'localhost')
+        port = args.port or client_config.get('port', 5000)
+        server_url = f"http://{host}:{port}"
 
-    # Start the Qt event loop
-    sys.exit(app.exec_())
+    # Create Qt application
+    app = QApplication(sys.argv)
+    app.setApplicationName("PTZ Control")
 
+    # Create main window
+    main_window = MainWindow(api_url=server_url)
+    main_window.show()
 
-if __name__ == "__main__":
-    main()
+    # Run application
+    try:
+        return app.exec_()
+    except Exception as e:
+        logger.error(f"Error running application: {e}")
+        return 1
+
+if __name__ == '__main__':
+    import sys
+    sys.exit(main())
