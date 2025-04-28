@@ -22,6 +22,7 @@ class MainWindow(QMainWindow):
         # Create position update timer
         self.position_timer = QTimer()
         self.position_timer.timeout.connect(self.update_position)
+
         self.position_timer.start(500)  # Update every 500ms
         
         # Connect position update signal

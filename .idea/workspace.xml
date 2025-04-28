@@ -5,7 +5,36 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1e6f5c46-66d5-4357-b962-4b4dd0710e79" name="Changes" comment="unstable">
+      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/settings.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/settings.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/main_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/main_window.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/main_window_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/main_window_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/position_display.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/position_display.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ptz_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/ptz_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_all.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/serial_sniff.log" beforeDir="false" afterPath="$PROJECT_DIR$/serial_sniff.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/serial_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/serial_tester.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/network_conn.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/network_conn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/serial_conn.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/serial_conn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/controller/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/controller/ptz/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/ptz/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/controller/ptz/zero_point.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/ptz/zero_point.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/protocol/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/protocol/checksum.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/checksum.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/protocol/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/protocol/pelco_d.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/pelco_d.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/config.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -257,7 +286,7 @@
       <workItem from="1745784875881" duration="655000" />
       <workItem from="1745824458021" duration="9024000" />
       <workItem from="1745833578424" duration="4871000" />
-      <workItem from="1745839037693" duration="11604000" />
+      <workItem from="1745839037693" duration="11973000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -307,7 +336,23 @@
       <option name="project" value="LOCAL" />
       <updated>1745849413404</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="unstable">
+      <option name="closed" value="true" />
+      <created>1745850843884</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1745850843884</updated>
+    </task>
+    <task id="LOCAL-00008" summary="unstable">
+      <option name="closed" value="true" />
+      <created>1745850854446</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1745850854446</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
