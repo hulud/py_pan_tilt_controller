@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1e6f5c46-66d5-4357-b962-4b4dd0710e79" name="Changes" comment="changed line feed to \n">
+    <list default="true" id="1e6f5c46-66d5-4357-b962-4b4dd0710e79" name="Changes" comment="1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/settings.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/settings.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/ptz_communication.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/simulator_conn.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/controller/ptz/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/ptz/core.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/controller/ptz/zero_point.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,7 +111,7 @@
       <recent name="C:\Users\Tuval\Documents\py_pan_tilt_controller\src\controller\ptz" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.ptz_communication">
+  <component name="RunManager" selected="Python.run_all">
     <configuration name="core" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="py_pan_tilt_controller" />
       <option name="ENV_FILES" value="" />
@@ -222,9 +220,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.run_all" />
         <item itemvalue="Python.ptz_communication" />
         <item itemvalue="Python.serial_tester" />
-        <item itemvalue="Python.run_all" />
         <item itemvalue="Python.core" />
         <item itemvalue="Python.gui_client" />
       </list>
@@ -260,7 +258,7 @@
       <workItem from="1745784875881" duration="655000" />
       <workItem from="1745824458021" duration="9024000" />
       <workItem from="1745833578424" duration="4871000" />
-      <workItem from="1745839037693" duration="15975000" />
+      <workItem from="1745839037693" duration="18800000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -350,7 +348,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745852563947</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="1">
+      <option name="closed" value="true" />
+      <created>1745855220777</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1745855220777</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -385,8 +391,8 @@
     <MESSAGE value="now using steps instead of move with speed, saftey features removed. appears stable after very short verification." />
     <MESSAGE value="unstable" />
     <MESSAGE value="changed line feed to \n" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed line feed to \n" />
-    <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
+    <MESSAGE value="1" />
+    <option name="LAST_COMMIT_MESSAGE" value="1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
