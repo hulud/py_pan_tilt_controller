@@ -1,0 +1,5 @@
+# enforce LF in git’s working tree and commits
+* text=auto eol=lf
+
+# explicitly for Python
+*.py text eol=lf

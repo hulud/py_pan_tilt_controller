@@ -4,30 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1e6f5c46-66d5-4357-b962-4b4dd0710e79" name="Changes" comment="now using steps instead of move with speed, saftey features removed. appears stable after very short verification.">
-      <change afterPath="$PROJECT_DIR$/docs/DEBUG_IMPROVEMENTS.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/serial_sniff.log" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/serial_tester.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/controller/ptz/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/controller/ptz/core.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/controller/ptz/zero_point.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/protocol/pan_tilt_pelco_d_protocol.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="1e6f5c46-66d5-4357-b962-4b4dd0710e79" name="Changes" comment="unstable">
+      <change afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/settings.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/settings.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/api_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/api_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/control_panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/control_panel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pan_tilt_gui_api.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ptz_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/ptz_server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/serial_conn.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/serial_conn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/controller/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/controller/ptz.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/protocol/pelco_d.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/pelco_d.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,6 +34,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "hulud"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/hulud/py_pan_tilt_controller.git",
+    "accountId": "23cf2736-7681-40b3-b1c5-0c30e1a6a87a"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
@@ -94,7 +85,7 @@
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.keymap"
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   },
   "keyToStringList": {
     "ChangesTree.GroupingKeys": [
@@ -267,7 +258,7 @@
       <workItem from="1745784875881" duration="655000" />
       <workItem from="1745824458021" duration="9024000" />
       <workItem from="1745833578424" duration="4871000" />
-      <workItem from="1745839037693" duration="8030000" />
+      <workItem from="1745839037693" duration="10185000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -293,7 +284,23 @@
       <option name="project" value="LOCAL" />
       <updated>1745481942646</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="unstable">
+      <option name="closed" value="true" />
+      <created>1745847340365</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1745847340365</updated>
+    </task>
+    <task id="LOCAL-00005" summary="unstable">
+      <option name="closed" value="true" />
+      <created>1745847372427</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1745847372427</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -326,7 +333,8 @@
     <MESSAGE value="first commit" />
     <MESSAGE value="added gui, safety features, api interface, simulator" />
     <MESSAGE value="now using steps instead of move with speed, saftey features removed. appears stable after very short verification." />
-    <option name="LAST_COMMIT_MESSAGE" value="now using steps instead of move with speed, saftey features removed. appears stable after very short verification." />
+    <MESSAGE value="unstable" />
+    <option name="LAST_COMMIT_MESSAGE" value="unstable" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">
