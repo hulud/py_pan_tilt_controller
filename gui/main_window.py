@@ -65,8 +65,11 @@ class MainWindow(QMainWindow):
     
     def update_position(self):
         """Update position display with current values"""
-        rel_pan, rel_tilt, raw_pan, raw_tilt = self.controller.get_relative_position()
-        if raw_pan is not None and raw_tilt is not None:
+        rel_pan, rel_tilt, status = self.controller.get_relative_position()
+        # Use relative angles as raw angles since we no longer have direct access to raw values
+        raw_pan = rel_pan
+        raw_tilt = rel_tilt
+        if rel_pan is not None and rel_tilt is not None:
             self.position_display.update_display(rel_pan, rel_tilt, raw_pan, raw_tilt)
     
     def on_position_updated(self, rel_pan, rel_tilt, raw_pan, raw_tilt):

@@ -60,7 +60,6 @@ class PTZController:
                 stop_bits=cfg.get("stop_bits", 1),
                 parity=cfg.get("parity", "N"),
             )
-
     def _send_command(self, frame: bytes) -> None:
         self.connection.send(frame)
 
@@ -238,10 +237,8 @@ class PTZController:
 
 
         pan_ang = self.query_pan_position()
-        raw_tilt, tilt_ang = self.query_tilt_position()
+        tilt_ang = self.query_tilt_position()
 
-        self._zero_raw_pan = pan_ang
-        self._zero_raw_tilt = raw_tilt
         self._zero_pan_angle = pan_ang
         self._zero_tilt_angle = tilt_ang
 
@@ -327,7 +324,7 @@ class PTZController:
             Tuple of (pan_angle, tilt_angle) in degrees
         """
         pan_angle = self.query_pan_position()
-        _, tilt_angle = self.query_tilt_position()
+        tilt_angle = self.query_tilt_position()
         return (pan_angle, tilt_angle)
 
     # Basic implementations for other methods referenced in the API routes

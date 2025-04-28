@@ -89,9 +89,10 @@ def main() -> int:
         print(f"\n===== QUERYING PAN POSITION ({num_queries} times) =====")
         for i in range(num_queries):
             print(f"[INFO] Pan query #{i+1}...")
-            pan_raw, pan_deg = ctrl.query_pan_position()
-            pan_results.append((pan_raw, pan_deg))
-            print(f"  Raw: 0x{pan_raw:04X}  →  {pan_deg:.2f}°")
+            pan_deg = ctrl.query_pan_position()
+            # We no longer have direct access to raw values
+            pan_results.append((0, pan_deg))  # Zero placeholder for raw value
+            print(f"  Angle: {pan_deg:.2f}°")
             if i < num_queries - 1:  # Don't delay after last query
                 time.sleep(0.5)
         
@@ -102,21 +103,22 @@ def main() -> int:
         print(f"\n===== QUERYING TILT POSITION ({num_queries} times) =====")
         for i in range(num_queries):
             print(f"[INFO] Tilt query #{i+1}...")
-            tilt_raw, tilt_deg = ctrl.query_tilt_position()
-            tilt_results.append((tilt_raw, tilt_deg))
-            print(f"  Raw: 0x{tilt_raw:04X}  →  {tilt_deg:.2f}°")
+            tilt_deg = ctrl.query_tilt_position()
+            # We no longer have direct access to raw values
+            tilt_results.append((0, tilt_deg))  # Zero placeholder for raw value
+            print(f"  Angle: {tilt_deg:.2f}°")
             if i < num_queries - 1:  # Don't delay after last query
                 time.sleep(0.5)
         
         # Summary of results
         print("\n===== DEVICE POSITION SUMMARY =====")
         print("Pan positions:")
-        for i, (raw, deg) in enumerate(pan_results):
-            print(f"  #{i+1}: Raw 0x{raw:04X}  →  {deg:.2f}°")
+        for i, (_, deg) in enumerate(pan_results):
+            print(f"  #{i+1}: {deg:.2f}°")
             
         print("\nTilt positions:")
-        for i, (raw, deg) in enumerate(tilt_results):
-            print(f"  #{i+1}: Raw 0x{raw:04X}  →  {deg:.2f}°")
+        for i, (_, deg) in enumerate(tilt_results):
+            print(f"  #{i+1}: {deg:.2f}°")
         print("==================================\n")
 
         # Flush remaining buffer data

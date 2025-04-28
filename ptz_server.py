@@ -88,7 +88,7 @@ def main() -> int:
         api_cfg["port"] = args.port
         config.setdefault("client", {})["port"] = args.port
     if args.debug:
-        api_cfg["debug"] = True
+        api_cfg["debug"] = False
 
     host = api_cfg.get("host", "127.0.0.1")
     port = api_cfg.get("port", 5000)

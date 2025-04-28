@@ -186,6 +186,13 @@ The system includes extensive debugging capabilities for serial communications:
 
 ## Recent Changes
 
+### PTZ Controller Improvements (2025-04-28)
+- Simplified positioning API by removing raw angle returns from query methods
+- Fixed Flask-SocketIO attribute storage for better controller instance management
+- Added scaling correction (1/8.22) for more accurate step movements
+- Eliminated debug mode auto-reloading to prevent connection issues
+- Enhanced error handling with standardized returns instead of exceptions
+
 ### Parser Improvements (2025-04-28)
 - Fixed redundant code in position reply parser
 - Implemented strict 5-byte message format validation
@@ -216,6 +223,12 @@ The system includes extensive debugging capabilities for serial communications:
 - **Solution**: Check that your PTZ device supports position feedback (some don't)
 - **Solution**: Try different baudrates if communication is unstable
 - **Solution**: Enable debug mode to verify correct 5-byte response format
+
+### Movement Scaling Issues
+
+- **Problem**: Step movements are larger than requested (e.g., 1° in GUI causes 8° actual movement)
+- **Solution**: The software now applies a scaling factor to compensate for hardware differences
+- **Solution**: Custom scaling can be adjusted in commands.py if needed for different hardware
 
 ## Development
 

@@ -53,6 +53,8 @@ def queue_command(cmd_func, *args, callback=None, **kwargs):
 
 
 def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
+    # Store controller reference in socketio object for access after reloads
+    socketio.controller = controller
     """
     Register all API routes.
     
@@ -71,8 +73,16 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
             try:
                 # Use a try-except block to catch any errors in the position update
                 try:
+                    # Get the current controller instance (handles reloads)
+                    current_controller = getattr(socketio, '_controller', controller)
+                    
                     # Get position with status information
-                    rel_pan, rel_tilt, raw_pan, raw_tilt, status = controller.get_relative_position()
+                    rel_pan, rel_tilt, status = current_controller.get_relative_position()
+                    
+                    # We don't have direct access to raw angles anymore
+                    # Use relative angles as raw angles for backwards compatibility
+                    raw_pan = rel_pan
+                    raw_tilt = rel_tilt
                     
                     # Create response payload
                     position_data = {
@@ -123,10 +133,13 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
     @api_bp.route('/device/info', methods=['GET'])
     def get_device_info():
         """Get information about the current device"""
+        # Get the current controller instance (handles reloads)
+        current_controller = getattr(socketio, '_controller', controller)
+        
         return jsonify({
             'type': 'real',
-            'address': controller.protocol.address,
-            'connection_type': controller.connection_type
+            'address': current_controller.protocol.address,
+            'connection_type': current_controller.connection_type
         })
     
     # Movement endpoint
@@ -146,21 +159,24 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
             return jsonify(error.to_dict()), 400
         
         try:
+            # Get the current controller instance (handles reloads)
+            current_controller = getattr(socketio, 'controller', controller)
+            
             # Stop commands are processed immediately
             if direction == 'stop':
-                controller.stop()
+                current_controller.stop()
                 response = SuccessResponse(message="Movement stopped")
                 return jsonify(response.to_dict())
             
             # Other movement commands go through the queue        
             if direction == 'up':
-                queue_command(controller.move_up, speed=speed)
+                queue_command(current_controller.move_up, speed=speed)
             elif direction == 'down':
-                queue_command(controller.move_down, speed=speed)
+                queue_command(current_controller.move_down, speed=speed)
             elif direction == 'left':
-                queue_command(controller.move_left, speed=speed)
+                queue_command(current_controller.move_left, speed=speed)
             elif direction == 'right':
-                queue_command(controller.move_right, speed=speed)
+                queue_command(current_controller.move_right, speed=speed)
             
             response = SuccessResponse(
                 message=f"Movement {direction} initiated",
@@ -177,7 +193,13 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
     def get_position():
         """Get current position"""
         try:
-            rel_pan, rel_tilt, raw_pan, raw_tilt, status = controller.get_relative_position()
+            # Get the current controller instance (handles reloads)
+            current_controller = getattr(socketio, 'controller', controller)
+            
+            rel_pan, rel_tilt, status = current_controller.get_relative_position()
+            # Use relative angles as raw angles for backwards compatibility
+            raw_pan = rel_pan
+            raw_tilt = rel_tilt
             position = PositionResponse(
                 rel_pan=rel_pan,
                 rel_tilt=rel_tilt,
@@ -227,17 +249,23 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
             
             # Calculate target position based on current position and step size if provided
             if pos_request.step_size is not None:
-                current_position = controller.query_position()
+                # Get the current controller instance (handles reloads)
+                current_controller = getattr(socketio, 'controller', controller)
+                
+                current_position = current_controller.query_position()
                 if current_position[0] is not None and pos_request.pan is None:
                     pos_request.pan = current_position[0] + pos_request.step_size
                 if current_position[1] is not None and pos_request.tilt is None:
                     pos_request.tilt = current_position[1] + pos_request.step_size
             
             def perform_abs_movement():
+                # Get the current controller instance (handles reloads)
+                current_controller = getattr(socketio, 'controller', controller)
+                
                 if pos_request.pan is not None:
-                    controller.absolute_pan(pos_request.pan)
+                    current_controller.absolute_pan(pos_request.pan)
                 if pos_request.tilt is not None:
-                    controller.absolute_tilt(pos_request.tilt)
+                    current_controller.absolute_tilt(pos_request.tilt)
             
             # Queue the absolute movement
             queue_command(perform_abs_movement)
@@ -257,7 +285,10 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
     def set_home():
         """Set home position"""
         try:
-            queue_command(controller.set_home_position)
+            # Get the current controller instance (handles reloads)
+            current_controller = getattr(socketio, 'controller', controller)
+            
+            queue_command(current_controller.set_home_position)
             response = SuccessResponse(message="Home position set")
             return jsonify(response.to_dict())
         except Exception as e:
@@ -270,7 +301,10 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
     def set_preset(preset_id):
         """Set a preset position"""
         try:
-            queue_command(controller.set_preset, preset_id)
+            # Get the current controller instance (handles reloads)
+            current_controller = getattr(socketio, 'controller', controller)
+            
+            queue_command(current_controller.set_preset, preset_id)
             response = SuccessResponse(
                 message=f"Preset {preset_id} set",
                 data={'preset_id': preset_id}
@@ -285,7 +319,10 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
     def call_preset(preset_id):
         """Call a preset position"""
         try:
-            queue_command(controller.call_preset, preset_id)
+            # Get the current controller instance (handles reloads)
+            current_controller = getattr(socketio, 'controller', controller)
+            
+            queue_command(current_controller.call_preset, preset_id)
             response = SuccessResponse(
                 message=f"Preset {preset_id} called",
                 data={'preset_id': preset_id}
@@ -300,7 +337,10 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
     def clear_preset(preset_id):
         """Clear a preset position"""
         try:
-            queue_command(controller.clear_preset, preset_id)
+            # Get the current controller instance (handles reloads)
+            current_controller = getattr(socketio, 'controller', controller)
+            
+            queue_command(current_controller.clear_preset, preset_id)
             response = SuccessResponse(
                 message=f"Preset {preset_id} cleared",
                 data={'preset_id': preset_id}
@@ -316,18 +356,21 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
     def optical_control(action):
         """Control optical features (zoom/focus/iris)"""
         try:
+            # Get the current controller instance (handles reloads)
+            current_controller = getattr(socketio, 'controller', controller)
+            
             if action == 'zoom_in':
-                queue_command(controller.zoom_in)
+                queue_command(current_controller.zoom_in)
             elif action == 'zoom_out':
-                queue_command(controller.zoom_out)
+                queue_command(current_controller.zoom_out)
             elif action == 'focus_far':
-                queue_command(controller.focus_far)
+                queue_command(current_controller.focus_far)
             elif action == 'focus_near':
-                queue_command(controller.focus_near)
+                queue_command(current_controller.focus_near)
             elif action == 'iris_open':
-                queue_command(controller.iris_open)
+                queue_command(current_controller.iris_open)
             elif action == 'iris_close':
-                queue_command(controller.iris_close)
+                queue_command(current_controller.iris_close)
             else:
                 error = ErrorResponse(message=f"Invalid optical action: {action}", code=400)
                 return jsonify(error.to_dict()), 400
@@ -358,10 +401,13 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
             return jsonify(error.to_dict()), 400
         
         try:
+            # Get the current controller instance (handles reloads)
+            current_controller = getattr(socketio, 'controller', controller)
+            
             if state == 'on':
-                queue_command(controller.aux_on, aux_id)
+                queue_command(current_controller.aux_on, aux_id)
             else:
-                queue_command(controller.aux_off, aux_id)
+                queue_command(current_controller.aux_off, aux_id)
             
             response = SuccessResponse(
                 message=f"Auxiliary {aux_id} turned {state}",
@@ -378,7 +424,10 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
     def reset_device():
         """Reset the device"""
         try:
-            queue_command(controller.remote_reset)
+            # Get the current controller instance (handles reloads)
+            current_controller = getattr(socketio, 'controller', controller)
+            
+            queue_command(current_controller.remote_reset)
             response = SuccessResponse(message="Device reset initiated")
             return jsonify(response.to_dict())
         except Exception as e:
@@ -392,7 +441,13 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
         logger.info(f'Client connected: {request.sid}')
         # Send immediate position update to new client
         try:
-            rel_pan, rel_tilt, raw_pan, raw_tilt, status = controller.get_relative_position()
+            # Get the current controller instance (handles reloads)
+            current_controller = getattr(socketio, 'controller', controller)
+            
+            rel_pan, rel_tilt, status = current_controller.get_relative_position()
+            # Use relative angles as raw angles for backwards compatibility
+            raw_pan = rel_pan
+            raw_tilt = rel_tilt
             emit('position_update', {
                 'rel_pan': rel_pan,
                 'rel_tilt': rel_tilt,
@@ -416,7 +471,13 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
     @socketio.on('request_position')
     def handle_request_position():
         try:
-            rel_pan, rel_tilt, raw_pan, raw_tilt, status = controller.get_relative_position()
+            # Get the current controller instance (handles reloads)
+            current_controller = getattr(socketio, 'controller', controller)
+            
+            rel_pan, rel_tilt, status = current_controller.get_relative_position()
+            # Use relative angles as raw angles for backwards compatibility
+            raw_pan = rel_pan
+            raw_tilt = rel_tilt
             emit('position_update', {
                 'rel_pan': rel_pan,
                 'rel_tilt': rel_tilt,

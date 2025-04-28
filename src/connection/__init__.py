@@ -7,8 +7,10 @@ for serial connections to PTZ cameras.
 
 from .base import ConnectionBase
 from .serial_conn import SerialConnection
+from .simulator_connection import SimulatorConnection
 
 __all__ = [
     'ConnectionBase',
     'SerialConnection',
+    'SimulatorConnection',  # Add this line
 ]
