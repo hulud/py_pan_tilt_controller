@@ -163,16 +163,16 @@ class PTZController:
             print(f"WARNING: Error querying pan position: {e}")
             return 0.0
 
-    def query_tilt_position(self) -> Tuple[int, float]:
+    def query_tilt_position(self) -> float:
         """
         Query the current tilt position.
 
         Returns:
-            Tuple of (raw_value, angle_in_degrees)
+            The angle in degrees.
 
         Notes:
             On any error or malformed response, this will print a warning
-            and return (0, 0.0) instead of raising.
+            and return 0.0 instead of raising.
         """
         try:
             frame = self._build_tilt_query()
@@ -181,40 +181,43 @@ class PTZController:
             result = self.protocol.parse_response(raw_response)
             if not result or result.get('type') != 'tilt_position' or not result.get('valid'):
                 print(f"WARNING: Invalid tilt position response: {raw_response.hex()}")
-                return 0, 0.0
-            return result['raw'], result['angle']
+                return 0.0
+            return result['angle']
         except Exception as e:
             print(f"WARNING: Error querying tilt position: {e}")
-            return 0, 0.0
+            return 0.0
 
-    def get_relative_position(self):
+    def get_relative_position(self) -> Tuple[float, float, dict]:
         """
-        Get the current pan and tilt position with status information.
+        Get the current pan and tilt position relative to the stored zero points.
+
         Returns:
-            Tuple of (rel_pan, rel_tilt, rel_raw_pan, rel_raw_tilt, status)
+            rel_pan_ang  (float): pan angle in degrees minus zero_pan_angle
+            rel_tilt_ang (float): tilt angle in degrees minus zero_tilt_angle
+            status       (dict): {
+                'pan_valid': bool,   # True if pan_angle != 0.0
+                'tilt_valid': bool   # True if tilt_angle != 0.0
+            }
         """
-        # Query absolute positions
+        # 1) Query absolute angles
         pan_angle = self.query_pan_position()
-        raw_tilt_value, tilt_angle = self.query_tilt_position()
-        raw_pan_value = pan_angle
+        tilt_angle = self.query_tilt_position()
 
-        status = {
-            'pan_valid': pan_angle != 0.0,
-            'tilt_valid': raw_tilt_value != 0 or tilt_angle != 0.0,
-        }
-
-        # Compute relative values against saved zero-points
-        zero_raw_pan = getattr(self, '_zero_raw_pan', 0)
-        zero_raw_tilt = getattr(self, '_zero_raw_tilt', 0)
+        # 2) Load zero‐angle offsets (default to 0.0 if not set)
         zero_pan_ang = getattr(self, '_zero_pan_angle', 0.0)
         zero_tilt_ang = getattr(self, '_zero_tilt_angle', 0.0)
 
-        rel_raw_pan = raw_pan_value - zero_raw_pan
-        rel_raw_tilt = raw_tilt_value - zero_raw_tilt
+        # 3) Compute relative angles
         rel_pan_ang = pan_angle - zero_pan_ang
         rel_tilt_ang = tilt_angle - zero_tilt_ang
 
-        return rel_pan_ang, rel_tilt_ang, rel_raw_pan, rel_raw_tilt, status
+        # 4) Build validity flags
+        status = {
+            'pan_valid': pan_angle != 0.0,
+            'tilt_valid': tilt_angle != 0.0,
+        }
+
+        return rel_pan_ang, rel_tilt_ang, status
 
     def init_zero_points(self):
         """
@@ -249,7 +252,73 @@ class PTZController:
         command = self.protocol.stop()
         self._send_command(command)
 
-    # ... rest of movement & preset methods unchanged ...
+    def move_up(self, speed=0x10):
+        """
+        Move the camera up at the specified speed.
+
+        Args:
+            speed: Movement speed (0x00-0x3F)
+        """
+        command = self.protocol.move_up(speed)
+        self._send_command(command)
+
+    def move_down(self, speed=0x10):
+        """
+        Move the camera down at the specified speed.
+
+        Args:
+            speed: Movement speed (0x00-0x3F)
+        """
+        command = self.protocol.move_down(speed)
+        self._send_command(command)
+
+    def move_left(self, speed=0x10):
+        """
+        Move the camera left at the specified speed.
+
+        Args:
+            speed: Movement speed (0x00-0x3F)
+        """
+        command = self.protocol.move_left(speed)
+        self._send_command(command)
+
+    def move_right(self, speed=0x10):
+        """
+        Move the camera right at the specified speed.
+
+        Args:
+            speed: Movement speed (0x00-0x3F)
+        """
+        command = self.protocol.move_right(speed)
+        self._send_command(command)
+
+    def absolute_pan(self, angle):
+        """
+        Move to an absolute pan position.
+
+        Args:
+            angle: Pan angle in degrees (0-360)
+        """
+        command = self.protocol.absolute_pan(angle) if hasattr(self.protocol, 'absolute_pan') else self.protocol.absolute_pan_position(angle)
+        self._send_command(command)
+
+    def absolute_tilt(self, angle):
+        """
+        Move to an absolute tilt position.
+
+        Args:
+            angle: Tilt angle in degrees (-90 to +90)
+        """
+        command = self.protocol.absolute_tilt(angle) if hasattr(self.protocol, 'absolute_tilt') else self.protocol.absolute_tilt_position(angle)
+        self._send_command(command)
+
+    def set_home_position(self):
+        """
+        Set the current position as the home position.
+        """
+        # Implementation uses set_pan_zero_point and set_tilt_zero_point
+        self._send_command(self.protocol.set_pan_zero_point())
+        self._send_command(self.protocol.set_tilt_zero_point())
 
     def query_position(self):
         """
@@ -261,7 +330,66 @@ class PTZController:
         _, tilt_angle = self.query_tilt_position()
         return (pan_angle, tilt_angle)
 
-    # ... remaining methods unchanged ...
+    # Basic implementations for other methods referenced in the API routes
+    def set_preset(self, preset_id):
+        """Set a preset position."""
+        command = self.protocol.set_preset(preset_id)
+        self._send_command(command)
+
+    def call_preset(self, preset_id):
+        """Call a preset position."""
+        command = self.protocol.call_preset(preset_id)
+        self._send_command(command)
+
+    def clear_preset(self, preset_id):
+        """Clear a preset position."""
+        command = self.protocol.clear_preset(preset_id)
+        self._send_command(command)
+
+    def zoom_in(self):
+        """Zoom in."""
+        command = self.protocol.zoom_in()
+        self._send_command(command)
+
+    def zoom_out(self):
+        """Zoom out."""
+        command = self.protocol.zoom_out()
+        self._send_command(command)
+
+    def focus_far(self):
+        """Focus far."""
+        command = self.protocol.focus_far()
+        self._send_command(command)
+
+    def focus_near(self):
+        """Focus near."""
+        command = self.protocol.focus_near()
+        self._send_command(command)
+
+    def iris_open(self):
+        """Open iris."""
+        command = self.protocol.iris_open()
+        self._send_command(command)
+
+    def iris_close(self):
+        """Close iris."""
+        command = self.protocol.iris_close()
+        self._send_command(command)
+
+    def aux_on(self, aux_id):
+        """Turn on auxiliary device."""
+        command = self.protocol.aux_on(aux_id)
+        self._send_command(command)
+
+    def aux_off(self, aux_id):
+        """Turn off auxiliary device."""
+        command = self.protocol.aux_off(aux_id)
+        self._send_command(command)
+
+    def remote_reset(self):
+        """Reset the device."""
+        command = self.protocol.remote_reset()
+        self._send_command(command)
 
     @property
     def connection_type(self):

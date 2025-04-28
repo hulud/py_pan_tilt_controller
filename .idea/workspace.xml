@@ -7,7 +7,6 @@
     <list default="true" id="1e6f5c46-66d5-4357-b962-4b4dd0710e79" name="Changes" comment="1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/controller/ptz/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/ptz/core.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/controller/ptz/zero_point.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -258,7 +257,7 @@
       <workItem from="1745784875881" duration="655000" />
       <workItem from="1745824458021" duration="9024000" />
       <workItem from="1745833578424" duration="4871000" />
-      <workItem from="1745839037693" duration="18800000" />
+      <workItem from="1745839037693" duration="19318000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -356,7 +355,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745855220777</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="1">
+      <option name="closed" value="true" />
+      <created>1745858107098</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1745858107098</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
