@@ -14,7 +14,7 @@ from typing import Dict, Any, Tuple
 
 from src.connection import ConnectionBase, SerialConnection
 from src.protocol import PelcoDProtocol
-from . import zero_point
+from src.controller.ptz import zero_point
 
 log = logging.getLogger(__name__)
 
@@ -251,10 +251,6 @@ class PTZController:
         rel_tilt_ang   = tilt_angle     - zero_tilt_ang
 
         return rel_pan_ang, rel_tilt_ang, rel_raw_pan, rel_raw_tilt, status
-
-    def init_zero_points(self):
-        """Initialize zero points by running the zero-point routine"""
-        zero_point.run(self)
 
     def init_zero_points(self):
         """
