@@ -63,6 +63,8 @@ class PTZController:
                 data_bits=cfg.get("data_bits", 8),
                 stop_bits=cfg.get("stop_bits", 1),
                 parity=cfg.get("parity", "N"),
+                polling_rate=cfg.get("polling_rate"),
+                enable_polling=cfg.get("enable_polling", True),
             )
             
             # Test if we can actually open the port

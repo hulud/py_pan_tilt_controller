@@ -26,7 +26,8 @@ class SerialConnection(ConnectionBase):
                 stop_bits: int = 1,
                 parity: str = 'N',
                 timeout: float = 1.0,
-                polling_rate: float = None):
+                polling_rate: float = None,
+                enable_polling: bool = True):
         """
         Initialize serial connection.
         
@@ -45,6 +46,7 @@ class SerialConnection(ConnectionBase):
         self._parity = parity
         self._timeout = timeout
         self._polling_rate = polling_rate
+        self._enable_polling = enable_polling
         
         # Serial connection object
         self._serial = None
@@ -517,7 +519,8 @@ class SerialConnection(ConnectionBase):
             'stop_bits': self._stop_bits,
             'parity': self._parity,
             'timeout': self._timeout,
-            'polling_rate': self._polling_rate
+            'polling_rate': self._polling_rate,
+            'enable_polling': self._enable_polling
         }
     
     def set_config(self, config: Dict[str, Any]) -> bool:
@@ -547,6 +550,7 @@ class SerialConnection(ConnectionBase):
             self._parity = config.get('parity', self._parity)
             self._timeout = config.get('timeout', self._timeout)
             self._polling_rate = config.get('polling_rate', self._polling_rate)
+            self._enable_polling = config.get('enable_polling', self._enable_polling)
             
             # Reopen connection if it was open
             if was_open:

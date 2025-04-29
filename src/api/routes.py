@@ -76,30 +76,34 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
                     # Get the current controller instance (handles reloads)
                     current_controller = getattr(socketio, '_controller', controller)
                     
-                    # Get position with status information
-                    rel_pan, rel_tilt, status = current_controller.get_relative_position()
+                    # Check if polling is enabled
+                    enable_polling = getattr(current_controller.connection, '_enable_polling', True)
                     
-                    # We don't have direct access to raw angles anymore
-                    # Use relative angles as raw angles for backwards compatibility
-                    raw_pan = rel_pan
-                    raw_tilt = rel_tilt
-                    
-                    # Create response payload
-                    position_data = {
-                        'rel_pan': rel_pan,
-                        'rel_tilt': rel_tilt,
-                        'raw_pan': raw_pan,
-                        'raw_tilt': raw_tilt,
-                        'timestamp': time.time(),
-                        'status': {
-                            'pan_valid': status.get('pan_valid', False),
-                            'tilt_valid': status.get('tilt_valid', False),
-                            'position_type': 'measured' if (status.get('pan_valid', False) or status.get('tilt_valid', False)) else 'estimated'
+                    if enable_polling:
+                        # Get position with status information
+                        rel_pan, rel_tilt, status = current_controller.get_relative_position()
+                        
+                        # We don't have direct access to raw angles anymore
+                        # Use relative angles as raw angles for backwards compatibility
+                        raw_pan = rel_pan
+                        raw_tilt = rel_tilt
+                        
+                        # Create response payload
+                        position_data = {
+                            'rel_pan': rel_pan,
+                            'rel_tilt': rel_tilt,
+                            'raw_pan': raw_pan,
+                            'raw_tilt': raw_tilt,
+                            'timestamp': time.time(),
+                            'status': {
+                                'pan_valid': status.get('pan_valid', False),
+                                'tilt_valid': status.get('tilt_valid', False),
+                                'position_type': 'measured' if (status.get('pan_valid', False) or status.get('tilt_valid', False)) else 'estimated'
+                            }
                         }
-                    }
-                    
-                    # Emit position update
-                    socketio.emit('position_update', position_data)
+                        
+                        # Emit position update
+                        socketio.emit('position_update', position_data)
                     
                 except Exception as e:
                     # Log the error but don't let it crash the thread
@@ -122,8 +126,9 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
             except Exception as e:
                 logger.error(f"Error in position update thread: {e}")
             
-            # Use a longer update interval to reduce pressure on the device
-            time.sleep(0.25)  # Update every 250ms
+            # Use the configured polling rate from YAML
+            polling_rate = getattr(current_controller.connection, '_polling_rate', 0.5)
+            time.sleep(polling_rate)
     
     # Start the position update thread
     position_thread = threading.Thread(target=position_update_thread, daemon=True)

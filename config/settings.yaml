@@ -6,6 +6,7 @@ connection:
   retries: 3                 
   retry_delay: 0.5
   polling_rate: 0.5         # Polling rate for position updates in seconds
+  enable_polling: false      # Enable/disable position polling
 
 controller:
   address: 1
