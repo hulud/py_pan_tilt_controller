@@ -25,7 +25,8 @@ class SerialConnection(ConnectionBase):
                 data_bits: int = 8,
                 stop_bits: int = 1,
                 parity: str = 'N',
-                timeout: float = 1.0):
+                timeout: float = 1.0,
+                polling_rate: float = None):
         """
         Initialize serial connection.
         
@@ -43,9 +44,13 @@ class SerialConnection(ConnectionBase):
         self._stop_bits = stop_bits
         self._parity = parity
         self._timeout = timeout
+        self._polling_rate = polling_rate
         
         # Serial connection object
         self._serial = None
+        
+        # Lock to serialize all serial port I/O
+        self._io_lock = threading.Lock()
         
         # Callback management
         self._callback = None
@@ -197,11 +202,12 @@ class SerialConnection(ConnectionBase):
         if not self.is_open():
             raise ConnectionError("Serial connection is not open")
         
-        # Enhanced debug print for sent data
-        print(f"[SERIAL TX] >>> {' '.join(f'{b:02X}' for b in data)} | ASCII: {self._format_as_ascii(data)} | Length: {len(data)} bytes")
-        print(f"[SERIAL TX] Command breakdown: {self._parse_pelco_command(data)}")
-        
-        return self._serial.write(data)
+        with self._io_lock:
+            # Enhanced debug print for sent data
+            print(f"[SERIAL TX] >>> {' '.join(f'{b:02X}' for b in data)} | ASCII: {self._format_as_ascii(data)} | Length: {len(data)} bytes")
+            print(f"[SERIAL TX] Command breakdown: {self._parse_pelco_command(data)}")
+            
+            return self._serial.write(data)
     
     def _format_as_ascii(self, data: bytes) -> str:
         """Format bytes as ASCII, showing printable characters and hex for others"""
@@ -363,25 +369,31 @@ class SerialConnection(ConnectionBase):
         
         # Set temporary timeout if provided
         original_timeout = None
-        if timeout is not None:
-            original_timeout = self._serial.timeout
-            self._serial.timeout = timeout
-
+        
         try:
-            # For position response queries (0x51 or 0x53), always read exactly 5 bytes
-            data = self._serial.read(5)  # Read exactly 5 bytes for position responses
-            
-            # Debug prints for received data
-            if data:
-                print(f"[SERIAL RX] <<< {' '.join(f'{b:02X}' for b in data)} | ASCII: {self._format_as_ascii(data)} | Length: {len(data)} bytes")
+            with self._io_lock:
+                if timeout is not None:
+                    original_timeout = self._serial.timeout
+                    self._serial.timeout = timeout
                 
-                # Try to parse as position response if we have exactly 5 bytes
-                if len(data) == 5 and (data[1] == 0x59 or data[1] == 0x5B):
-                    print(f"[SERIAL RX] Response analysis: {self._parse_pelco_response(data)}")
-            elif timeout is not None:
-                print(f"[SERIAL RX] No data received within timeout period ({timeout}s)")
-                raise TimeoutError("No data received within timeout period")
+                # For position response queries (0x51 or 0x53), always read exactly 5 bytes
+                data = self._serial.read(5)  # Read exactly 5 bytes for position responses
                 
+                # Debug prints for received data
+                if data:
+                    print(f"[SERIAL RX] <<< {' '.join(f'{b:02X}' for b in data)} | ASCII: {self._format_as_ascii(data)} | Length: {len(data)} bytes")
+                    
+                    # Try to parse as position response if we have exactly 5 bytes
+                    if len(data) == 5 and (data[1] == 0x59 or data[1] == 0x5B):
+                        print(f"[SERIAL RX] Response analysis: {self._parse_pelco_response(data)}")
+                elif timeout is not None:
+                    print(f"[SERIAL RX] No data received within timeout period ({timeout}s)")
+                    raise TimeoutError("No data received within timeout period")
+                
+                # Restore original timeout if changed
+                if original_timeout is not None:
+                    self._serial.timeout = original_timeout
+                    
             return data
         except TimeoutError:
             # Re-raise timeout error
@@ -390,10 +402,11 @@ class SerialConnection(ConnectionBase):
             print(f"[SERIAL RX] Unexpected error in receive: {e}")
             return bytes()
         finally:
-            # Restore original timeout if changed
+            # Ensure timeout is restored even if an exception occurred inside the lock
             try:
                 if original_timeout is not None and self._serial and self._serial.is_open:
-                    self._serial.timeout = original_timeout
+                    with self._io_lock:
+                        self._serial.timeout = original_timeout
             except Exception as e:
                 print(f"[SERIAL RX] Error restoring timeout: {e}")
                 
@@ -464,23 +477,30 @@ class SerialConnection(ConnectionBase):
         
         # Set temporary timeout if provided
         original_timeout = None
-        if timeout is not None:
-            original_timeout = self._serial.timeout
-            self._serial.timeout = timeout
         
         try:
-            # Use pyserial's read_until method
-            data = self._serial.read_until(terminator, max_size)
-            
-            # Check if terminator was found
-            if not data.endswith(terminator) and timeout is not None:
-                raise TimeoutError("Terminator not received within timeout period")
+            with self._io_lock:
+                if timeout is not None:
+                    original_timeout = self._serial.timeout
+                    self._serial.timeout = timeout
                 
+                # Use pyserial's read_until method
+                data = self._serial.read_until(terminator, max_size)
+                
+                # Restore original timeout if changed
+                if original_timeout is not None:
+                    self._serial.timeout = original_timeout
+                    
+                # Check if terminator was found
+                if not data.endswith(terminator) and timeout is not None:
+                    raise TimeoutError("Terminator not received within timeout period")
+                    
             return data
         finally:
-            # Restore original timeout if changed
-            if original_timeout is not None:
-                self._serial.timeout = original_timeout
+            # Ensure timeout is restored even if an exception occurred inside the lock
+            if original_timeout is not None and self._serial and self._serial.is_open:
+                with self._io_lock:
+                    self._serial.timeout = original_timeout
     
     @property
     def config(self) -> Dict[str, Any]:
@@ -496,7 +516,8 @@ class SerialConnection(ConnectionBase):
             'data_bits': self._data_bits,
             'stop_bits': self._stop_bits,
             'parity': self._parity,
-            'timeout': self._timeout
+            'timeout': self._timeout,
+            'polling_rate': self._polling_rate
         }
     
     def set_config(self, config: Dict[str, Any]) -> bool:
@@ -525,6 +546,7 @@ class SerialConnection(ConnectionBase):
             self._stop_bits = config.get('stop_bits', self._stop_bits)
             self._parity = config.get('parity', self._parity)
             self._timeout = config.get('timeout', self._timeout)
+            self._polling_rate = config.get('polling_rate', self._polling_rate)
             
             # Reopen connection if it was open
             if was_open:
@@ -552,11 +574,17 @@ class SerialConnection(ConnectionBase):
         """Background thread for receive callback"""
         while self._callback_active and self._serial and self._serial.is_open:
             try:
-                if self._serial.in_waiting:
-                    data = self._serial.read(self._serial.in_waiting)
-                    if data and self._callback:
-                        self._callback(data)
-                time.sleep(0.01)  # Short sleep to prevent CPU hogging
+                data = None
+                with self._io_lock:
+                    if self._serial.in_waiting:
+                        data = self._serial.read(self._serial.in_waiting)
+                
+                if data and self._callback:
+                    self._callback(data)
+                    
+                # Use configured polling rate or fallback to 0.01 if None
+                sleep_time = self._polling_rate if self._polling_rate is not None else 0.01
+                time.sleep(sleep_time)
             except Exception as e:
                 print(f"Error in serial callback loop: {e}")
                 break

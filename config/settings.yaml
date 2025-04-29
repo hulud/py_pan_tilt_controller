@@ -5,6 +5,7 @@ connection:
   timeout: 1.0
   retries: 3                 
   retry_delay: 0.5
+  polling_rate: 0.5         # Polling rate for position updates in seconds
 
 controller:
   address: 1
