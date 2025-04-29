@@ -78,9 +78,9 @@ class ControlPanel(QGroupBox):
         pan_layout = QVBoxLayout()
         pan_layout.addWidget(QLabel("Pan Angle:"))
         self.pan_spinbox = QDoubleSpinBox()
-        self.pan_spinbox.setRange(0, 360.0)
+        self.pan_spinbox.setRange(-180.0, 180.0)
         self.pan_spinbox.setSingleStep(1.0)
-        self.pan_spinbox.setValue(180.0)
+        self.pan_spinbox.setValue(0.0)
         self.pan_spinbox.setDecimals(2)  # Allow 0.01 resolution
         pan_layout.addWidget(self.pan_spinbox)
         

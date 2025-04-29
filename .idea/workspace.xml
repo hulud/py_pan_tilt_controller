@@ -7,9 +7,14 @@
     <list default="true" id="1e6f5c46-66d5-4357-b962-4b4dd0710e79" name="Changes" comment="deleted old gui api">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/settings.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/settings.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/control_panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/control_panel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/main_window_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/main_window_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/position_display.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/position_display.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_all.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/connection/serial_conn.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connection/serial_conn.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/controller/ptz/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/ptz/core.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/protocol/commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/protocol/pelco_d.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol/pelco_d.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -169,9 +174,6 @@
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -279,7 +281,7 @@
       <workItem from="1745915746734" duration="6297000" />
       <workItem from="1745923738773" duration="30000" />
       <workItem from="1745924892136" duration="7242000" />
-      <workItem from="1745932191680" duration="873000" />
+      <workItem from="1745932191680" duration="7386000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -449,7 +451,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745932232850</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="deleted old gui api">
+      <option name="closed" value="true" />
+      <created>1745933106970</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1745933106970</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -509,7 +519,7 @@
     <SUITE FILE_PATH="coverage/pythonProject1$plot.coverage" NAME="plot Coverage Results" MODIFIED="1739226055644" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/pythonProject1$pelco_D_api.coverage" NAME="pelco_D_api Coverage Results" MODIFIED="1739204988671" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/py_pan_tilt_controller$pan_tilt_gui_api.coverage" NAME="pan_tilt_gui_api Coverage Results" MODIFIED="1745483733265" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/py_pan_tilt_controller$run_all.coverage" NAME="run_all Coverage Results" MODIFIED="1745932736428" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/py_pan_tilt_controller$run_all.coverage" NAME="run_all Coverage Results" MODIFIED="1745939917971" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/py_pan_tilt_controller$ptz_server.coverage" NAME="ptz_server Coverage Results" MODIFIED="1745484261034" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/pythonProject1$content_for_AI.coverage" NAME="content_for_AI Coverage Results" MODIFIED="1739198134481" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/pythonProject1$ids_camera.coverage" NAME="ids_camera Coverage Results" MODIFIED="1739189911255" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

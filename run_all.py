@@ -13,13 +13,93 @@ import sys
 import os
 import signal
 import atexit
+import yaml
+import re
+import pathlib
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Load configuration from YAML
+def load_config():
+    config_path = pathlib.Path('config/settings.yaml')
+    if not config_path.exists():
+        print(f"Warning: Configuration file {config_path} not found. Using defaults.")
+        return {}
+    
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
+
+# Setup logging based on YAML configuration
+def setup_logging(config):
+    log_config = config.get('logging', {})
+    
+    # Create base logger with default formatter
+    logging.basicConfig(
+        level=getattr(logging, log_config.get('root_level', 'INFO')),
+        format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%H:%M:%S'
+    )
+    
+    # Create log directory if needed
+    log_dir = log_config.get('log_dir', 'logs')
+    if log_config.get('file_output', True) and not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+    
+    # Configure loggers based on config
+    configured_loggers = {}
+    logger_configs = log_config.get('loggers', {})
+    
+    # Initialize all loggers with their specific levels
+    for logger_name, level in logger_configs.items():
+        logger = logging.getLogger(logger_name)
+        logger.setLevel(getattr(logging, level, logging.INFO))
+        configured_loggers[logger_name] = logger
+        
+        # Add file handler if enabled
+        if log_config.get('file_output', True):
+            file_handler = logging.FileHandler(os.path.join(log_dir, f"{logger_name}.log"))
+            file_handler.setFormatter(logging.Formatter('%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s', datefmt='%H:%M:%S'))
+            logger.addHandler(file_handler)
+    
+    # Compile pattern matchers for unconfigured loggers
+    pattern_rules = []
+    for pattern, level in log_config.get('patterns', {'*': 'INFO'}).items():
+        if '*' in pattern:
+            regex_pattern = pattern.replace('.', '\\.').replace('*', '.*')
+            pattern_rules.append((re.compile(f"^{regex_pattern}$"), getattr(logging, level, logging.INFO)))
+    
+    # Return all configuration
+    return configured_loggers, pattern_rules
+
+# Load configuration and setup logging
+config = load_config()
+configured_loggers, pattern_rules = setup_logging(config)
+
+# Get or create loggers with appropriate levels
+def get_logger(name):
+    # If already configured, return it
+    if name in configured_loggers:
+        return configured_loggers[name]
+    
+    # Create new logger
+    logger = logging.getLogger(name)
+    
+    # Apply pattern rules
+    for pattern, level in pattern_rules:
+        if pattern.match(name):
+            logger.setLevel(level)
+            break
+    
+    # Store for future use
+    configured_loggers[name] = logger
+    return logger
+
+# Get main loggers we'll use
+logger = get_logger('run_all')
+server_logger = get_logger('run_all.server_thread')
+serial_tx_logger = get_logger('run_all.server_thread.serial_tx')
+serial_rx_logger = get_logger('run_all.server_thread.serial_rx')
+zero_point_logger = get_logger('run_all.server_thread.zero_point')
+parser_logger = get_logger('run_all.server_thread.parser')
+client_logger = get_logger('run_all.client_thread')
 
 # Global process references for clean shutdown
 server_process = None
@@ -80,12 +160,31 @@ def terminate_processes():
             except Exception as e2:
                 logger.error(f"Error force killing server process: {e2}")
 
+def process_server_output(line):
+    """Process and route server output to appropriate loggers"""
+    line = line.strip()
+    if not line:
+        return
+        
+    # Route based on content patterns
+    if "[SERIAL TX]" in line:
+        serial_tx_logger.debug(f"Server: {line}")
+    elif "[SERIAL RX]" in line:
+        serial_rx_logger.debug(f"Server: {line}")
+    elif "zero-point" in line.lower() or "zeroing" in line.lower():
+        zero_point_logger.info(f"Server: {line}")
+    elif "checksum mismatch" in line.lower() or "invalid response" in line.lower():
+        parser_logger.warning(f"Server: {line}")
+    else:
+        # Default server logger
+        server_logger.info(f"Server: {line}")
+
 def server_thread():
     """Function to run the server in a separate thread"""
     global server_process
     cmd = [sys.executable, 'ptz_server.py']
     
-    logger.info(f"Starting server with command: {' '.join(cmd)}")
+    server_logger.info(f"Starting server with command: {' '.join(cmd)}")
     
     try:
         # Create a new process group on Unix systems
@@ -102,21 +201,19 @@ def server_thread():
             **kwargs
         )
         
-        # Log server output
+        # Log server output with routing
         for line in server_process.stdout:
-            line = line.strip()
-            if line:
-                logger.info(f"Server: {line}")
+            process_server_output(line)
                 
         # Check if process terminated with an error
         return_code = server_process.wait()
         if return_code != 0:
-            logger.error(f"Server process exited with code {return_code}")
+            server_logger.error(f"Server process exited with code {return_code}")
             return False
         return True
         
     except Exception as e:
-        logger.error(f"Error running server: {e}")
+        server_logger.error(f"Error running server: {e}")
         return False
 
 def client_thread(server_ready_event):
@@ -125,12 +222,12 @@ def client_thread(server_ready_event):
     
     # Wait for server ready event
     if not server_ready_event.wait(timeout=10.0):
-        logger.error("Timed out waiting for server to start")
+        client_logger.error("Timed out waiting for server to start")
         return False
     
     cmd = [sys.executable, 'gui_client.py']
     
-    logger.info(f"Starting client with command: {' '.join(cmd)}")
+    client_logger.info(f"Starting client with command: {' '.join(cmd)}")
     
     try:
         # Create a new process group on Unix systems
@@ -151,16 +248,21 @@ def client_thread(server_ready_event):
         for line in client_process.stdout:
             line = line.strip()
             if line:
-                logger.info(f"Client: {line}")
+                # Check if line appears to be API client related
+                if "api_client" in line.lower() or "request" in line.lower() or "response" in line.lower():
+                    gui_api_logger = logging.getLogger('gui_client.api_client')
+                    gui_api_logger.info(f"Client: {line}")
+                else:
+                    client_logger.info(f"Client: {line}")
         
         # Check if process terminated with an error
         return_code = client_process.wait()
         if return_code != 0:
-            logger.error(f"Client process exited with code {return_code}")
+            client_logger.error(f"Client process exited with code {return_code}")
         return True
     
     except Exception as e:
-        logger.error(f"Error running client: {e}")
+        client_logger.error(f"Error running client: {e}")
         return False
 
 def main():
@@ -171,6 +273,8 @@ def main():
     # Add signal handlers
     for sig in [signal.SIGINT, signal.SIGTERM]:
         signal.signal(sig, lambda s, f: (terminate_processes(), sys.exit(0)))
+    
+    logger.info("Starting Pan-Tilt Control System")
     
     # Event to signal when server is ready
     server_ready_event = threading.Event()

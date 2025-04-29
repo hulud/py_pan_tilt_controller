@@ -102,9 +102,6 @@ class PelcoDProtocol:
     def parse_response(self, data: bytes) -> Optional[Dict[str, Any]]:
         """
         Parse a Pelco D response message from the BIT-CCTV pan-tilt mount.
-
-        Standard format from documentation: FF add 00 59 PMSB PLSB sum (for pan position)
-                                         or FF add 00 5B TMSB TLSB sum (for tilt position)
                                          
         BIT-CCTV format (observed): XX 59 DATA1 DATA2 SUM (for pan position)
                                  or XX 5B DATA1 DATA2 SUM (for tilt position)
@@ -126,132 +123,69 @@ class PelcoDProtocol:
             hex_data = ' '.join(f'{b:02X}' for b in data)
             logger.debug(f"Parsing response: {hex_data}")
 
-            # Handle BIT-CCTV 5-byte custom format
-            if len(data) == 5:
-                # BIT-CCTV format: [XX 59/5B DATA1 DATA2 SUM]
-                try:
-                    # Ignore first byte, use second byte to determine type
-                    cmd_byte = data[1]
-                    data1 = data[2]
-                    data2 = data[3]
-                    checksum = data[4]
+            # Verify expected 5-byte length
+            if len(data) != 5:
+                logger.warning(f"Unexpected message length: {len(data)}, expected 5 bytes")
+                return None
+                
+            # BIT-CCTV 5-byte format parsing
+            try:
+                # Ignore first byte, use second byte to determine type
+                cmd_byte = data[1]
+                data1 = data[2]
+                data2 = data[3]
+                checksum = data[4]
+                
+                # Verify custom checksum (cmd + data1 + data2)
+                calculated_checksum = (cmd_byte + data1 + data2) % 256
+                # BIT-CCTV devices sometimes add 1 to the checksum
+                checksum_valid = (calculated_checksum == checksum or calculated_checksum + 1 == checksum)
+                
+                if not checksum_valid:
+                    logger.warning(f"Checksum mismatch in 5-byte format: calculated 0x{calculated_checksum:02X}, got 0x{checksum:02X}")
+                    # Continue processing despite checksum mismatch
+                
+                # Pan position response
+                if cmd_byte == self.CMD_PAN_POSITION_RESPONSE:
+                    raw_value = (data1 << 8) | data2
+                    pan_angle_0_360 = (raw_value / 100.0) % 360.0
                     
-                    # Verify custom checksum (cmd + data1 + data2)
-                    calculated_checksum = (cmd_byte + data1 + data2) % 256
-                    # BIT-CCTV devices sometimes add 1 to the checksum
-                    checksum_valid = (calculated_checksum == checksum or calculated_checksum + 1 == checksum)
+                    # Convert to -180 to 180 range
+                    pan_angle = pan_angle_0_360
+                    if pan_angle > 180.0:
+                        pan_angle -= 360.0
                     
-                    if not checksum_valid:
-                        logger.warning(f"Checksum mismatch in 5-byte format: calculated 0x{calculated_checksum:02X}, got 0x{checksum:02X}")
-                        # Continue processing despite checksum mismatch
+                    logger.debug(f"Pan position: raw=0x{data1:02X}{data2:02X}={raw_value}, angle={pan_angle:.2f}°")
+                    return {
+                        'type': 'pan_position',
+                        'angle': pan_angle,
+                        'raw': raw_value,
+                        'valid': True
+                    }
                     
-                    # Pan position response
-                    if cmd_byte == self.CMD_PAN_POSITION_RESPONSE:
-                        raw_value = (data1 << 8) | data2
-                        pan_angle = (raw_value / 100.0) % 360.0
-                        
-                        logger.debug(f"Pan position (5-byte format): raw=0x{data1:02X}{data2:02X}={raw_value}, angle={pan_angle:.2f}°")
-                        return {
-                            'type': 'pan_position',
-                            'angle': pan_angle,
-                            'raw': raw_value,
-                            'valid': True,
-                            'custom_format': True
-                        }
-                        
-                    # Tilt position response
-                    elif cmd_byte == self.CMD_TILT_POSITION_RESPONSE:
-                        raw_value = (data1 << 8) | data2
-                        # Calculate tilt angle using Pelco D formula
-                        if raw_value > 18000:
-                            tilt_angle = ((36000 - raw_value) / 100.0)  # Positive angle
-                        else:
-                            tilt_angle = -(raw_value / 100.0)  # Negative angle
-                            
-                        logger.debug(f"Tilt position (5-byte format): raw=0x{data1:02X}{data2:02X}={raw_value}, angle={tilt_angle:.2f}°")
-                        return {
-                            'type': 'tilt_position',
-                            'angle': tilt_angle,
-                            'raw': raw_value,
-                            'valid': True,
-                            'custom_format': True
-                        }
-                        
+                # Tilt position response
+                elif cmd_byte == self.CMD_TILT_POSITION_RESPONSE:
+                    raw_value = (data1 << 8) | data2
+                    # Calculate tilt angle using Pelco D formula
+                    if raw_value > 18000:
+                        tilt_angle = ((36000 - raw_value) / 100.0)  # Positive angle
                     else:
-                        logger.warning(f"Unknown command byte in 5-byte format: 0x{cmd_byte:02X}")
-                        return None
+                        tilt_angle = -(raw_value / 100.0)  # Negative angle
                         
-                except IndexError as e:
-                    logger.warning(f"Index error while parsing 5-byte response: {e}, data: {hex_data}")
+                    logger.debug(f"Tilt position: raw=0x{data1:02X}{data2:02X}={raw_value}, angle={tilt_angle:.2f}°")
+                    return {
+                        'type': 'tilt_position',
+                        'angle': tilt_angle,
+                        'raw': raw_value,
+                        'valid': True
+                    }
+                    
+                else:
+                    logger.warning(f"Unknown command byte: 0x{cmd_byte:02X}")
                     return None
-            
-            # Standard 7-byte format handling (fallback)
-            elif len(data) == 7:
-                try:
-                    # Standard format checks
-                    if data[0] != self.SYNC_BYTE:
-                        logger.warning(f"Invalid sync byte: 0x{data[0]:02X}, expected 0x{self.SYNC_BYTE:02X}")
-                        return None
-
-                    if data[1] != self.address:
-                        logger.warning(f"Invalid address: 0x{data[1]:02X}, expected 0x{self.address:02X}")
-                        return None
-
-                    if data[2] != 0x00:
-                        logger.warning(f"Invalid command byte 1: 0x{data[2]:02X}, expected 0x00")
-                        return None
-
-                    # Checksum validation
-                    expected_checksum = calculate_checksum(data[:6])
-                    actual_checksum = data[6]
-                    if expected_checksum != actual_checksum:
-                        logger.warning(f"Checksum mismatch: expected 0x{expected_checksum:02X}, got 0x{actual_checksum:02X}")
-                        # Continue processing despite checksum mismatch
-
-                    command = data[3]
-
-                    # Pan position response
-                    if command == self.CMD_PAN_POSITION_RESPONSE:
-                        msb = data[4]
-                        lsb = data[5]
-                        raw_value = (msb << 8) | lsb
-                        pan_angle = (raw_value / 100.0) % 360.0
-
-                        logger.debug(f"Pan position: raw=0x{msb:02X}{lsb:02X}={raw_value}, angle={pan_angle:.2f}°")
-                        return {
-                            'type': 'pan_position',
-                            'angle': pan_angle,
-                            'raw': raw_value,
-                            'valid': True
-                        }
-
-                    # Tilt position response
-                    elif command == self.CMD_TILT_POSITION_RESPONSE:
-                        msb = data[4]
-                        lsb = data[5]
-                        raw_value = (msb << 8) | lsb
-                        # Pelco-D tilt wraps around after 36000
-                        tilt_angle = (raw_value / 100.0) if raw_value <= 18000 else -((36000 - raw_value) / 100.0)
-
-                        logger.debug(f"Tilt position: raw=0x{msb:02X}{lsb:02X}={raw_value}, angle={tilt_angle:.2f}°")
-                        return {
-                            'type': 'tilt_position',
-                            'angle': tilt_angle,
-                            'raw': raw_value,
-                            'valid': True
-                        }
-
-                    # Unknown command
-                    else:
-                        logger.warning(f"Unknown command byte: 0x{command:02X}")
-                        return None
-                        
-                except IndexError as e:
-                    logger.warning(f"Index error while parsing 7-byte response: {e}, data: {hex_data}")
-                    return None
-            else:
-                # Log but don't fail with invalid length
-                logger.warning(f"Unexpected message length: {len(data)}, expected 5 or 7 bytes")
+                    
+            except IndexError as e:
+                logger.warning(f"Index error while parsing response: {e}, data: {hex_data}")
                 return None
                 
         except Exception as e:

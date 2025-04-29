@@ -1,4 +1,3 @@
-
 connection:
   port: COM3            # Use simulator instead of COM port
   baudrate: 9600
@@ -6,7 +5,7 @@ connection:
   retries: 3                 
   retry_delay: 0.5
   polling_rate: 0.5         # Polling rate for position updates in seconds
-  enable_polling: false      # Enable/disable position polling
+  enable_polling: true      # Enable/disable position polling
 
 controller:
   address: 1
@@ -22,3 +21,26 @@ api:
 client:
   host: 127.0.0.1
   port: 8080
+
+logging:
+  root_level: INFO          # Default log level for unspecified loggers
+  file_output: false         # Enable file output for logs
+  console_output: true      # Enable console output for logs
+  log_dir: logs             # Directory to store log files
+  
+  # Logger-specific level configuration
+  loggers:
+    run_all: INFO
+    run_all.server_thread: INFO
+    run_all.server_thread.serial_tx: INFO
+    run_all.server_thread.serial_rx: INFO
+    run_all.server_thread.zero_point: INFO
+    run_all.server_thread.parser: WARNING
+    run_all.client_thread: INFO
+    gui_client.api_client: INFO
+  
+  # Pattern-based log level rules - applied if specific logger isn't found
+  patterns:
+    "*.serial_*": DEBUG     # All serial loggers default to DEBUG
+    "*.parser": WARNING     # All parser loggers default to WARNING
+    "*": INFO               # Everything else defaults to INFO

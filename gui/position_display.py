@@ -16,13 +16,9 @@ class PositionDisplay(QGroupBox):
         
         self.pan_display = QLabel("Pan: --°")
         self.tilt_display = QLabel("Tilt: --°")
-        self.raw_pan_display = QLabel("Raw Pan: --°")
-        self.raw_tilt_display = QLabel("Raw Tilt: --°")
         
         position_layout.addWidget(self.pan_display)
         position_layout.addWidget(self.tilt_display)
-        position_layout.addWidget(self.raw_pan_display)
-        position_layout.addWidget(self.raw_tilt_display)
         
         # Safety limit indicator
         self.limit_indicator = QLabel("■ Within safe range")
@@ -33,12 +29,8 @@ class PositionDisplay(QGroupBox):
         
         self.setLayout(main_layout)
     
-    def update_display(self, rel_pan, rel_tilt, raw_pan, raw_tilt):
+    def update_display(self, rel_pan, rel_tilt):
         """Update the position displays with current values"""
-        if raw_pan is not None:
-            self.raw_pan_display.setText(f"Raw Pan: {raw_pan:.2f}°")
-        if raw_tilt is not None:
-            self.raw_tilt_display.setText(f"Raw Tilt: {raw_tilt:.2f}°")
         if rel_pan is not None:
             self.pan_display.setText(f"Pan: {rel_pan:.2f}°")
         if rel_tilt is not None:

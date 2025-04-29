@@ -206,7 +206,7 @@ class SerialConnection(ConnectionBase):
         
         with self._io_lock:
             # Enhanced debug print for sent data
-            print(f"[SERIAL TX] >>> {' '.join(f'{b:02X}' for b in data)} | ASCII: {self._format_as_ascii(data)} | Length: {len(data)} bytes")
+            print(f"[SERIAL TX] >>> {' '.join(f'{b:02X}' for b in data)}|Len: {len(data)} bytes")
             print(f"[SERIAL TX] Command breakdown: {self._parse_pelco_command(data)}")
             
             return self._serial.write(data)
@@ -346,21 +346,22 @@ class SerialConnection(ConnectionBase):
             expected_sum = sum(data[:-1]) % 256
             checksum_status = "✓" if expected_sum == checksum else f"✗ (expected: {expected_sum:02X})"
             
-            return (f"Address: {address}, Command: {cmd1:02X} {cmd2:02X}, Data: {data1:02X} {data2:02X}, " +
-                    f"Checksum: {checksum:02X} {checksum_status} | Type: {cmd_type} | {cmd_details}")
+            return (f"Addr: {address}, Cmc: {cmd1:02X} {cmd2:02X}, Dat: {data1:02X} {data2:02X}, " +
+                    f"Type: {cmd_type} | {cmd_details}")
         except Exception as e:
             return f"Error parsing command: {e}"
     
-    def receive(self, size: int = 1024, timeout: float = None) -> bytes:
+    def receive(self, size: int = 5, timeout: float = None) -> bytes:
         """
         Receive data from the serial connection.
+        Always reads exactly 5 bytes for BIT-CCTV position responses.
         
         Args:
-            size: Maximum number of bytes to read
+            size: Number of bytes to read (default 5, usually ignored)
             timeout: Read timeout in seconds (overrides default)
             
         Returns:
-            Received bytes
+            Received bytes (5 bytes if successful)
             
         Raises:
             ConnectionError: If connection is not open
@@ -378,16 +379,28 @@ class SerialConnection(ConnectionBase):
                     original_timeout = self._serial.timeout
                     self._serial.timeout = timeout
                 
-                # For position response queries (0x51 or 0x53), always read exactly 5 bytes
-                data = self._serial.read(5)  # Read exactly 5 bytes for position responses
+                # Always read exactly 5 bytes for position responses
+                data = self._serial.read(5)
                 
                 # Debug prints for received data
                 if data:
-                    print(f"[SERIAL RX] <<< {' '.join(f'{b:02X}' for b in data)} | ASCII: {self._format_as_ascii(data)} | Length: {len(data)} bytes")
+                    print(f"[SERIAL RX] <<< {' '.join(f'{b:02X}' for b in data)} | Len: {len(data)} bytes")
                     
-                    # Try to parse as position response if we have exactly 5 bytes
+                    # Parse as position response if we have full 5 bytes
                     if len(data) == 5 and (data[1] == 0x59 or data[1] == 0x5B):
-                        print(f"[SERIAL RX] Response analysis: {self._parse_pelco_response(data)}")
+                        response_info = self._parse_pelco_response(data)
+                        print(f"[SERIAL RX] Response analysis: {response_info}")
+                        
+                        # Check if there's a checksum mismatch
+                        if "✗" in response_info:  # Symbol used to indicate checksum failure
+                            print(f"[SERIAL RX] Bad checksum detected, flushing input buffer")
+                            self._serial.reset_input_buffer()  # Immediate flush on bad checksum
+                    elif len(data) == 5:
+                        print(f"[SERIAL RX] Invalid response format, flushing input buffer")
+                        self._serial.reset_input_buffer()
+                    elif len(data) < 5:
+                        print(f"[SERIAL RX] Incomplete response ({len(data)}/5 bytes), flushing input buffer")
+                        self._serial.reset_input_buffer()
                 elif timeout is not None:
                     print(f"[SERIAL RX] No data received within timeout period ({timeout}s)")
                     raise TimeoutError("No data received within timeout period")
@@ -420,40 +433,32 @@ class SerialConnection(ConnectionBase):
         if not data:
             return "Empty response"
             
-        # Generic checksum calculation (sum all bytes except the last one)
-        checksum = data[-1] if len(data) > 1 else 0
-        expected_sum = sum(data[:-1]) % 256 if len(data) > 1 else 0
-        checksum_status = "✓" if checksum == expected_sum else f"✗ (expected: {expected_sum:02X})"
+        if len(data) != 5:
+            return f"Invalid response length: {len(data)}, expected 5 bytes"
             
-        # For position responses (5 bytes)
-        if len(data) == 5:
-            xx = data[0]
-            cmd = data[1]
-            msb = data[2]
-            lsb = data[3]
-            raw_value = (msb << 8) | lsb
-            
-            # Pan position response (0x59)
-            if cmd == 0x59:
-                pan_angle = (raw_value / 100.0) % 360.0
-                return f"Pan Position Response: XX={xx:02X}, POS=59, PMSB={msb:02X}, PLSB={lsb:02X}, SUM={checksum:02X} {checksum_status}, Angle={pan_angle:.2f}°"
-            
-            # Tilt position response (0x5B)
-            elif cmd == 0x5B:
-                if raw_value > 18000:
-                    tilt_data = 36000 - raw_value
-                    tilt_angle = tilt_data / 100.0
-                else:
-                    tilt_data = -raw_value
-                    tilt_angle = tilt_data / 100.0
-                return f"Tilt Position Response: XX={xx:02X}, POS=5B, TMSB={msb:02X}, TLSB={lsb:02X}, SUM={checksum:02X} {checksum_status}, Angle={tilt_angle:.2f}°"
-            # Other command type for 5-byte message
-            else:
-                return f"Unknown 5-byte response: XX={xx:02X}, CMD={cmd:02X}, MSB={msb:02X}, LSB={lsb:02X}, SUM={checksum:02X} {checksum_status}"
+        # Parse 5-byte format
+        xx = data[0]
+        cmd = data[1]
+        msb = data[2]
+        lsb = data[3]
+        checksum = data[4]
         
-        # Any other response length - classify as unknown
+        # BIT-CCTV checksum calculation (cmd + data1 + data2)
+        expected_sum = (cmd + msb + lsb) % 256
+        # BIT-CCTV devices sometimes add 1 to the checksum
+        checksum_status = "✓" if (checksum == expected_sum or checksum == expected_sum + 1) else f"✗ (expected: {expected_sum:02X})"
+        
+        # Pan position response (0x59)
+        if cmd == 0x59:
+            return f"Pan Position Response: XX={xx:02X}, PMSB={msb:02X}, PLSB={lsb:02X}"
+        
+        # Tilt position response (0x5B)
+        elif cmd == 0x5B:
+            return f"Tilt Position Response: XX={xx:02X}, TMSB={msb:02X}, TLSB={lsb:02X}"
+        
+        # Unknown command type for 5-byte message
         else:
-            return f"Unknown response: {' '.join(f'{b:02X}' for b in data)}, Length: {len(data)} bytes, Checksum={checksum:02X} {checksum_status}"
+            return f"Unknown 5-byte response: XX={xx:02X}, CMD={cmd:02X}, MSB={msb:02X}, LSB={lsb:02X}"
     
     def receive_until(self, 
                      terminator: bytes, 

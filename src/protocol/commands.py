@@ -116,11 +116,16 @@ def create_pan_absolute_command(address: int, angle: float) -> bytes:
     
     Args:
         address: Camera address (1-255)
-        angle: Target angle in degrees
+        angle: Target angle in degrees (-180 to 180)
         
     Returns:
         Command bytes
     """
+    # Normalize angle to 0-360 range
+    if angle < 0:
+        # Convert negative angle to equivalent positive angle
+        angle = 360 + angle
+    
     # Convert angle to data value (angle * 100)
     value = int(angle * 100)
     data1 = (value >> 8) & 0xFF  # High byte

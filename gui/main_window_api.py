@@ -80,12 +80,6 @@ class MainWindowAPI(QMainWindow):
         # Show immediate UI feedback
         self.control_panel.btn_set_home.setStyleSheet("background-color: #AAFFAA;")
         QTimer.singleShot(200, lambda: self.control_panel.btn_set_home.setStyleSheet(""))
-        
-        if self.api_client.set_home_position():
-            QMessageBox.information(self, "Home Position", 
-                "Home position set successfully. Safety limits reset.")
-        else:
-            QMessageBox.warning(self, "Error", f"Failed to set home position: {self.api_client.last_error}")
     
     def go_to_absolute_position(self, pan, tilt):
         """Go to an absolute position"""
@@ -134,7 +128,7 @@ class MainWindowAPI(QMainWindow):
     
     def on_position_updated(self, rel_pan, rel_tilt, raw_pan, raw_tilt):
         """Handle position updated signal from API client"""
-        self.position_display.update_display(rel_pan, rel_tilt, raw_pan, raw_tilt)
+        self.position_display.update_display(rel_pan, rel_tilt)
         
         # Update safety indicator
         near_limit = False
@@ -248,6 +242,10 @@ class MainWindowAPI(QMainWindow):
         # Show status message
         movement_desc = f"{direction} with step size {step_size}°"
         self.statusBar.showMessage(f"Moving {movement_desc}", 2000)
+        
+        # Set a timer to automatically clear button styles after movement
+        # This ensures the button will be reset even if no explicit stop is called
+        QTimer.singleShot(500, self.clear_movement_feedback)
 
     def stop_movement(self):
         """Stop all movement"""

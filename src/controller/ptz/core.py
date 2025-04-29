@@ -81,77 +81,7 @@ class PTZController:
         self.connection.send(frame)
 
     # ------------------------------------------------------------- RX logic
-    def _read(self, timeout: float = 2.0) -> bytes:
-        """
-        Read response from the device. Handles both standard 7-byte format and
-        BIT-CCTV's custom 5-byte format. Never raises on incomplete or malformed frames;
-        only emits warnings and returns whatever was received.
-        """
-        try:
-            buffer = bytearray()
-            initial_read_size = 1
 
-            # Step 1: initial read
-            try:
-                chunk = self.connection.receive(size=initial_read_size, timeout=timeout)
-                if not chunk:
-                    print("WARNING: No data received within timeout period")
-                    return bytes()
-                buffer.extend(chunk)
-            except TimeoutError:
-                print("WARNING: Timeout during initial read")
-                return bytes()
-            except Exception as e:
-                print(f"WARNING: Exception during initial data receive: {e}")
-                return bytes()
-
-            # Step 2: determine expected length
-            expected_len = 7 if buffer[0] == 0xFF else 5
-            remain = expected_len - len(buffer)
-
-            # Step 3: read remainder
-            while remain > 0:
-                try:
-                    chunk = self.connection.receive(size=remain, timeout=timeout)
-                    if not chunk:
-                        print(f"WARNING: No data received within timeout period ({timeout}s)")
-                        break
-                    buffer.extend(chunk)
-                    remain = expected_len - len(buffer)
-                except TimeoutError:
-                    print(f"WARNING: Timeout after receiving {len(buffer)} bytes: {' '.join(f'{b:02X}' for b in buffer)}")
-                    break
-                except Exception as e:
-                    print(f"WARNING: Exception during data receive: {e}")
-                    break
-
-            if len(buffer) != expected_len:
-                print(f"WARNING: Expected {expected_len} bytes, got {len(buffer)}")
-
-            # validation warnings only
-            if len(buffer) == 5:
-                try:
-                    if buffer[1] not in (0x59, 0x5B):
-                        print(f"WARNING: Invalid command byte {buffer[1]:02X}, expected 59 or 5B")
-                except Exception as e:
-                    print(f"WARNING: Exception during 5-byte message validation: {e}")
-            elif len(buffer) == 7:
-                try:
-                    if buffer[0] != 0xFF:
-                        print(f"WARNING: Invalid sync byte {buffer[0]:02X}, expected FF")
-                    if buffer[1] != self.protocol.address:
-                        print(f"WARNING: Invalid address {buffer[1]:02X}, expected {self.protocol.address:02X}")
-                    if buffer[2] != 0x00:
-                        print(f"WARNING: Invalid command byte1 {buffer[2]:02X}, expected 00")
-                    if buffer[3] not in (0x59, 0x5B):
-                        print(f"WARNING: Invalid command byte2 {buffer[3]:02X}, expected 59 or 5B")
-                except Exception as e:
-                    print(f"WARNING: Exception during 7-byte message validation: {e}")
-
-            return bytes(buffer)
-        except Exception as e:
-            print(f"WARNING: Unexpected error in _read method: {e}")
-            return bytes()
 
     # --------------------------------------------------- position utilities
 
@@ -169,7 +99,7 @@ class PTZController:
         try:
             frame = self._build_pan_query()
             self._send_command(frame)
-            raw_response = self._read()  # May be shorter than expected; only warns
+            raw_response = self.connection.receive(timeout=2.0)  # Direct use of receive
             result = self.protocol.parse_response(raw_response)
             if not result or result.get('type') != 'pan_position' or not result.get('valid'):
                 print(f"WARNING: Invalid pan position response: {raw_response.hex()}")
@@ -193,7 +123,7 @@ class PTZController:
         try:
             frame = self._build_tilt_query()
             self._send_command(frame)
-            raw_response = self._read()
+            raw_response = self.connection.receive(timeout=2.0)  # Direct use of receive
             result = self.protocol.parse_response(raw_response)
             if not result or result.get('type') != 'tilt_position' or not result.get('valid'):
                 print(f"WARNING: Invalid tilt position response: {raw_response.hex()}")
@@ -220,8 +150,8 @@ class PTZController:
         tilt_angle = self.query_tilt_position()
 
         # 2) Load zero‐angle offsets (default to 0.0 if not set)
-        zero_pan_ang = getattr(self, '_zero_pan_angle', 0.0)
-        zero_tilt_ang = getattr(self, '_zero_tilt_angle', 0.0)
+        zero_pan_ang = self._zero_pan_angle
+        zero_tilt_ang = self._zero_tilt_angle
 
         # 3) Compute relative angles
         rel_pan_ang = pan_angle - zero_pan_ang
