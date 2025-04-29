@@ -34,7 +34,6 @@ class AbsolutePositionRequest:
     
     pan: Optional[float] = None
     tilt: Optional[float] = None
-    step_size: Optional[float] = None
     
     def validate(self) -> bool:
         """
@@ -43,12 +42,36 @@ class AbsolutePositionRequest:
         Returns:
             True if valid, False otherwise
         """
-        # Either pan, tilt, or step_size must be provided
-        if self.pan is None and self.tilt is None and self.step_size is None:
+        # Either pan or tilt must be provided
+        if self.pan is None and self.tilt is None:
             return False
             
-        # If step_size provided, it must be within limits
-        if self.step_size is not None and abs(self.step_size) > 10.0:
+        return True
+
+
+@dataclass
+class StepPositionRequest:
+    """Request model for step-based position control"""
+    
+    step_pan: Optional[float] = None
+    step_tilt: Optional[float] = None
+    
+    def validate(self) -> bool:
+        """
+        Validate the step position request.
+        
+        Returns:
+            True if valid, False otherwise
+        """
+        # Either step_pan or step_tilt must be provided
+        if self.step_pan is None and self.step_tilt is None:
+            return False
+            
+        # Step sizes must be within limits
+        if self.step_pan is not None and abs(self.step_pan) > 10.0:
+            return False
+            
+        if self.step_tilt is not None and abs(self.step_tilt) > 10.0:
             return False
             
         return True

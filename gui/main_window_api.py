@@ -223,26 +223,21 @@ class MainWindowAPI(QMainWindow):
         self.current_movement = direction
         self.apply_button_style(direction)
         
-        # Calculate target position based on step size
-        target_pan = None
-        target_tilt = None
+        # Calculate step values based on direction
+        step_pan = None
+        step_tilt = None
         
         if direction == 'up':
-            target_tilt = raw_tilt + step_size
+            step_tilt = step_size
         elif direction == 'down':
-            target_tilt = raw_tilt - step_size
+            step_tilt = -step_size
         elif direction == 'left':
-            target_pan = raw_pan - step_size
+            step_pan = -step_size
         elif direction == 'right':
-            target_pan = raw_pan + step_size
+            step_pan = step_size
         
-        # Calculate step size based on direction
-        movement_step = step_size
-        if direction in ['left', 'down']:
-            movement_step = -step_size
-            
-        # Start the movement using step_size parameter only
-        if not self.api_client.set_absolute_position(step_size=movement_step):
+        # Send the step position command
+        if not self.api_client.step_position(step_pan=step_pan, step_tilt=step_tilt):
             QMessageBox.warning(self, "Error", f"Failed to start {direction} movement: {self.api_client.last_error}")
             self.clear_movement_feedback()
             return
@@ -251,7 +246,8 @@ class MainWindowAPI(QMainWindow):
         self.is_moving = True
         
         # Show status message
-        self.statusBar.showMessage(f"Moving {direction} with step size {step_size}°", 2000)
+        movement_desc = f"{direction} with step size {step_size}°"
+        self.statusBar.showMessage(f"Moving {movement_desc}", 2000)
 
     def stop_movement(self):
         """Stop all movement"""

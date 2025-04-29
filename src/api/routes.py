@@ -10,7 +10,7 @@ from flask import Flask, request, jsonify, Blueprint
 from flask_socketio import SocketIO, emit
 
 from src.controller import PTZController
-from .models import MovementRequest, AbsolutePositionRequest, PositionResponse, ErrorResponse, SuccessResponse
+from .models import MovementRequest, AbsolutePositionRequest, StepPositionRequest, PositionResponse, ErrorResponse, SuccessResponse
 
 logger = logging.getLogger(__name__)
 
@@ -202,32 +202,15 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
             # Create and validate request model
             pos_request = AbsolutePositionRequest(
                 pan=data.get('pan'),
-                tilt=data.get('tilt'),
-                step_size=data.get('step_size')
+                tilt=data.get('tilt')
             )
             
             if not pos_request.validate():
                 error = ErrorResponse(
-                    message="Invalid position request: must provide at least one of pan, tilt, or step_size",
+                    message="Invalid position request: must provide at least one of pan or tilt",
                     code=400
                 )
                 return jsonify(error.to_dict()), 400
-            
-            # Limit step size to 10 degrees
-            if pos_request.step_size is not None and abs(pos_request.step_size) > 10.0:
-                logger.warning(f"Step size {pos_request.step_size} exceeds limit of 10 degrees, limiting to 10.0")
-                pos_request.step_size = 10.0 if pos_request.step_size > 0 else -10.0
-            
-            # Calculate target position based on current position and step size if provided
-            if pos_request.step_size is not None:
-                # Get the current controller instance (handles reloads)
-                current_controller = getattr(socketio, 'controller', controller)
-                
-                current_position = current_controller.query_position()
-                if current_position[0] is not None and pos_request.pan is None:
-                    pos_request.pan = current_position[0] + pos_request.step_size
-                if current_position[1] is not None and pos_request.tilt is None:
-                    pos_request.tilt = current_position[1] + pos_request.step_size
             
             def perform_abs_movement():
                 # Get the current controller instance (handles reloads)
@@ -264,6 +247,82 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
             return jsonify(response.to_dict())
         except Exception as e:
             logger.error(f"Set home error: {e}")
+            error = ErrorResponse(message=str(e))
+            return jsonify(error.to_dict()), 500
+    
+    # Step position endpoint
+    @api_bp.route('/device/position/step', methods=['POST'])
+    def step_position():
+        """Move by incremental step size"""
+        if not request.is_json:
+            error = ErrorResponse(message="JSON payload required", code=400)
+            return jsonify(error.to_dict()), 400
+            
+        data = request.json
+        
+        try:
+            # Create and validate request model
+            pos_request = StepPositionRequest(
+                step_pan=data.get('step_pan'),
+                step_tilt=data.get('step_tilt')
+            )
+            
+            if not pos_request.validate():
+                error = ErrorResponse(
+                    message="Invalid step request: must provide at least one of step_pan or step_tilt within limits",
+                    code=400
+                )
+                return jsonify(error.to_dict()), 400
+            
+            # Get the current controller instance
+            current_controller = getattr(socketio, 'controller', controller)
+            
+            # Get current position
+            current_position = current_controller.query_position()
+            current_pan, current_tilt = current_position
+            
+            # Default to zero if current position is None
+            if current_pan is None:
+                current_pan = 0.0
+            if current_tilt is None:
+                current_tilt = 0.0
+            
+            # Calculate target position
+            target_pan = None
+            target_tilt = None
+            
+            if pos_request.step_pan is not None:
+                target_pan = current_pan + pos_request.step_pan
+            
+            if pos_request.step_tilt is not None:
+                target_tilt = current_tilt + pos_request.step_tilt
+            
+            def perform_step_movement():
+                # Get the current controller instance (handles reloads)
+                current_controller = getattr(socketio, 'controller', controller)
+                
+                if target_pan is not None:
+                    current_controller.absolute_pan(target_pan)
+                if target_tilt is not None:
+                    current_controller.absolute_tilt(target_tilt)
+            
+            # Queue the step movement
+            queue_command(perform_step_movement)
+            
+            response = SuccessResponse(
+                message="Step position movement initiated",
+                data={
+                    'from_pan': current_pan,
+                    'from_tilt': current_tilt,
+                    'to_pan': target_pan,
+                    'to_tilt': target_tilt,
+                    'step_pan': pos_request.step_pan,
+                    'step_tilt': pos_request.step_tilt
+                }
+            )
+            return jsonify(response.to_dict())
+        except Exception as e:
+            logger.error(f"Step position error: {e}")
             error = ErrorResponse(message=str(e))
             return jsonify(error.to_dict()), 500
     

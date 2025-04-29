@@ -280,14 +280,13 @@ class APIClient(QObject):
             logger.error(f"Set home request error: {e}")
             return False
     
-    def set_absolute_position(self, pan=None, tilt=None, step_size=None):
+    def set_absolute_position(self, pan=None, tilt=None):
         """
         Move to absolute position
         
         Args:
             pan: Pan angle in degrees (0-360) or None to skip
             tilt: Tilt angle in degrees (-90 to +90) or None to skip
-            step_size: Size of step in degrees (optional)
             
         Returns:
             True if successful, False otherwise
@@ -297,8 +296,6 @@ class APIClient(QObject):
             data['pan'] = pan
         if tilt is not None:
             data['tilt'] = tilt
-        if step_size is not None:
-            data['step_size'] = step_size
         
         try:
             # Handle absolute position requests in a background thread
@@ -313,6 +310,36 @@ class APIClient(QObject):
             logger.error(f"Absolute position thread error: {e}")
             return False
     
+    def step_position(self, step_pan=None, step_tilt=None):
+        """
+        Move by incremental step
+        
+        Args:
+            step_pan: Pan step in degrees or None to skip
+            step_tilt: Tilt step in degrees or None to skip
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        data = {}
+        if step_pan is not None:
+            data['step_pan'] = step_pan
+        if step_tilt is not None:
+            data['step_tilt'] = step_tilt
+        
+        try:
+            # Handle step position requests in a background thread
+            threading.Thread(
+                target=self._send_step_position_request,
+                args=(data,),
+                daemon=True
+            ).start()
+            return True
+        except Exception as e:
+            self.last_error = str(e)
+            logger.error(f"Step position thread error: {e}")
+            return False
+    
     def _send_absolute_position_request(self, data):
         """Send absolute position request in background thread"""
         try:
@@ -325,3 +352,16 @@ class APIClient(QObject):
         except Exception as e:
             self.last_error = str(e)
             logger.error(f"Absolute position request error: {e}")
+    
+    def _send_step_position_request(self, data):
+        """Send step position request in background thread"""
+        try:
+            self.session.post(
+                f"{self.server_url}/api/device/position/step",
+                json=data,
+                headers={'Content-Type': 'application/json'},
+                timeout=DEFAULT_REQUEST_TIMEOUT
+            )
+        except Exception as e:
+            self.last_error = str(e)
+            logger.error(f"Step position request error: {e}")
