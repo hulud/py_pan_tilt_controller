@@ -5,10 +5,8 @@
 PTZ Control Server – revised version
 -----------------------------------
 Changes compared with the original:
-  1. **Config‑driven port / host precedence** – the command‑line flag
-     `--port` (or `--host`) now updates both the *api* **and** *client*
-     section inside the live config so that the GUI launched by
-     `run_all.py` will automatically target the same address.
+  1. **Config‑driven initialization** – uses only the YAML config file
+     with no command-line arguments.
   2. **Startup order** – the HTTP API is started **first**; the lengthy
      controller initialisation (zero‑point routine) is performed in a
      background thread so the GUI can open a socket immediately.
@@ -19,7 +17,6 @@ Changes compared with the original:
 
 from __future__ import annotations
 
-import argparse
 import logging
 import signal
 import sys
@@ -44,20 +41,11 @@ logging.basicConfig(
 )
 
 
-def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="PTZ Control Server")
-    parser.add_argument("--config", help="Path to YAML config file")
-    parser.add_argument("--host", help="Bind address (overrides config)")
-    parser.add_argument("--port", type=int, help="Bind port (overrides config)")
-    parser.add_argument("--debug", action="store_true", help="Flask debug mode")
-    return parser.parse_args()
-
-
 def _background_init(controller: PTZController) -> None:
     """Run the lengthy zero‑point initialisation without blocking Flask."""
     logger.info("[BG] Running controller zero‑point routine …")
     try:
-        controller.init_zero_points()  # the public helper usually wraps _init_zero_points
+        controller.set_home_position()  # the public helper usually wraps _init_zero_points
     except Exception as exc:
         logger.error("Error during zero‑point routine: %s", exc, exc_info=True)
     else:
@@ -65,13 +53,11 @@ def _background_init(controller: PTZController) -> None:
 
 
 def main() -> int:
-    args = _parse_args()
-
     # ------------------------------------------------------------------
     # 1. Load configuration -------------------------------------------
     # ------------------------------------------------------------------
     try:
-        config: Dict[str, Any] = load_config(args.config)
+        config: Dict[str, Any] = load_config()
     except Exception as exc:
         logger.error("Cannot load configuration: %s", exc)
         return 1
@@ -79,16 +65,6 @@ def main() -> int:
     api_cfg = get_api_config(config)
     conn_cfg = get_connection_config(config)
     ctrl_cfg = get_controller_config(config)
-
-    # CLI overrides take precedence and are replicated into the client
-    if args.host:
-        api_cfg["host"] = args.host
-        config.setdefault("client", {})["host"] = args.host
-    if args.port:
-        api_cfg["port"] = args.port
-        config.setdefault("client", {})["port"] = args.port
-    if args.debug:
-        api_cfg["debug"] = False
 
     host = api_cfg.get("host", "127.0.0.1")
     port = api_cfg.get("port", 5000)
@@ -130,6 +106,7 @@ def main() -> int:
             host=host,
             port=port,
             debug=debug,
+            use_reloader=False,  # Disable auto-reloading to prevent port conflicts
             allow_unsafe_werkzeug=True,
         )
     finally:

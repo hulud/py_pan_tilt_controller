@@ -43,23 +43,38 @@ class PTZController:
         except Exception:
             pass
 
-        self.init_zero_points()
+        self.set_home_position()
     # --------------------------------------------------------- private utils
     def _create_connection(self, cfg: Dict[str, Any]) -> ConnectionBase:
         port = cfg.get("port", "COM3")
+        
+        # If simulator is explicitly requested
         if port == "SIMULATOR":
-            log.info("Using simulator connection")
+            log.info("Using simulator connection (explicit configuration)")
             from src.connection import SimulatorConnection
             return SimulatorConnection()
-        else:
-            log.info(f"Using serial connection on port {port}")
-            return SerialConnection(
+            
+        # Try to create a serial connection first
+        log.info(f"Using serial connection on port {port}")
+        try:
+            serial_conn = SerialConnection(
                 port=port,
                 baudrate=cfg.get("baudrate", 9600),
                 data_bits=cfg.get("data_bits", 8),
                 stop_bits=cfg.get("stop_bits", 1),
                 parity=cfg.get("parity", "N"),
             )
+            
+            # Test if we can actually open the port
+            if serial_conn.open():
+                log.info(f"Successfully opened serial connection on {port}")
+                serial_conn.close()  # Close it so __init__ can open it cleanly
+                return serial_conn
+            else:
+                log.warning(f"Failed to open serial connection on {port}")
+        except Exception as e:
+            log.error(f"Error creating serial connection: {e}")
+
     def _send_command(self, frame: bytes) -> None:
         self.connection.send(frame)
 
@@ -218,7 +233,7 @@ class PTZController:
 
         return rel_pan_ang, rel_tilt_ang, status
 
-    def init_zero_points(self):
+    def set_home_position(self):
         """
         Initialize zero points:
           1) Save current absolute pan/tilt as software zero references
@@ -296,7 +311,7 @@ class PTZController:
         Args:
             angle: Pan angle in degrees (0-360)
         """
-        command = self.protocol.absolute_pan(angle) if hasattr(self.protocol, 'absolute_pan') else self.protocol.absolute_pan_position(angle)
+        command = self.protocol.absolute_pan(angle)
         self._send_command(command)
 
     def absolute_tilt(self, angle):
@@ -306,16 +321,8 @@ class PTZController:
         Args:
             angle: Tilt angle in degrees (-90 to +90)
         """
-        command = self.protocol.absolute_tilt(angle) if hasattr(self.protocol, 'absolute_tilt') else self.protocol.absolute_tilt_position(angle)
+        command = self.protocol.absolute_tilt(angle)
         self._send_command(command)
-
-    def set_home_position(self):
-        """
-        Set the current position as the home position.
-        """
-        # Implementation uses set_pan_zero_point and set_tilt_zero_point
-        self._send_command(self.protocol.set_pan_zero_point())
-        self._send_command(self.protocol.set_tilt_zero_point())
 
     def query_position(self):
         """
@@ -395,7 +402,14 @@ class PTZController:
 
     def close(self) -> None:
         log.info("Closing connection")
-        self.connection.close()
+        try:
+            self.connection.close()
+            # Give the OS time to fully release the port
+            import time
+            time.sleep(0.5)
+        except Exception as e:
+            log.error(f"Error during connection close: {e}")
+            # Continue with cleanup even if error occurs
 
     def __enter__(self):
         return self

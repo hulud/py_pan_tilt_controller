@@ -142,56 +142,27 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
             'connection_type': current_controller.connection_type
         })
     
-    # Movement endpoint
-    @api_bp.route('/device/movement/<direction>', methods=['POST'])
-    def movement(direction):
-        """Control movement in a specific direction"""
-        # Parse request
-        if request.is_json:
-            speed = request.json.get('speed', 0x10)
-        else:
-            speed = 0x10
-        
-        # Create and validate request model
-        move_request = MovementRequest(direction=direction, speed=speed)
-        if not move_request.validate():
-            error = ErrorResponse(message=f"Invalid movement request: {direction}", code=400)
-            return jsonify(error.to_dict()), 400
-        
+    # Stop endpoint
+    @api_bp.route('/device/stop', methods=['POST'])
+    def stop():
+        """Stop all camera movement"""
         try:
             # Get the current controller instance (handles reloads)
             current_controller = getattr(socketio, 'controller', controller)
             
             # Stop commands are processed immediately
-            if direction == 'stop':
-                current_controller.stop()
-                response = SuccessResponse(message="Movement stopped")
-                return jsonify(response.to_dict())
-            
-            # Other movement commands go through the queue        
-            if direction == 'up':
-                queue_command(current_controller.move_up, speed=speed)
-            elif direction == 'down':
-                queue_command(current_controller.move_down, speed=speed)
-            elif direction == 'left':
-                queue_command(current_controller.move_left, speed=speed)
-            elif direction == 'right':
-                queue_command(current_controller.move_right, speed=speed)
-            
-            response = SuccessResponse(
-                message=f"Movement {direction} initiated",
-                data={'direction': direction, 'speed': speed}
-            )
+            current_controller.stop()
+            response = SuccessResponse(message="Movement stopped")
             return jsonify(response.to_dict())
         except Exception as e:
-            logger.error(f"Movement error: {e}")
+            logger.error(f"Stop error: {e}")
             error = ErrorResponse(message=str(e))
             return jsonify(error.to_dict()), 500
     
     # Position endpoint
     @api_bp.route('/device/position', methods=['GET'])
     def get_position():
-        """Get current position"""
+        """Gets current camera position with angles relative to the home position (src/controller/ptz/core.py:261)"""
         try:
             # Get the current controller instance (handles reloads)
             current_controller = getattr(socketio, 'controller', controller)
@@ -293,129 +264,6 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
             return jsonify(response.to_dict())
         except Exception as e:
             logger.error(f"Set home error: {e}")
-            error = ErrorResponse(message=str(e))
-            return jsonify(error.to_dict()), 500
-    
-    # Preset endpoints
-    @api_bp.route('/device/presets/<int:preset_id>', methods=['POST'])
-    def set_preset(preset_id):
-        """Set a preset position"""
-        try:
-            # Get the current controller instance (handles reloads)
-            current_controller = getattr(socketio, 'controller', controller)
-            
-            queue_command(current_controller.set_preset, preset_id)
-            response = SuccessResponse(
-                message=f"Preset {preset_id} set",
-                data={'preset_id': preset_id}
-            )
-            return jsonify(response.to_dict())
-        except Exception as e:
-            logger.error(f"Set preset error: {e}")
-            error = ErrorResponse(message=str(e))
-            return jsonify(error.to_dict()), 500
-    
-    @api_bp.route('/device/presets/<int:preset_id>/call', methods=['POST'])
-    def call_preset(preset_id):
-        """Call a preset position"""
-        try:
-            # Get the current controller instance (handles reloads)
-            current_controller = getattr(socketio, 'controller', controller)
-            
-            queue_command(current_controller.call_preset, preset_id)
-            response = SuccessResponse(
-                message=f"Preset {preset_id} called",
-                data={'preset_id': preset_id}
-            )
-            return jsonify(response.to_dict())
-        except Exception as e:
-            logger.error(f"Call preset error: {e}")
-            error = ErrorResponse(message=str(e))
-            return jsonify(error.to_dict()), 500
-    
-    @api_bp.route('/device/presets/<int:preset_id>', methods=['DELETE'])
-    def clear_preset(preset_id):
-        """Clear a preset position"""
-        try:
-            # Get the current controller instance (handles reloads)
-            current_controller = getattr(socketio, 'controller', controller)
-            
-            queue_command(current_controller.clear_preset, preset_id)
-            response = SuccessResponse(
-                message=f"Preset {preset_id} cleared",
-                data={'preset_id': preset_id}
-            )
-            return jsonify(response.to_dict())
-        except Exception as e:
-            logger.error(f"Clear preset error: {e}")
-            error = ErrorResponse(message=str(e))
-            return jsonify(error.to_dict()), 500
-    
-    # Optical endpoints
-    @api_bp.route('/device/optical/<action>', methods=['POST'])
-    def optical_control(action):
-        """Control optical features (zoom/focus/iris)"""
-        try:
-            # Get the current controller instance (handles reloads)
-            current_controller = getattr(socketio, 'controller', controller)
-            
-            if action == 'zoom_in':
-                queue_command(current_controller.zoom_in)
-            elif action == 'zoom_out':
-                queue_command(current_controller.zoom_out)
-            elif action == 'focus_far':
-                queue_command(current_controller.focus_far)
-            elif action == 'focus_near':
-                queue_command(current_controller.focus_near)
-            elif action == 'iris_open':
-                queue_command(current_controller.iris_open)
-            elif action == 'iris_close':
-                queue_command(current_controller.iris_close)
-            else:
-                error = ErrorResponse(message=f"Invalid optical action: {action}", code=400)
-                return jsonify(error.to_dict()), 400
-            
-            response = SuccessResponse(
-                message=f"Optical action {action} initiated",
-                data={'action': action}
-            )
-            return jsonify(response.to_dict())
-        except Exception as e:
-            logger.error(f"Optical control error: {e}")
-            error = ErrorResponse(message=str(e))
-            return jsonify(error.to_dict()), 500
-    
-    # Auxiliary endpoints
-    @api_bp.route('/device/aux/<int:aux_id>', methods=['POST'])
-    def aux_control(aux_id):
-        """Control auxiliary devices"""
-        if not request.is_json:
-            error = ErrorResponse(message="JSON payload required", code=400)
-            return jsonify(error.to_dict()), 400
-            
-        data = request.json
-        state = data.get('state')
-        
-        if state not in ['on', 'off']:
-            error = ErrorResponse(message="State must be 'on' or 'off'", code=400)
-            return jsonify(error.to_dict()), 400
-        
-        try:
-            # Get the current controller instance (handles reloads)
-            current_controller = getattr(socketio, 'controller', controller)
-            
-            if state == 'on':
-                queue_command(current_controller.aux_on, aux_id)
-            else:
-                queue_command(current_controller.aux_off, aux_id)
-            
-            response = SuccessResponse(
-                message=f"Auxiliary {aux_id} turned {state}",
-                data={'aux_id': aux_id, 'state': state}
-            )
-            return jsonify(response.to_dict())
-        except Exception as e:
-            logger.error(f"Auxiliary control error: {e}")
             error = ErrorResponse(message=str(e))
             return jsonify(error.to_dict()), 500
     

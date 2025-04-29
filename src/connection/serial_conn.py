@@ -54,57 +54,102 @@ class SerialConnection(ConnectionBase):
     
     def open(self) -> bool:
         """
-        Open the serial connection.
+        Open the serial connection with retry logic.
         
         Returns:
             True if successfully opened, False otherwise
         """
-        try:
-            # Convert data bits
-            if self._data_bits == 5:
-                data_bits = serial.FIVEBITS
-            elif self._data_bits == 6:
-                data_bits = serial.SIXBITS
-            elif self._data_bits == 7:
-                data_bits = serial.SEVENBITS
-            else:
-                data_bits = serial.EIGHTBITS
+        import time
+        
+        # If there was a previous connection, ensure it's fully closed
+        if self._serial is not None:
+            try:
+                self._serial.close()
+                self._serial = None
+                # Give the OS time to fully release the port
+                time.sleep(0.5)
+            except Exception as e:
+                print(f"Error closing previous connection: {e}")
+        
+        # Try to open the connection with retries
+        max_retries = 3
+        retry_delay = 1.0
+        
+        for attempt in range(1, max_retries + 1):
+            try:
+                # Convert data bits
+                if self._data_bits == 5:
+                    data_bits = serial.FIVEBITS
+                elif self._data_bits == 6:
+                    data_bits = serial.SIXBITS
+                elif self._data_bits == 7:
+                    data_bits = serial.SEVENBITS
+                else:
+                    data_bits = serial.EIGHTBITS
+                    
+                # Convert stop bits
+                if self._stop_bits == 1:
+                    stop_bits = serial.STOPBITS_ONE
+                elif self._stop_bits == 1.5:
+                    stop_bits = serial.STOPBITS_ONE_POINT_FIVE
+                else:
+                    stop_bits = serial.STOPBITS_TWO
+                    
+                # Convert parity
+                if self._parity.upper() == 'N':
+                    parity = serial.PARITY_NONE
+                elif self._parity.upper() == 'E':
+                    parity = serial.PARITY_EVEN
+                elif self._parity.upper() == 'O':
+                    parity = serial.PARITY_ODD
+                elif self._parity.upper() == 'M':
+                    parity = serial.PARITY_MARK
+                else:
+                    parity = serial.PARITY_SPACE
                 
-            # Convert stop bits
-            if self._stop_bits == 1:
-                stop_bits = serial.STOPBITS_ONE
-            elif self._stop_bits == 1.5:
-                stop_bits = serial.STOPBITS_ONE_POINT_FIVE
-            else:
-                stop_bits = serial.STOPBITS_TWO
+                # Create and open serial connection
+                self._serial = serial.Serial(
+                    port=self._port,
+                    baudrate=self._baudrate,
+                    bytesize=data_bits,
+                    parity=parity,
+                    stopbits=stop_bits,
+                    timeout=self._timeout,
+                    exclusive=True  # Request exclusive access to the port
+                )
                 
-            # Convert parity
-            if self._parity.upper() == 'N':
-                parity = serial.PARITY_NONE
-            elif self._parity.upper() == 'E':
-                parity = serial.PARITY_EVEN
-            elif self._parity.upper() == 'O':
-                parity = serial.PARITY_ODD
-            elif self._parity.upper() == 'M':
-                parity = serial.PARITY_MARK
-            else:
-                parity = serial.PARITY_SPACE
-            
-            # Create and open serial connection
-            self._serial = serial.Serial(
-                port=self._port,
-                baudrate=self._baudrate,
-                bytesize=data_bits,
-                parity=parity,
-                stopbits=stop_bits,
-                timeout=self._timeout
-            )
-            
-            return True
-        except Exception as e:
-            print(f"Error opening serial port: {e}")
-            self._serial = None
-            return False
+                # Validate connection is actually open
+                if self._serial.is_open:
+                    print(f"Successfully opened serial port {self._port} on attempt {attempt}")
+                    return True
+                else:
+                    print(f"Serial port {self._port} not open after creation on attempt {attempt}")
+                    self._serial = None
+                    
+            except serial.SerialException as e:
+                if "PermissionError" in str(e) or "Access is denied" in str(e):
+                    print(f"Access denied to port {self._port} on attempt {attempt}/{max_retries}: {e}")
+                else:
+                    print(f"Error opening serial port {self._port} on attempt {attempt}/{max_retries}: {e}")
+                
+                self._serial = None
+                
+                # Wait before retrying, unless this is the last attempt
+                if attempt < max_retries:
+                    print(f"Retrying in {retry_delay} seconds...")
+                    time.sleep(retry_delay)
+                    
+            except Exception as e:
+                print(f"Unexpected error opening serial port {self._port} on attempt {attempt}/{max_retries}: {e}")
+                self._serial = None
+                
+                # Wait before retrying, unless this is the last attempt
+                if attempt < max_retries:
+                    print(f"Retrying in {retry_delay} seconds...")
+                    time.sleep(retry_delay)
+        
+        print(f"Failed to open serial port {self._port} after {max_retries} attempts")
+        return False
     
     def close(self) -> bool:
         """

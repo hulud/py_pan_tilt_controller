@@ -1,6 +1,6 @@
 
 connection:
-  port: SIMULATOR            # Use simulator instead of COM port
+  port: COM3            # Use simulator instead of COM port
   baudrate: 9600
   timeout: 1.0
   retries: 3                 
@@ -15,7 +15,7 @@ controller:
 api:
   host: 127.0.0.1
   port: 8080
-  debug: true               # Enable debug mode
+  debug: false              # Enable debug mode
 
 client:
   host: 127.0.0.1
