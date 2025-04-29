@@ -334,8 +334,8 @@ class SerialConnection(ConnectionBase):
                 cmd_type = "OPTICAL"
                 cmd_details = "Iris Close"
             
-            # Calculate expected checksum to verify
-            expected_sum = sum([address, cmd1, cmd2, data1, data2]) % 256
+            # Generic checksum calculation (sum all bytes except the last one)
+            expected_sum = sum(data[:-1]) % 256
             checksum_status = "✓" if expected_sum == checksum else f"✗ (expected: {expected_sum:02X})"
             
             return (f"Address: {address}, Command: {cmd1:02X} {cmd2:02X}, Data: {data1:02X} {data2:02X}, " +
@@ -366,25 +366,18 @@ class SerialConnection(ConnectionBase):
         if timeout is not None:
             original_timeout = self._serial.timeout
             self._serial.timeout = timeout
-        
+
         try:
-            # Read available data or wait for data
-            try:
-                data = self._serial.read(size)
-            except Exception as e:
-                print(f"[SERIAL RX] Error reading from serial port: {e}")
-                return bytes()
-                
+            # For position response queries (0x51 or 0x53), always read exactly 5 bytes
+            data = self._serial.read(5)  # Read exactly 5 bytes for position responses
+            
             # Debug prints for received data
             if data:
-                try:
-                    print(f"[SERIAL RX] <<< {' '.join(f'{b:02X}' for b in data)} | ASCII: {self._format_as_ascii(data)} | Length: {len(data)} bytes")
-                    
-                    # Try to parse the response
-                    if len(data) >= 7 and (0x59 in data or 0x5B in data):  # Check if it might be a position response
-                        print(f"[SERIAL RX] Response analysis: {self._parse_pelco_response(data)}")
-                except Exception as e:
-                    print(f"[SERIAL RX] Error in debug printing: {e}")
+                print(f"[SERIAL RX] <<< {' '.join(f'{b:02X}' for b in data)} | ASCII: {self._format_as_ascii(data)} | Length: {len(data)} bytes")
+                
+                # Try to parse as position response if we have exactly 5 bytes
+                if len(data) == 5 and (data[1] == 0x59 or data[1] == 0x5B):
+                    print(f"[SERIAL RX] Response analysis: {self._parse_pelco_response(data)}")
             elif timeout is not None:
                 print(f"[SERIAL RX] No data received within timeout period ({timeout}s)")
                 raise TimeoutError("No data received within timeout period")
@@ -407,80 +400,45 @@ class SerialConnection(ConnectionBase):
     def _parse_pelco_response(self, data: bytes) -> str:
         """
         Parse Pelco D response structure for debugging
+        Format for position responses: XX 59 PMSB PLSB sum or XX 5B TMSB TLSB sum
         """
-        try:
-            # Handle empty data
-            if not data:
-                return "Empty response"
-                
-            # Check for pan position response (0x59)
-            if 0x59 in data:
-                idx = data.index(0x59)
-                if len(data) >= idx + 3:
-                    try:
-                        # Extract MSB and LSB bytes
-                        msb = data[idx + 1]
-                        lsb = data[idx + 2]
-                        
-                        # Calculate raw data value (PMSB*256 + PLSB)
-                        raw_value = (msb << 8) | lsb
-                        
-                        # Calculate angle according to the protocol spec: Pan angle = raw_value / 100.0
-                        pan_angle = (raw_value / 100.0) % 360.0
-                        
-                        return f"Pan Position Response: Raw=0x{msb:02X}{lsb:02X}={raw_value}, Angle={pan_angle:.2f}°"
-                    except Exception as e:
-                        return f"Error parsing pan position response at index {idx}: {e}"
+        if not data:
+            return "Empty response"
+            
+        # Generic checksum calculation (sum all bytes except the last one)
+        checksum = data[-1] if len(data) > 1 else 0
+        expected_sum = sum(data[:-1]) % 256 if len(data) > 1 else 0
+        checksum_status = "✓" if checksum == expected_sum else f"✗ (expected: {expected_sum:02X})"
+            
+        # For position responses (5 bytes)
+        if len(data) == 5:
+            xx = data[0]
+            cmd = data[1]
+            msb = data[2]
+            lsb = data[3]
+            raw_value = (msb << 8) | lsb
+            
+            # Pan position response (0x59)
+            if cmd == 0x59:
+                pan_angle = (raw_value / 100.0) % 360.0
+                return f"Pan Position Response: XX={xx:02X}, POS=59, PMSB={msb:02X}, PLSB={lsb:02X}, SUM={checksum:02X} {checksum_status}, Angle={pan_angle:.2f}°"
+            
+            # Tilt position response (0x5B)
+            elif cmd == 0x5B:
+                if raw_value > 18000:
+                    tilt_data = 36000 - raw_value
+                    tilt_angle = tilt_data / 100.0
                 else:
-                    return f"Incomplete pan position response: found 0x59 at position {idx} but not enough data follows"
-            
-            # Check for tilt position response (0x5B)
-            elif 0x5B in data:
-                idx = data.index(0x5B)
-                if len(data) >= idx + 3:
-                    try:
-                        # Extract MSB and LSB bytes
-                        msb = data[idx + 1]
-                        lsb = data[idx + 2]
-                        
-                        # Calculate raw data value (TMSB*256 + TLSB)
-                        raw_value = (msb << 8) | lsb
-                        
-                        # Calculate angle according to protocol spec
-                        if raw_value > 18000:
-                            tilt_data = 36000 - raw_value
-                            tilt_angle = tilt_data / 100.0
-                        else:
-                            tilt_data = -raw_value
-                            tilt_angle = tilt_data / 100.0
-                        
-                        return f"Tilt Position Response: Raw=0x{msb:02X}{lsb:02X}={raw_value}, Calculated={tilt_data}, Angle={tilt_angle:.2f}°"
-                    except Exception as e:
-                        return f"Error parsing tilt position response at index {idx}: {e}"
-                else:
-                    return f"Incomplete tilt position response: found 0x5B at position {idx} but not enough data follows"
-            
-            # Check if it might be a complete response with checksum
-            if len(data) >= 7 and data[0] == 0xFF:
-                try:
-                    address = data[1]
-                    cmd1 = data[2]
-                    cmd2 = data[3]
-                    data1 = data[4]
-                    data2 = data[5]
-                    checksum = data[6]
-                    
-                    # Calculate expected checksum
-                    expected_sum = sum([address, cmd1, cmd2, data1, data2]) % 256
-                    checksum_status = "✓" if expected_sum == checksum else f"✗ (expected: {expected_sum:02X})"
-                    
-                    return f"Complete Response: Addr={address}, Cmd={cmd1:02X}{cmd2:02X}, Data={data1:02X}{data2:02X}, Checksum={checksum:02X} {checksum_status}"
-                except Exception as e:
-                    return f"Error parsing complete response: {e}"
-            
-            return f"Unknown response format: {' '.join(f'{b:02X}' for b in data)}"
-        except Exception as e:
-            return f"Error parsing response: {e}, data: {data.hex() if data else 'None'}"
+                    tilt_data = -raw_value
+                    tilt_angle = tilt_data / 100.0
+                return f"Tilt Position Response: XX={xx:02X}, POS=5B, TMSB={msb:02X}, TLSB={lsb:02X}, SUM={checksum:02X} {checksum_status}, Angle={tilt_angle:.2f}°"
+            # Other command type for 5-byte message
+            else:
+                return f"Unknown 5-byte response: XX={xx:02X}, CMD={cmd:02X}, MSB={msb:02X}, LSB={lsb:02X}, SUM={checksum:02X} {checksum_status}"
+        
+        # Any other response length - classify as unknown
+        else:
+            return f"Unknown response: {' '.join(f'{b:02X}' for b in data)}, Length: {len(data)} bytes, Checksum={checksum:02X} {checksum_status}"
     
     def receive_until(self, 
                      terminator: bytes, 
