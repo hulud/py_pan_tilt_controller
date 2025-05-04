@@ -1,240 +1,321 @@
-# Pan-Tilt Camera Control System
+# BIT-CCTV Pan-Tilt Control System
 
-A comprehensive control system for Pelco-D compatible pan-tilt camera platforms using USB serial connections. The system provides step-based motion control and direct positioning capabilities with a client-server architecture.
+A comprehensive control system for BIT-CCTV pan-tilt equipment, enabling precise positioning through multiple interfaces. This system provides complete control over professional-grade PT mounts using the Pelco D protocol, with support for both hardware and simulated devices.
 
 ## Overview
 
-This system provides a complete interface for controlling pan-tilt camera platforms that use the Pelco-D protocol over serial connections. Key features include:
+This project implements a modular architecture for controlling pan-tilt mounts, with particular focus on the BIT-PT850 heavy-duty unit. The system can be used in several ways:
 
-- USB/Serial connection (RS485/RS422) to camera hardware
-- Full implementation of the Pelco-D protocol with enhanced reliability
-- Client-server architecture with WebSocket position feedback
-- User-friendly GUI with immediate visual feedback
-- Step-based motion control for precise positioning
-- Direct absolute position control with 0.01° precision
-- Enhanced debugging for serial communications
+- **Client-Server Mode**: Run the API server and connect with the GUI client
+- **Direct Control**: Use the controller programmatically in your own applications 
+- **Development/Testing**: Use the simulator for development without physical hardware
 
-## System Architecture
+## Features
 
-The system follows a modular client-server architecture:
+- **Complete Pelco D Protocol Implementation**: Full support for all movement, position, and auxiliary commands
+- **Flexible Connection Options**: Serial (RS-485/RS-422) and Network connections with fallback options
+- **RESTful API and WebSockets**: Control via HTTP endpoints with real-time position updates
+- **Intuitive PyQt5 GUI**: User-friendly interface with visual feedback and safety features
+- **Absolute Positioning**: Precise positioning using angle coordinates (pan 0-360°, tilt -45° to +45°)
+- **Preset Management**: Save, recall, and clear multiple position presets
+- **Hardware Simulation**: Develop and test without physical hardware using the built-in simulator
+- **Advanced Error Handling**: Comprehensive error recovery and diagnostic capabilities
+- **Detailed Logging**: Configurable logging system with component-specific logs
 
-1. **Protocol Layer**: Implementation of the Pelco-D protocol
-   - Command generation and response parsing
-   - Robust position feedback interpretation
-   - Complete protocol coverage (movement, presets, positioning)
-   - Detailed command and response debugging
+## Hardware Support
 
-2. **Serial Connection Layer**: 
-   - USB-to-Serial communication (RS485/RS422)
-   - Thread-safe implementation with retry mechanisms
-   - Error resilient communication
-   - Comprehensive debugging of sent and received data
+### BIT-PT850 50kg Heavy Duty Pan Tilt Unit
 
-3. **Controller Layer**: 
-   - Combines protocol and connection layers
-   - High-level camera control API
-   - Position tracking and feedback handling
-   - Detailed operation logging and status reporting
+- Maximum load capacity: 50kg (110.23lb)
+- Pan angle: 0-360° continuous rotation
+- Tilt angle: -45° to +45° 
+- Pan speed: 0.01°/s to 30°/s
+- Tilt speed: 0.01°/s to 15°/s
+- Preset accuracy: ±0.1°
+- IP66 rated for outdoor use
 
-4. **API Server Layer**: 
-   - REST API endpoints for device control (localhost only)
-   - WebSocket for real-time position updates
-   - Command queueing to prevent conflicting operations
+### Other Compatible Hardware
 
-5. **GUI Layer**: 
-   - Connection to local API server
-   - Real-time position display
-   - Intuitive camera controls with step precision
-
-## Hardware Requirements
-
-- Pan-tilt camera platform with Pelco-D protocol support
-- USB-to-RS485/RS422 serial adapter
-- Compatible camera (optional: with zoom/focus/iris control)
+Any pan-tilt equipment that supports the Pelco D protocol should be compatible with this system.
 
 ## Installation
 
 ### Prerequisites
 
 - Python 3.6 or higher
-- PySerial for hardware communication
-- Flask and Flask-SocketIO for the API server
-- PyQt5 for the GUI components
+- PyQt5 (for GUI)
+- pyserial (for serial connections)
+- Flask and Flask-SocketIO (for API server)
+- PyYAML (for configuration)
 
 ### Setup
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/pan-tilt-controller.git
-cd pan-tilt-controller
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/bit-cctv-control.git
+   cd bit-cctv-control
+   ```
 
-# Install dependencies
-pip install pyserial flask flask-socketio flask-cors python-socketio pyyaml pyqt5
+2. Install required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Configure your settings:
+   ```bash
+   cp config/settings.example.yaml config/settings.yaml
+   # Edit config/settings.yaml with your device settings
+   ```
+
+## Project Structure
+
+The project follows a modular, layered architecture:
+
+```
+project/
+├── config/                 # Configuration files
+├── docs/                   # Documentation files
+├── gui/                    # PyQt5 GUI implementation
+│   ├── main_window_api.py  # Main window with API client
+│   ├── control_panel.py    # Control widgets
+│   └── ...                 # Other GUI components
+├── src/                    # Core implementation
+│   ├── api/                # REST and WebSocket API
+│   ├── connection/         # Physical connection interfaces
+│   ├── controller/         # Command coordination and processing
+│   ├── protocol/           # Protocol implementation (Pelco D)
+│   └── utils/              # Configuration and helper functions
+├── gui_client.py           # GUI client entry point
+├── ptz_server.py           # API server entry point
+├── run_all.py              # Combined server/client launcher
+├── serial_tester.py        # Serial connection tester
+├── simple_demo.py          # Protocol simulator demo
+└── log_processor.py        # Log analysis utility
 ```
 
-## Configuration
+## Usage
 
-The system configuration is stored in `config/settings.yaml`:
+### Option 1: All-in-One Application
 
-```yaml
-connection:
-  serial:
-    port: COM3  # or /dev/ttyUSB0 for Linux
-    baudrate: 9600
-    data_bits: 8
-    stop_bits: 1
-    parity: N
-
-controller:
-  address: 1  # Camera address
-  protocol: pelco_d
-  default_speed: 25  # Default movement speed (0-63)
-  timeout: 1.0  # Response timeout in seconds
-
-api:
-  host: 127.0.0.1  # Local API server address
-  port: 8080
-  debug: false
-
-client:
-  host: 127.0.0.1  # API server address for client
-  port: 8080
-```
-
-## Running the System
-
-### Start the API Server
-
-The server handles communication between the GUI and the camera hardware:
-
-```bash
-python ptz_server.py
-```
-
-### Start the GUI Client
-
-The client provides a user interface to control the camera:
-
-```bash
-python gui_client.py
-```
-
-### Run Both Components
-
-To start both server and client at once:
+Run both the server and GUI client in a single command:
 
 ```bash
 python run_all.py
 ```
 
-## Command Line Options
+This script:
+- Starts the PTZ server in the background
+- Launches the GUI client that connects to the server
+- Sets up proper logging for all components
+- Handles graceful shutdown when the application closes
+
+### Option 2: Separate Server and Client
+
+Start the API server:
 
 ```bash
-# Custom configuration file
-python ptz_server.py --config custom_config.yaml
-
-# Specify different host and port
-python ptz_server.py --host 127.0.0.1 --port 9000
-
-# Enable debug mode
-python ptz_server.py --debug
-
-# Connect client to specific server
-python gui_client.py --server http://127.0.0.1:9000
+python ptz_server.py
 ```
 
-## Features
+Then start the GUI client in a separate terminal:
 
-### Precise Movement Control
+```bash
+python gui_client.py
+```
 
-- Step-based movement with configurable precision (0.01° to 10°)
-- Absolute positioning with direct angle control
-- Real-time position feedback (when supported by hardware)
-- Home position setting and tracking
+### Option 3: Direct Control via Python API
 
-### Advanced Capabilities
+Use the controller directly in your Python code:
 
-- Preset position management (save/call/delete)
-- Optical controls (zoom/focus/iris) when available
-- Auxiliary device control
-- Robust error handling and retry mechanisms
+```python
+from src.controller import PTZController
+from src.utils import load_config, get_connection_config
 
-### Improved Protocol Implementation
+config = load_config()
+conn_config = get_connection_config(config)
 
-The Pelco D protocol implementation has been enhanced for reliability:
-- Robust position feedback parsing with error handling
-- Multiple retry mechanisms for position queries
-- Enhanced timing for more reliable communication
-- Zero-point calibration for accurate positioning
+# Using context manager for automatic cleanup
+with PTZController(conn_config, address=1) as controller:
+    # Query position
+    pan, tilt = controller.query_position()
+    print(f"Current position: Pan={pan}°, Tilt={tilt}°")
+    
+    # Move to a position
+    controller.absolute_pan(90)
+    controller.absolute_tilt(30)
+```
 
-### Enhanced Pelco-D Response Handling
+### Testing and Diagnostics
 
-The system now implements strict response parsing based on serial_commands_and_responses.csv:
-- Strictly enforces 5-byte message format for position responses (`00 59 HH LL CS` for pan)
-- Detailed error reporting for invalid message formats
-- Consistent checksum validation for all responses
-- Improved error handling with buffer diagnostics
+The project includes several utilities for testing and diagnostics:
 
-### Comprehensive Debugging
+#### Serial Tester
 
-The system includes extensive debugging capabilities for serial communications:
-- Detailed hex and ASCII dumps of all sent and received data
-- Command structure parsing and validation
-- Protocol message decoding with field identification
-- Transaction timing and status reporting
-- See `docs/DEBUG_IMPROVEMENTS.md` for details
+Verify your hardware connection with a simple diagnostic:
 
-## Recent Changes
+```bash
+python serial_tester.py --port COM3 --baud 9600
+```
 
-### PTZ Controller Improvements (2025-04-28)
-- Simplified positioning API by removing raw angle returns from query methods
-- Fixed Flask-SocketIO attribute storage for better controller instance management
-- Added scaling correction (1/8.22) for more accurate step movements
-- Eliminated debug mode auto-reloading to prevent connection issues
-- Enhanced error handling with standardized returns instead of exceptions
+This will:
+1. Open the serial connection to the device
+2. Run the zero-point initialization
+3. Query the position multiple times
+4. Report results and close the connection
 
-### Parser Improvements (2025-04-28)
-- Fixed redundant code in position reply parser
-- Implemented strict 5-byte message format validation
-- Added detailed error logging for malformed responses
-- Updated message handling to match serial_commands_and_responses.csv specification
-- Improved buffer diagnostics for troubleshooting communication issues
+#### Simulator Demo
+
+Test the protocol without hardware:
+
+```bash
+python simple_demo.py
+```
+
+This demonstrates the protocol simulator with various commands.
+
+#### Log Processing
+
+Parse and analyze log files:
+
+```bash
+python log_processor.py your_logfile.log
+```
+
+This utility separates logs by component and produces statistics about the log content.
+
+## API Reference
+
+### REST Endpoints
+
+- `GET /api/device/info` - Get device information
+- `POST /api/device/stop` - Stop all movement
+- `GET /api/device/position` - Get current position
+- `POST /api/device/position/absolute` - Move to absolute position
+- `POST /api/device/position/step` - Move by incremental step
+- `POST /api/device/home` - Set home position
+- `POST /api/device/reset` - Reset the device
+
+### WebSocket Events
+
+- `connect` - Client connection handling
+- `disconnect` - Client disconnection handling
+- `request_position` - Position request event
+- `position_update` - Position update notification (emitted periodically)
+
+## Configuration
+
+The system is configured through a YAML file with the following sections:
+
+```yaml
+connection:
+  port: COM3            # Serial port for device
+  baudrate: 9600        # Communication speed
+  timeout: 1.0          # Serial timeout in seconds
+  retries: 3            # Number of retries for failed commands
+  retry_delay: 0.5      # Delay between retries in seconds
+  polling_rate: 0.5     # Position update rate in seconds
+  enable_polling: true  # Enable automatic position polling
+
+controller:
+  address: 1            # Device address (1-255)
+  protocol: pelco_d     # Protocol type
+  default_speed: 25     # Default movement speed (0-63)
+  timeout: 1.0          # Command timeout in seconds
+
+api:
+  host: 127.0.0.1       # API server host
+  port: 5000            # API server port
+  debug: false          # Enable Flask debug mode
+
+client:
+  host: localhost       # API server host to connect to
+  port: 5000            # API server port to connect to
+
+logging:
+  root_level: INFO                      # Default log level
+  log_dir: logs                         # Log directory
+  file_output: true                     # Enable file logging
+  loggers:                              # Logger-specific levels
+    ptz_server: INFO
+    api_client: INFO
+    serial_connection: DEBUG
+  patterns:                             # Pattern-based log levels
+    "*.serial_*": DEBUG
+    "*": INFO
+```
+
+## Component Integration
+
+The system is composed of several tightly integrated components:
+
+### Server Component (`ptz_server.py`)
+
+The server component:
+- Loads configuration from the YAML file
+- Initializes the PTZ controller with the appropriate connection
+- Sets up the Flask/SocketIO API server
+- Handles zero-point initialization in a background thread
+- Provides graceful shutdown with proper resource cleanup
+
+### GUI Client (`gui_client.py`)
+
+The GUI client:
+- Connects to the API server using the configured host/port
+- Provides a PyQt5-based user interface for controlling the device
+- Shows real-time position updates via WebSocket connection
+- Implements safety checks and user-friendly controls
+
+### Integration Runner (`run_all.py`)
+
+The integration runner:
+- Launches both server and client components as separate processes
+- Sets up proper logging with component-specific log levels
+- Ensures proper process management and graceful shutdown
+- Handles output routing and error detection
+
+### Utilities
+
+Several utilities help with testing and maintenance:
+
+- `serial_tester.py`: Tests the serial connection to the device
+- `simple_demo.py`: Demonstrates the simulator with manual protocol commands
+- `log_processor.py`: Processes log files into component-specific streams
 
 ## Troubleshooting
 
-### Serial Port Issues
+### Connection Issues
 
-- **Problem**: "Failed to open serial port" error
-- **Solution**: Verify correct COM port in settings.yaml
-- **Solution**: Check physical connections and power
-- **Solution**: Install proper USB-to-serial drivers
-- **Solution**: Verify baudrate matches device (typically 2400/4800/9600)
+- If the specified COM port is unavailable, the controller will attempt to use the simulator.
+- Verify baudrate and protocol settings match your device (typically 9600 baud for BIT-CCTV).
+- Run `serial_tester.py` to diagnose connection problems.
 
-### Permission Issues
+### Position Querying Issues
 
-- **Problem**: Permission denied accessing USB port
-- **Solution**: On Linux, add user to the dialout group: `sudo usermod -a -G dialout $USER`
-- **Solution**: On Windows, run with administrator privileges if necessary
+- Some devices require additional configuration to enable position feedback.
+- Verify the device supports the Pelco D position query commands.
+- Increase the timeout value if the device responds slowly.
 
-### Position Feedback Issues
+### GUI Client Connection Problems
 
-- **Problem**: Inconsistent or missing position feedback
-- **Solution**: The system will gracefully handle missing feedback with estimated positions
-- **Solution**: Check that your PTZ device supports position feedback (some don't)
-- **Solution**: Try different baudrates if communication is unstable
-- **Solution**: Enable debug mode to verify correct 5-byte response format
+- Ensure the server is running before starting the client.
+- Check that the server host/port in the client configuration matches the server.
+- Look for firewall or access restrictions if connecting remotely.
 
-### Movement Scaling Issues
+## Contributing
 
-- **Problem**: Step movements are larger than requested (e.g., 1° in GUI causes 8° actual movement)
-- **Solution**: The software now applies a scaling factor to compensate for hardware differences
-- **Solution**: Custom scaling can be adjusted in commands.py if needed for different hardware
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Development
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-The modular architecture makes it easy to extend:
+## License
 
-1. **Adding New Protocol Commands**: Extend the commands.py module
-2. **Supporting New Cameras**: Update the protocol parameters
-3. **Adding New API Endpoints**: Add routes to src/api/routes.py 
-4. **Customizing the GUI**: Modify components in the gui/ package
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- BIT-CCTV for hardware specifications
+- Pelco for protocol documentation
