@@ -91,8 +91,9 @@ Defines the API endpoints and WebSocket events for controlling the pan-tilt moun
 - `POST /api/device/stop`: Stop all mount movement
 - `GET /api/device/position`: Get current position relative to home position
 - `POST /api/device/position/absolute`: Move to absolute position
+- `POST /api/device/position/step`: Move by incremental step size (deprecated, not used by GUI)
+- `POST /api/device/move`: Move at specified speed in a given direction (continuous movement)
 - `POST /api/device/home`: Set home position
-- `POST /api/device/position/step`: Move by incremental step size
 - `POST /api/device/reset`: Reset the device
 
 #### WebSocket Events:
@@ -103,3 +104,47 @@ Defines the API endpoints and WebSocket events for controlling the pan-tilt moun
 - `position_update`: Emitted periodically with current position (automatic)
 
 The module also includes a background thread that periodically emits position updates to all connected clients based on the configured polling rate.
+
+## Movement Control Methods
+
+### Continuous Movement API
+
+The preferred method for controlling camera movement is through the continuous movement API:
+
+```
+POST /api/device/move
+{
+  "direction": "up|down|left|right|stop",
+  "speed": 16  // Integer between 1-63
+}
+```
+
+This endpoint provides smooth, continuous movement while the command is active. The camera will continue moving until a stop command is sent.
+
+### Absolute Positioning API
+
+For precise positioning to specific angles:
+
+```
+POST /api/device/position/absolute
+{
+  "pan": 90.0,  // Pan angle in degrees (0-360)
+  "tilt": 15.0  // Tilt angle in degrees (-45 to +45)
+}
+```
+
+This endpoint allows positioning the camera at exact coordinates.
+
+### Step Movement API
+
+> Note: This API is maintained for backward compatibility but is not used by the GUI.
+
+```
+POST /api/device/position/step
+{
+  "step_pan": 1.0,  // Pan angle step in degrees
+  "step_tilt": -1.0  // Tilt angle step in degrees
+}
+```
+
+This endpoint moves the camera by relative increments from the current position.

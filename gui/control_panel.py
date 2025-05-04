@@ -1,13 +1,36 @@
 #!/usr/bin/env python3
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QLabel, QDoubleSpinBox)
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, Qt
+
+class DirectionButton(QPushButton):
+    """Custom button that emits 'stop' signal when released"""
+    
+    # Signal for when button is released
+    button_released = pyqtSignal(str)
+    
+    def __init__(self, text, parent=None):
+        super().__init__(text, parent)
+        self.direction = None
+    
+    def setDirection(self, direction):
+        """Set the direction this button controls"""
+        self.direction = direction
+    
+    def mouseReleaseEvent(self, event):
+        """Override mouseReleaseEvent to emit button_released signal"""
+        # Call the base class implementation first
+        super().mouseReleaseEvent(event)
+        
+        # Emit the button released signal with direction
+        if self.direction:
+            self.button_released.emit(self.direction)
 
 class ControlPanel(QGroupBox):
-    """Widget containing camera movement controls with step-based movement"""
+    """Widget containing camera movement controls with continuous movement"""
     
     # Signals
-    step_movement_requested = pyqtSignal(str, float)  # Direction, step size
+    move_requested = pyqtSignal(str, int)  # Direction, speed
     home_set_requested = pyqtSignal()
     
     def __init__(self, parent=None):
@@ -17,17 +40,17 @@ class ControlPanel(QGroupBox):
     def init_ui(self):
         layout = QVBoxLayout()
         
-        # Step size parameter
-        step_size_layout = QHBoxLayout()
-        step_size_layout.addWidget(QLabel("Step Size (degrees):"))
-        self.step_size_spinbox = QDoubleSpinBox()
-        self.step_size_spinbox.setRange(0.01, 10.0)  # Limit to max 10 degrees, min 0.01
-        self.step_size_spinbox.setSingleStep(0.1)
-        self.step_size_spinbox.setValue(1.0)
-        self.step_size_spinbox.setDecimals(2)  # Allow 0.01 resolution
-        step_size_layout.addWidget(self.step_size_spinbox)
+        # Movement speed parameter
+        speed_layout = QHBoxLayout()
+        speed_layout.addWidget(QLabel("Speed (1-63):"))
+        self.speed_spinbox = QDoubleSpinBox()
+        self.speed_spinbox.setRange(1, 63)  # Valid Pelco D speed range
+        self.speed_spinbox.setSingleStep(1)
+        self.speed_spinbox.setValue(16)  # Default speed (0x10)
+        self.speed_spinbox.setDecimals(0)  # Integer values only
+        speed_layout.addWidget(self.speed_spinbox)
         
-        layout.addLayout(step_size_layout)
+        layout.addLayout(speed_layout)
         
         # Direction controls layout
         direction_layout = QVBoxLayout()
@@ -35,20 +58,23 @@ class ControlPanel(QGroupBox):
         # Top row (UP button)
         top_row = QHBoxLayout()
         top_row.addStretch()
-        self.btn_up = QPushButton("▲")
+        self.btn_up = DirectionButton("▲")
         self.btn_up.setFixedSize(80, 80)
+        self.btn_up.setDirection("up")
         top_row.addWidget(self.btn_up)
         top_row.addStretch()
         direction_layout.addLayout(top_row)
         
         # Middle row (LEFT, STOP, RIGHT buttons)
         middle_row = QHBoxLayout()
-        self.btn_left = QPushButton("◄")
+        self.btn_left = DirectionButton("◄")
         self.btn_left.setFixedSize(80, 80)
+        self.btn_left.setDirection("left")
         self.btn_stop = QPushButton("■")
         self.btn_stop.setFixedSize(80, 80)
-        self.btn_right = QPushButton("►")
+        self.btn_right = DirectionButton("►")
         self.btn_right.setFixedSize(80, 80)
+        self.btn_right.setDirection("right")
         middle_row.addWidget(self.btn_left)
         middle_row.addWidget(self.btn_stop)
         middle_row.addWidget(self.btn_right)
@@ -57,8 +83,9 @@ class ControlPanel(QGroupBox):
         # Bottom row (DOWN button)
         bottom_row = QHBoxLayout()
         bottom_row.addStretch()
-        self.btn_down = QPushButton("▼")
+        self.btn_down = DirectionButton("▼")
         self.btn_down.setFixedSize(80, 80)
+        self.btn_down.setDirection("down")
         bottom_row.addWidget(self.btn_down)
         bottom_row.addStretch()
         direction_layout.addLayout(bottom_row)
@@ -107,25 +134,36 @@ class ControlPanel(QGroupBox):
         
         self.setLayout(layout)
         
-        # Connect signals
+        # Connect movement button press signals
         self.btn_up.clicked.connect(
-            lambda: self.step_movement_requested.emit('up', self.step_size_spinbox.value()))
+            lambda: self.move_requested.emit('up', int(self.speed_spinbox.value())))
         
         self.btn_down.clicked.connect(
-            lambda: self.step_movement_requested.emit('down', self.step_size_spinbox.value()))
+            lambda: self.move_requested.emit('down', int(self.speed_spinbox.value())))
         
         self.btn_left.clicked.connect(
-            lambda: self.step_movement_requested.emit('left', self.step_size_spinbox.value()))
+            lambda: self.move_requested.emit('left', int(self.speed_spinbox.value())))
         
         self.btn_right.clicked.connect(
-            lambda: self.step_movement_requested.emit('right', self.step_size_spinbox.value()))
+            lambda: self.move_requested.emit('right', int(self.speed_spinbox.value())))
         
+        # Connect button release signals to stop movement
+        self.btn_up.button_released.connect(self.on_direction_button_released)
+        self.btn_down.button_released.connect(self.on_direction_button_released)
+        self.btn_left.button_released.connect(self.on_direction_button_released)
+        self.btn_right.button_released.connect(self.on_direction_button_released)
+        
+        # Connect stop button
         self.btn_stop.clicked.connect(
-            lambda: self.step_movement_requested.emit('stop', 0))
+            lambda: self.move_requested.emit('stop', 0))
         
         self.btn_set_home.clicked.connect(self.home_set_requested.emit)
         
         self.btn_go_abs.clicked.connect(self.go_to_absolute_position)
+        
+    def on_direction_button_released(self, direction):
+        """Handle direction button release by sending stop command"""
+        self.move_requested.emit('stop', 0)
     
     def go_to_absolute_position(self):
         """Command the controller to go to the specified absolute position"""

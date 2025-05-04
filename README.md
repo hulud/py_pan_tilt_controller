@@ -191,7 +191,8 @@ This utility separates logs by component and produces statistics about the log c
 - `POST /api/device/stop` - Stop all movement
 - `GET /api/device/position` - Get current position
 - `POST /api/device/position/absolute` - Move to absolute position
-- `POST /api/device/position/step` - Move by incremental step
+- `POST /api/device/position/step` - Move by incremental step (deprecated)
+- `POST /api/device/move` - Continuous movement at specified speed
 - `POST /api/device/home` - Set home position
 - `POST /api/device/reset` - Reset the device
 
@@ -262,6 +263,7 @@ The server component:
 The GUI client:
 - Connects to the API server using the configured host/port
 - Provides a PyQt5-based user interface for controlling the device
+- Implements press-and-hold continuous movement controls with speed adjustment
 - Shows real-time position updates via WebSocket connection
 - Implements safety checks and user-friendly controls
 

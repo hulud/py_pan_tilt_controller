@@ -41,7 +41,7 @@ The GUI follows a client-server architecture:
 |  +----------------------------------------------------------+
 |  |  Controls                                               |
 |  |                                                         |
-|  |  Step Size (degrees): [  1.00  ] ▲▼                     |
+|  |  Speed (1-63): [  16  ] ▲▼                              |
 |  |                                                         |
 |  |                 +------+                                |
 |  |                 |  ▲   |                                |
@@ -80,12 +80,12 @@ The top panel shows the current camera position relative to the home position:
 The middle panel contains all user controls:
 
 ##### Movement Controls
-- Step size selector: Controls the incremental movement amount
-- Arrow buttons: Directional controls for camera movement
-  - ▲: Tilt up
-  - ▼: Tilt down
-  - ◄: Pan left
-  - ►: Pan right
+- Speed selector: Controls the movement speed (1-63)
+- Arrow buttons: Directional controls for camera movement (press and hold)
+  - ▲: Tilt up (continuous movement while held)
+  - ▼: Tilt down (continuous movement while held)
+  - ◄: Pan left (continuous movement while held)
+  - ►: Pan right (continuous movement while held)
 - Stop button (■): Immediately halts all movement
 
 ##### Position Controls
@@ -125,7 +125,7 @@ The `MainWindowAPI` class serves as the main application window and coordinates 
 
 **Important Methods:**
 - `__init__(api_url='http://localhost:5000')`: Initializes the main window with API server URL
-- `handle_step_movement(direction, step_size)`: Processes movement requests from the control panel
+- `handle_movement(direction, speed)`: Processes continuous movement requests from the control panel
 - `stop_movement()`: Halts all camera movement
 - `go_to_absolute_position(pan, tilt)`: Moves camera to specified absolute position
 - `set_home_position()`: Sets current position as the home position
@@ -145,12 +145,11 @@ The `APIClient` class handles all communication with the PTZ server API, impleme
 
 **Important Methods:**
 - `__init__(server_url='http://localhost:5000')`: Initializes the API client
-- `move(direction, speed)`: Initiates camera movement in specified direction
-- `stop()`: Immediately stops all camera movement
+- `move(direction, speed)`: Controls continuous camera movement in specified direction
+- `stop()`: Immediately stops all camera movement (uses move with 'stop' direction)
 - `get_position()`: Retrieves current camera position
 - `set_home_position()`: Sets current position as the home position
 - `set_absolute_position(pan, tilt)`: Moves to specified absolute position
-- `step_position(step_pan, step_tilt)`: Moves camera by incremental steps
 
 **Signals:**
 - `position_updated(rel_pan, rel_tilt, raw_pan, raw_tilt)`: Emitted when position data changes
@@ -161,8 +160,9 @@ The `APIClient` class handles all communication with the PTZ server API, impleme
 The `ControlPanel` class provides a widget with camera movement controls and settings.
 
 **Key Features:**
-- Step size control for incremental movement
-- Directional buttons (up, down, left, right)
+- Speed control for continuous movement (1-63)
+- Directional buttons (up, down, left, right) with press-and-hold behavior
+- Button release detection for automatic stopping
 - Stop button for emergency halt
 - Home position setting
 - Absolute position movement controls
@@ -170,9 +170,10 @@ The `ControlPanel` class provides a widget with camera movement controls and set
 **Important Methods:**
 - `__init__()`: Initializes the control panel components
 - `go_to_absolute_position()`: Calls main window method to move to absolute position
+- `on_direction_button_released()`: Handles button release to stop movement
 
 **Signals:**
-- `step_movement_requested(direction, step_size)`: Emitted when movement button is clicked
+- `move_requested(direction, speed)`: Emitted when movement button is pressed/released
 - `home_set_requested()`: Emitted when Set Home button is clicked
 
 ### position_display.py

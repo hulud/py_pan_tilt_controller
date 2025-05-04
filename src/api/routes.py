@@ -255,7 +255,7 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
             error = ErrorResponse(message=str(e))
             return jsonify(error.to_dict()), 500
     
-    # Step position endpoint
+    # Step position endpoint - No longer connected to GUI
     @api_bp.route('/device/position/step', methods=['POST'])
     def step_position():
         """Move by incremental step size"""
@@ -328,6 +328,65 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
             return jsonify(response.to_dict())
         except Exception as e:
             logger.error(f"Step position error: {e}")
+            error = ErrorResponse(message=str(e))
+            return jsonify(error.to_dict()), 500
+            
+    # Move endpoint - Controls continuous movement at a given speed
+    @api_bp.route('/device/move', methods=['POST'])
+    def move_at_speed():
+        """Move at continuous speed in a specified direction"""
+        if not request.is_json:
+            error = ErrorResponse(message="JSON payload required", code=400)
+            return jsonify(error.to_dict()), 400
+            
+        data = request.json
+        
+        try:
+            # Create and validate request model
+            move_request = MovementRequest(
+                direction=data.get('direction', 'stop'),
+                speed=data.get('speed', 0x20)
+            )
+            
+            if not move_request.validate():
+                error = ErrorResponse(
+                    message="Invalid movement request: direction must be one of up, down, left, right, stop and speed must be between 0-63",
+                    code=400
+                )
+                return jsonify(error.to_dict()), 400
+            
+            # Get the current controller instance
+            current_controller = getattr(socketio, 'controller', controller)
+            
+            # Process movement based on direction
+            if move_request.direction == 'stop':
+                current_controller.stop()
+                message = "Movement stopped"
+            else:
+                # Get movement method based on direction
+                if move_request.direction == 'up':
+                    movement_method = current_controller.move_up
+                elif move_request.direction == 'down':
+                    movement_method = current_controller.move_down
+                elif move_request.direction == 'left':
+                    movement_method = current_controller.move_left
+                elif move_request.direction == 'right':
+                    movement_method = current_controller.move_right
+                
+                # Execute movement command
+                movement_method(move_request.speed)
+                message = f"Started {move_request.direction} movement at speed {move_request.speed}"
+            
+            response = SuccessResponse(
+                message=message,
+                data={
+                    'direction': move_request.direction,
+                    'speed': move_request.speed
+                }
+            )
+            return jsonify(response.to_dict())
+        except Exception as e:
+            logger.error(f"Move at speed error: {e}")
             error = ErrorResponse(message=str(e))
             return jsonify(error.to_dict()), 500
     

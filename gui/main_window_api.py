@@ -65,7 +65,7 @@ class MainWindowAPI(QMainWindow):
         self.statusBar.addPermanentWidget(self.connection_indicator)
         
         # Connect control panel signals
-        self.control_panel.step_movement_requested.connect(self.handle_step_movement)
+        self.control_panel.move_requested.connect(self.handle_movement)
         self.control_panel.home_set_requested.connect(self.set_home_position)
     
     def toggle_abs_positioning(self, enable):
@@ -80,6 +80,12 @@ class MainWindowAPI(QMainWindow):
         # Show immediate UI feedback
         self.control_panel.btn_set_home.setStyleSheet("background-color: #AAFFAA;")
         QTimer.singleShot(200, lambda: self.control_panel.btn_set_home.setStyleSheet(""))
+        
+        # Call the API client's set_home_position method
+        if not self.api_client.set_home_position():
+            QMessageBox.warning(self, "Error", f"Failed to set home position: {self.api_client.last_error}")
+        else:
+            self.statusBar.showMessage("Home position set successfully", 3000)
     
     def go_to_absolute_position(self, pan, tilt):
         """Go to an absolute position"""
@@ -188,16 +194,11 @@ class MainWindowAPI(QMainWindow):
         
         return True
     
-    def handle_step_movement(self, direction, step_size):
-        """Handle step movement requests from the control panel"""
+    def handle_movement(self, direction, speed):
+        """Handle continuous movement requests from the control panel"""
         if direction == 'stop':
             self.stop_movement()
             return
-            
-        # Limit step size to 10 degrees
-        if abs(step_size) > 10.0:
-            step_size = 10.0 if step_size > 0 else -10.0
-            self.statusBar.showMessage(f"Step size limited to 10.0 degrees", 2000)
             
         # Get current position
         position = self.api_client.get_position()
@@ -217,21 +218,8 @@ class MainWindowAPI(QMainWindow):
         self.current_movement = direction
         self.apply_button_style(direction)
         
-        # Calculate step values based on direction
-        step_pan = None
-        step_tilt = None
-        
-        if direction == 'up':
-            step_tilt = step_size
-        elif direction == 'down':
-            step_tilt = -step_size
-        elif direction == 'left':
-            step_pan = -step_size
-        elif direction == 'right':
-            step_pan = step_size
-        
-        # Send the step position command
-        if not self.api_client.step_position(step_pan=step_pan, step_tilt=step_tilt):
+        # Send the move command
+        if not self.api_client.move(direction=direction, speed=speed):
             QMessageBox.warning(self, "Error", f"Failed to start {direction} movement: {self.api_client.last_error}")
             self.clear_movement_feedback()
             return
@@ -240,16 +228,11 @@ class MainWindowAPI(QMainWindow):
         self.is_moving = True
         
         # Show status message
-        movement_desc = f"{direction} with step size {step_size}°"
-        self.statusBar.showMessage(f"Moving {movement_desc}", 2000)
-        
-        # Set a timer to automatically clear button styles after movement
-        # This ensures the button will be reset even if no explicit stop is called
-        QTimer.singleShot(500, self.clear_movement_feedback)
+        self.statusBar.showMessage(f"Moving {direction} at speed {speed}", 2000)
 
     def stop_movement(self):
         """Stop all movement"""
-        self.api_client.stop()
+        self.api_client.move(direction='stop', speed=0)
         self.is_moving = False
         self.clear_movement_feedback()
     

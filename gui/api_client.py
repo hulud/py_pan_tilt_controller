@@ -164,10 +164,10 @@ class APIClient(QObject):
     
     def move(self, direction, speed=0x10):
         """
-        Start movement in a specific direction
+        Start movement in a specific direction at the specified speed
         
         Args:
-            direction: One of 'up', 'down', 'left', 'right'
+            direction: One of 'up', 'down', 'left', 'right', 'stop'
             speed: Movement speed (0x00-0x3F)
             
         Returns:
@@ -190,8 +190,8 @@ class APIClient(QObject):
         """Send the actual movement request in a background thread"""
         try:
             self.session.post(
-                f"{self.server_url}/api/device/movement/{direction}",
-                json={'speed': speed},
+                f"{self.server_url}/api/device/move",
+                json={'direction': direction, 'speed': speed},
                 headers={'Content-Type': 'application/json'},
                 timeout=DEFAULT_REQUEST_TIMEOUT
             )
@@ -206,24 +206,8 @@ class APIClient(QObject):
         Returns:
             True if successful, False otherwise
         """
-        try:
-            # Stop requests should be prioritized and sent immediately
-            response = self.session.post(
-                f"{self.server_url}/api/device/movement/stop",
-                timeout=DEFAULT_REQUEST_TIMEOUT
-            )
-            
-            if response.status_code == 200:
-                return True
-            else:
-                data = response.json()
-                self.last_error = data.get('message', 'Unknown error')
-                logger.error(f"Stop error: {self.last_error}")
-                return False
-        except Exception as e:
-            self.last_error = str(e)
-            logger.error(f"Stop request error: {e}")
-            return False
+        # Use the move method with 'stop' direction
+        return self.move(direction='stop', speed=0)
     
     def get_position(self):
         """
@@ -310,35 +294,7 @@ class APIClient(QObject):
             logger.error(f"Absolute position thread error: {e}")
             return False
     
-    def step_position(self, step_pan=None, step_tilt=None):
-        """
-        Move by incremental step
-        
-        Args:
-            step_pan: Pan step in degrees or None to skip
-            step_tilt: Tilt step in degrees or None to skip
-            
-        Returns:
-            True if successful, False otherwise
-        """
-        data = {}
-        if step_pan is not None:
-            data['step_pan'] = step_pan
-        if step_tilt is not None:
-            data['step_tilt'] = step_tilt
-        
-        try:
-            # Handle step position requests in a background thread
-            threading.Thread(
-                target=self._send_step_position_request,
-                args=(data,),
-                daemon=True
-            ).start()
-            return True
-        except Exception as e:
-            self.last_error = str(e)
-            logger.error(f"Step position thread error: {e}")
-            return False
+
     
     def _send_absolute_position_request(self, data):
         """Send absolute position request in background thread"""
@@ -353,15 +309,4 @@ class APIClient(QObject):
             self.last_error = str(e)
             logger.error(f"Absolute position request error: {e}")
     
-    def _send_step_position_request(self, data):
-        """Send step position request in background thread"""
-        try:
-            self.session.post(
-                f"{self.server_url}/api/device/position/step",
-                json=data,
-                headers={'Content-Type': 'application/json'},
-                timeout=DEFAULT_REQUEST_TIMEOUT
-            )
-        except Exception as e:
-            self.last_error = str(e)
-            logger.error(f"Step position request error: {e}")
+
