@@ -74,7 +74,7 @@ def register_routes(app: Flask, socketio: SocketIO, controller: PTZController):
                 # Use a try-except block to catch any errors in the position update
                 try:
                     # Get the current controller instance (handles reloads)
-                    current_controller = getattr(socketio, '_controller', controller)
+                    current_controller = getattr(socketio, 'controller', controller)
                     
                     # Check if polling is enabled
                     enable_polling = getattr(current_controller.connection, '_enable_polling', True)

@@ -39,7 +39,15 @@ def create_app(config: Optional[Dict[str, Any]] = None, socketio_mode: str = 'th
     CORS(app)
     
     # Create SocketIO instance
-    socketio = SocketIO(app, cors_allowed_origins="*", async_mode=socketio_mode)
+    socketio = SocketIO(
+        app, 
+        cors_allowed_origins="*", 
+        async_mode=socketio_mode,
+        # Add explicit path and improve logging for debugging
+        path='socket.io',
+        logger=True,
+        engineio_logger=False
+    )
     
     # Apply configuration
     if config is None:

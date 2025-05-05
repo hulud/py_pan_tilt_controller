@@ -2,24 +2,38 @@
 from PyQt5.QtWidgets import (QGroupBox, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QLabel, QDoubleSpinBox)
 from PyQt5.QtCore import pyqtSignal, Qt
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DirectionButton(QPushButton):
-    """Custom button that emits 'stop' signal when released"""
+    """Custom button that handles both press and release events for movement control"""
     
-    # Signal for when button is released
+    # Signals
+    button_pressed = pyqtSignal(str)
     button_released = pyqtSignal(str)
     
     def __init__(self, text, parent=None):
         super().__init__(text, parent)
         self.direction = None
+        self.setAutoRepeat(False)  # Disable auto-repeat
     
     def setDirection(self, direction):
         """Set the direction this button controls"""
         self.direction = direction
     
+    def mousePressEvent(self, event):
+        """Override mousePressEvent to emit button_pressed signal"""
+        logger.debug(f"Button {self.direction} pressed")
+        super().mousePressEvent(event)
+        
+        # Emit the button pressed signal with direction
+        if self.direction:
+            self.button_pressed.emit(self.direction)
+    
     def mouseReleaseEvent(self, event):
         """Override mouseReleaseEvent to emit button_released signal"""
-        # Call the base class implementation first
+        logger.debug(f"Button {self.direction} released")
         super().mouseReleaseEvent(event)
         
         # Emit the button released signal with direction
@@ -134,18 +148,15 @@ class ControlPanel(QGroupBox):
         
         self.setLayout(layout)
         
-        # Connect movement button press signals
-        self.btn_up.clicked.connect(
-            lambda: self.move_requested.emit('up', int(self.speed_spinbox.value())))
-        
-        self.btn_down.clicked.connect(
-            lambda: self.move_requested.emit('down', int(self.speed_spinbox.value())))
-        
-        self.btn_left.clicked.connect(
-            lambda: self.move_requested.emit('left', int(self.speed_spinbox.value())))
-        
-        self.btn_right.clicked.connect(
-            lambda: self.move_requested.emit('right', int(self.speed_spinbox.value())))
+        # Connect movement button events
+        self.btn_up.button_pressed.connect(
+            lambda: self.handle_direction_pressed('up'))
+        self.btn_down.button_pressed.connect(
+            lambda: self.handle_direction_pressed('down'))
+        self.btn_left.button_pressed.connect(
+            lambda: self.handle_direction_pressed('left'))
+        self.btn_right.button_pressed.connect(
+            lambda: self.handle_direction_pressed('right'))
         
         # Connect button release signals to stop movement
         self.btn_up.button_released.connect(self.on_direction_button_released)
@@ -154,15 +165,31 @@ class ControlPanel(QGroupBox):
         self.btn_right.button_released.connect(self.on_direction_button_released)
         
         # Connect stop button
-        self.btn_stop.clicked.connect(
-            lambda: self.move_requested.emit('stop', 0))
+        self.btn_stop.clicked.connect(self.handle_stop_clicked)
         
-        self.btn_set_home.clicked.connect(self.home_set_requested.emit)
+        self.btn_set_home.clicked.connect(self.handle_set_home_clicked)
         
         self.btn_go_abs.clicked.connect(self.go_to_absolute_position)
+    
+    def handle_direction_pressed(self, direction):
+        """Handle direction button press with logging"""
+        speed = int(self.speed_spinbox.value())
+        logger.debug(f"Direction {direction} pressed with speed {speed}")
+        self.move_requested.emit(direction, speed)
+    
+    def handle_stop_clicked(self):
+        """Handle stop button click with logging"""
+        logger.debug("Stop button clicked")
+        self.move_requested.emit('stop', 0)
+    
+    def handle_set_home_clicked(self):
+        """Handle set home button click with logging"""
+        logger.debug("Set home button clicked")
+        self.home_set_requested.emit()
         
     def on_direction_button_released(self, direction):
         """Handle direction button release by sending stop command"""
+        logger.debug(f"Sending stop command after {direction} button release")
         self.move_requested.emit('stop', 0)
     
     def go_to_absolute_position(self):

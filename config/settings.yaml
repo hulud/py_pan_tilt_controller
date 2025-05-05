@@ -37,7 +37,7 @@ logging:
     run_all.server_thread.zero_point: INFO
     run_all.server_thread.parser: WARNING
     run_all.client_thread: INFO
-    gui_client.api_client: INFO
+    gui_client.api_client: DEBUG
   
   # Pattern-based log level rules - applied if specific logger isn't found
   patterns:

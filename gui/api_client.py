@@ -41,8 +41,16 @@ class APIClient(QObject):
         self.last_error = None
         
         # Setup Socket.IO for real-time updates
-        self.sio = socketio.Client(reconnection=True, reconnection_attempts=5, 
-                                  reconnection_delay=1, reconnection_delay_max=5)
+        self.sio = socketio.Client(
+            reconnection=True, 
+            reconnection_attempts=5, 
+            reconnection_delay=1, 
+            reconnection_delay_max=5,
+            # Add the following options to improve compatibility
+            logger=logger,  # Use our configured logger
+            engineio_logger=False,  # Disable the engineio detailed logging
+            ssl_verify=False  # Disable SSL verification for localhost connections
+        )
         self.setup_socketio()
         
         # Setup polling as fallback mechanism
@@ -91,14 +99,29 @@ class APIClient(QObject):
         
         @self.sio.event
         def error(data):
-            logger.error(f"Socket.IO error: {data.get('message')}")
-            self.last_error = data.get('message')
+            error_message = data.get('message', str(data))
+            logger.error(f"Socket.IO error: {error_message}")
+            self.last_error = error_message
+            
+            # For better debugging, log the socket ID and any other connection details
+            try:
+                if hasattr(self.sio, 'sid'):
+                    logger.info(f"Socket.IO session ID: {self.sio.sid}")
+                if hasattr(self.sio, 'connection_url'):
+                    logger.info(f"Socket.IO connection URL: {self.sio.connection_url}")
+            except Exception as e:
+                logger.debug(f"Failed to log Socket.IO details: {e}")
     
     def _connect(self):
         """Connect to the API server"""
         try:
-            # Connect with short timeout to avoid blocking
-            self.sio.connect(self.server_url, wait=False)
+            # For Socket.IO, we need to ensure we're using the correct namespace
+            # The server_url might be 'http://127.0.0.1:8080'
+            # But Socket.IO should connect to 'http://127.0.0.1:8080/socket.io'
+            # Let python-socketio handle the proper endpoint construction
+            
+            # Use socketio_path parameter to handle the endpoint correctly
+            self.sio.connect(self.server_url, wait=False, socketio_path='socket.io')
         except Exception as e:
             logger.error(f"Failed to connect to API server: {e}")
             self.connected = False
@@ -189,6 +212,7 @@ class APIClient(QObject):
     def _send_move_request(self, direction, speed):
         """Send the actual movement request in a background thread"""
         try:
+            logger.debug(f"Sending move request: direction={direction}, speed={speed}")
             self.session.post(
                 f"{self.server_url}/api/device/move",
                 json={'direction': direction, 'speed': speed},

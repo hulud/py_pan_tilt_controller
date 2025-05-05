@@ -20,6 +20,7 @@ The GUI follows a client-server architecture:
 | `ControlPanel` | Widget providing camera movement controls |
 | `PositionDisplay` | Widget showing current camera position |
 | `SafetyLimitIndicator` | Visual indicator for safety limit warnings |
+| `DirectionButton` | Custom button class with press/release detection |
 
 ## User Interface Visualization
 
@@ -169,12 +170,32 @@ The `ControlPanel` class provides a widget with camera movement controls and set
 
 **Important Methods:**
 - `__init__()`: Initializes the control panel components
+- `handle_direction_pressed(direction)`: Handles button press to start movement
+- `on_direction_button_released(direction)`: Handles button release to stop movement
 - `go_to_absolute_position()`: Calls main window method to move to absolute position
-- `on_direction_button_released()`: Handles button release to stop movement
 
 **Signals:**
 - `move_requested(direction, speed)`: Emitted when movement button is pressed/released
 - `home_set_requested()`: Emitted when Set Home button is clicked
+
+### DirectionButton Class
+
+The `DirectionButton` class extends QPushButton with press and release event handling.
+
+**Key Features:**
+- Custom button that detects both press and release events
+- Emits separate signals for press and release
+- Provides direction information with signals
+- Includes debug logging for all button events
+
+**Important Methods:**
+- `setDirection(direction)`: Sets the button's direction (up, down, left, right)
+- `mousePressEvent(event)`: Handles mouse press and emits signal
+- `mouseReleaseEvent(event)`: Handles mouse release and emits signal
+
+**Signals:**
+- `button_pressed(direction)`: Emitted when button is pressed
+- `button_released(direction)`: Emitted when button is released
 
 ### position_display.py
 
@@ -222,13 +243,15 @@ Standard Python package initialization file that makes the directory a proper Py
 ## Workflow and Data Flow
 
 1. The `APIClient` establishes a connection to the PTZ server using WebSockets (Socket.IO)
-2. User interacts with the `ControlPanel` by clicking direction buttons or entering absolute positions
-3. Control signals are emitted to the `MainWindowAPI` which processes them
-4. `MainWindowAPI` performs safety checks before sending commands to the `APIClient`
-5. `APIClient` sends commands to the server via HTTP requests (in background threads)
-6. Server processes commands and sends position updates via WebSocket
-7. `APIClient` receives position updates and emits signals
-8. `MainWindowAPI` receives signals and updates the `PositionDisplay`
+2. User interacts with the `ControlPanel` by pressing and holding direction buttons
+3. `DirectionButton` detects press and release events
+4. Press event triggers movement in specified direction at configured speed
+5. Release event automatically triggers stop command
+6. `MainWindowAPI` performs safety checks before sending commands to the `APIClient`
+7. `APIClient` sends commands to the server via HTTP requests (in background threads)
+8. Server processes commands and sends position updates via WebSocket
+9. `APIClient` receives position updates and emits signals
+10. `MainWindowAPI` receives signals and updates the `PositionDisplay`
 
 ## Safety Features
 
@@ -238,7 +261,7 @@ The GUI implements several safety features:
 2. **Visual Indicators**: Color-coded indicators for proximity to safety limits
 3. **Emergency Stop**: Dedicated stop button for immediate halt
 4. **Limit Warnings**: Warning dialogs when attempting to exceed safety limits
-5. **Step Size Limitation**: Prevents excessively large movement steps
+5. **Automatic Stop**: Releasing direction buttons automatically stops movement
 
 ## Implementation Notes
 
@@ -265,6 +288,15 @@ The GUI provides real-time position updates through:
 
 1. Primary: WebSocket-based updates via Socket.IO
 2. Fallback: HTTP polling if WebSockets fail
+
+### Logging
+
+The GUI includes comprehensive debug logging:
+
+- Button press and release events
+- Movement commands with direction and speed
+- API request details
+- Connection status changes
 
 ## Usage Examples
 

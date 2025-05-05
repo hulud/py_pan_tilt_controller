@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 import threading
 import time
+import logging
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QMessageBox, QLabel, QStatusBar
 from PyQt5.QtCore import QTimer, pyqtSignal, Qt
 from PyQt5.QtGui import QColor
 from gui.position_display import PositionDisplay
 from gui.control_panel import ControlPanel
 from gui.api_client import APIClient
+
+logger = logging.getLogger(__name__)
 
 class MainWindowAPI(QMainWindow):
     """Main window for the Pan Tilt Camera Control application using API client"""
@@ -196,6 +199,8 @@ class MainWindowAPI(QMainWindow):
     
     def handle_movement(self, direction, speed):
         """Handle continuous movement requests from the control panel"""
+        logger.debug(f"Handle movement: direction={direction}, speed={speed}")
+        
         if direction == 'stop':
             self.stop_movement()
             return
@@ -232,6 +237,7 @@ class MainWindowAPI(QMainWindow):
 
     def stop_movement(self):
         """Stop all movement"""
+        logger.debug("Stopping all movement")
         self.api_client.move(direction='stop', speed=0)
         self.is_moving = False
         self.clear_movement_feedback()
