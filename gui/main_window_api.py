@@ -2,12 +2,13 @@
 import threading
 import time
 import logging
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QMessageBox, QLabel, QStatusBar
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QMessageBox, QLabel, QStatusBar, QPushButton
 from PyQt5.QtCore import QTimer, pyqtSignal, Qt
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QFont
 from gui.position_display import PositionDisplay
 from gui.control_panel import ControlPanel
 from gui.api_client import APIClient
+from gui.screen_utils import apply_scaled_font, get_screen_info
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,44 @@ class MainWindowAPI(QMainWindow):
     def init_ui(self):
         """Set up the user interface"""
         self.setWindowTitle('Pan Tilt Camera Control (API Client)')
-        self.setGeometry(100, 100, 600, 400)
+        
+        # Import here to avoid circular imports
+        from src.utils import load_config
+        
+        # Try to load GUI scaling settings from config
+        try:
+            config = load_config()
+            gui_config = config.get('client', {}).get('gui', {})
+            width_scale = float(gui_config.get('width_scale', 0.6))  # Default to 60% of screen width
+            height_scale = float(gui_config.get('height_scale', 0.7))  # Default to 70% of screen height
+            auto_scale = bool(gui_config.get('auto_scale', True))
+        except Exception as e:
+            # Fall back to defaults if configuration cannot be loaded
+            width_scale = 0.6
+            height_scale = 0.7
+            auto_scale = True
+            logger.warning(f"Could not load GUI scaling settings, using defaults: {e}")
+        
+        # Get screen dimensions and calculate appropriate window size
+        from PyQt5.QtWidgets import QDesktopWidget
+        desktop = QDesktopWidget()
+        screen_rect = desktop.availableGeometry()
+        screen_width, screen_height = screen_rect.width(), screen_rect.height()
+        
+        if auto_scale:
+            # Calculate window size based on scaling factors
+            window_width = int(screen_width * width_scale)
+            window_height = int(screen_height * height_scale)
+            
+            # Calculate position to center the window
+            position_x = int((screen_width - window_width) / 2)
+            position_y = int((screen_height - window_height) / 2)
+            
+            # Set window geometry
+            self.setGeometry(position_x, position_y, window_width, window_height)
+        else:
+            # Use fixed size if auto scaling is disabled
+            self.setGeometry(100, 100, 600, 400)
         
         # Main layout
         main_layout = QVBoxLayout()
@@ -58,6 +96,27 @@ class MainWindowAPI(QMainWindow):
         main_widget = QWidget()
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
+        
+        # Apply font scaling based on screen resolution
+        try:
+            # Load the GUI configuration
+            from src.utils import load_config
+            config = load_config()
+            gui_config = config.get('client', {}).get('gui', {})
+            
+            # Check if font scaling is enabled
+            font_scaling = gui_config.get('font_scaling', True)
+            base_font_size = gui_config.get('base_font_size', 10)
+            
+            if font_scaling:
+                # Get screen information
+                screen_info = get_screen_info()
+                
+                # Apply scaled fonts
+                self.apply_font_scaling(base_font_size)
+                logger.info(f"Applied font scaling for screen resolution: {screen_info['width']}x{screen_info['height']}px")
+        except Exception as e:
+            logger.warning(f"Could not apply font scaling: {e}")
         
         # Set up status bar with connection indicator
         self.statusBar = QStatusBar()
@@ -241,6 +300,28 @@ class MainWindowAPI(QMainWindow):
         self.api_client.move(direction='stop', speed=0)
         self.is_moving = False
         self.clear_movement_feedback()
+    
+    def apply_font_scaling(self, base_size=10):
+        """Apply font scaling to all widgets based on screen resolution"""
+        # Apply scaled font to main window
+        apply_scaled_font(self, base_size)
+        
+        # Apply scaled font to position display
+        apply_scaled_font(self.position_display, base_size)
+        
+        # Apply scaled font to control panel and its children
+        apply_scaled_font(self.control_panel, base_size)
+        
+        # Apply scaled font to all buttons in the control panel
+        for button in self.control_panel.findChildren(QPushButton):
+            apply_scaled_font(button, base_size)
+        
+        # Apply scaled font to all labels
+        for label in self.findChildren(QLabel):
+            apply_scaled_font(label, base_size)
+        
+        # Apply scaled font to status bar
+        apply_scaled_font(self.statusBar, base_size - 1)  # Slightly smaller font for status bar
     
     def closeEvent(self, event):
         """Handle window close event"""

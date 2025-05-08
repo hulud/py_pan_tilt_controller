@@ -45,6 +45,26 @@ def main():
     # Create Qt application
     app = QApplication(sys.argv)
     app.setApplicationName("PTZ Control")
+    
+    # Set application-wide scaling if needed (for high DPI screens)
+    # Check if any command line arguments include scaling options
+    scaling_factor = None
+    for arg in sys.argv:
+        if arg.startswith('--scale='):
+            try:
+                scaling_factor = float(arg.split('=')[1])
+                logger.info(f"Using command line scaling factor: {scaling_factor}")
+            except (IndexError, ValueError):
+                logger.warning(f"Invalid scaling factor: {arg}")
+    
+    if scaling_factor:
+        # Apply high DPI scaling
+        app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+        app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+        # Set custom scale factor if specified
+        from PyQt5.QtCore import Qt, QCoreApplication
+        QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+        QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
     # Create main window
     main_window = MainWindowAPI(api_url=server_url)

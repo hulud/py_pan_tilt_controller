@@ -21,6 +21,12 @@ api:
 client:
   host: 127.0.0.1
   port: 8080
+  gui:
+    width_scale: 0.6      # Percentage of screen width to use (0.0-1.0)
+    height_scale: 0.7     # Percentage of screen height to use (0.0-1.0)
+    auto_scale: true      # Whether to automatically scale the GUI
+    font_scaling: true    # Whether to scale fonts based on screen resolution
+    base_font_size: 10    # Base font size (will be scaled according to resolution)
 
 logging:
   root_level: INFO          # Default log level for unspecified loggers
