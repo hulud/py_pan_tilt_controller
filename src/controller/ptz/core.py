@@ -22,6 +22,9 @@ class PTZController:
     def __init__(self, connection_config: Dict[str, Any], address: int = 1) -> None:
         self.connection: ConnectionBase = self._create_connection(connection_config)
         self.protocol = PelcoDProtocol(address=address)
+        self._initialized = False
+        self._zero_pan_angle = 0.0
+        self._zero_tilt_angle = 0.0
 
         # --- tiny shims so we work with either protocol API name -----
         self._build_pan_query = (
@@ -42,8 +45,6 @@ class PTZController:
             self.connection.receive(size=64, timeout=0.1)
         except Exception:
             pass
-
-        self.set_home_position()
     # --------------------------------------------------------- private utils
     def _create_connection(self, cfg: Dict[str, Any]) -> ConnectionBase:
         port = cfg.get("port", "COM3")
@@ -136,31 +137,41 @@ class PTZController:
     def get_relative_position(self) -> Tuple[float, float, dict]:
         """
         Get the current pan and tilt position relative to the stored zero points.
+        
+        If the controller has not been initialized, returns absolute positions without offset correction.
 
         Returns:
-            rel_pan_ang  (float): pan angle in degrees minus zero_pan_angle
-            rel_tilt_ang (float): tilt angle in degrees minus zero_tilt_angle
+            rel_pan_ang  (float): pan angle in degrees (minus zero_pan_angle if initialized)
+            rel_tilt_ang (float): tilt angle in degrees (minus zero_tilt_angle if initialized)
             status       (dict): {
                 'pan_valid': bool,   # True if pan_angle != 0.0
-                'tilt_valid': bool   # True if tilt_angle != 0.0
+                'tilt_valid': bool,  # True if tilt_angle != 0.0
+                'initialized': bool  # Whether the controller has been initialized
             }
         """
         # 1) Query absolute angles
         pan_angle = self.query_pan_position()
         tilt_angle = self.query_tilt_position()
 
-        # 2) Load zero‐angle offsets (default to 0.0 if not set)
-        zero_pan_ang = self._zero_pan_angle
-        zero_tilt_ang = self._zero_tilt_angle
+        # 2) Only apply offset correction if initialized
+        if self._initialized:
+            # Load zero‐angle offsets
+            zero_pan_ang = self._zero_pan_angle
+            zero_tilt_ang = self._zero_tilt_angle
 
-        # 3) Compute relative angles
-        rel_pan_ang = pan_angle - zero_pan_ang
-        rel_tilt_ang = tilt_angle - zero_tilt_ang
+            # Compute relative angles
+            rel_pan_ang = pan_angle - zero_pan_ang
+            rel_tilt_ang = tilt_angle - zero_tilt_ang
+        else:
+            # When not initialized, use absolute positions directly
+            rel_pan_ang = pan_angle
+            rel_tilt_ang = tilt_angle
 
-        # 4) Build validity flags
+        # 3) Build validity flags
         status = {
             'pan_valid': pan_angle != 0.0,
             'tilt_valid': tilt_angle != 0.0,
+            'initialized': self._initialized
         }
 
         return rel_pan_ang, rel_tilt_ang, status
@@ -170,6 +181,7 @@ class PTZController:
         Initialize zero points:
           1) Save current absolute pan/tilt as software zero references
           2) Delegate to hardware zero-point routine
+          3) Mark the controller as initialized
         """
 
         try:
@@ -188,6 +200,8 @@ class PTZController:
 
         self._zero_pan_angle = pan_ang
         self._zero_tilt_angle = tilt_ang
+        self._initialized = True
+        log.info("Controller initialization complete")
 
 
 
@@ -258,7 +272,10 @@ class PTZController:
 
     def query_position(self):
         """
-        Query the current position.
+        Query the current absolute position.
+        This always returns the raw position values directly from the device,
+        regardless of initialization state.
+        
         Returns:
             Tuple of (pan_angle, tilt_angle) in degrees
         """

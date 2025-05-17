@@ -42,14 +42,12 @@ logging.basicConfig(
 
 
 def _background_init(controller: PTZController) -> None:
-    """Run the lengthy zero‑point initialisation without blocking Flask."""
-    logger.info("[BG] Running controller zero‑point routine …")
-    try:
-        controller.set_home_position()  # the public helper usually wraps _init_zero_points
-    except Exception as exc:
-        logger.error("Error during zero‑point routine: %s", exc, exc_info=True)
-    else:
-        logger.info("[BG] Zero‑point routine finished ✔")
+    """
+    Previously ran the zero-point initialization.
+    Now just logs that initialization is skipped as per requirements.
+    """
+    logger.info("[BG] Controller zero-point initialization is disabled")
+    # No initialization is performed - controller will run without offset correction
 
 
 def main() -> int:
